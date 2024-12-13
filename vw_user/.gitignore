@@ -39,3 +39,4 @@ bin/
 
 # private info file
 configs/config.yaml
+resources/[0-9]*/
