@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package user.v1.id;
+
+import "google/api/annotations.proto";
+
+option go_package = "user/api/user/v1/identity;v1id";
+service Captcha {
+    rpc GetImageCaptcha(GetImageCaptchaRequest) returns (GetImageCaptchaResp) {
+        option (google.api.http) = {
+            get: "/api/v1/captcha/graphic_captcha",
+        };
+    }
+    rpc GetCodeCaptcha(GetCodeCaptchaRequest) returns (GetCodeCaptchaResp) {
+        option (google.api.http) = {
+            get: "/api/v1/captcha/code_captcha",
+        };
+    }
+}
+message GetImageCaptchaRequest {
+}
+message GetImageCaptchaResp {
+    message CaptchaResult {
+        string id     = 1;
+        string b64log = 2;
+        string answer = 3;
+    }
+    int32 status_code            = 1;
+    string msg                   = 2;
+    CaptchaResult captcha_result = 3;
+}
+
+message GetCodeCaptchaRequest {
+    string email = 1;  // user email
+}
+message GetCodeCaptchaResp {
+    int32 status_code = 1;
+    string msg        = 2;
+    string code       = 3;
+}

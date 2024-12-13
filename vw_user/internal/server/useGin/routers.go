@@ -1,0 +1,5 @@
+package useGin
+
+func CollectRoutes() {
+
+}
