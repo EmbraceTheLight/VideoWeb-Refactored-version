@@ -5,47 +5,13 @@ import "google/api/annotations.proto";
 option go_package = "user/api/user/v1/info;v1info";
 
 service Userinfo {
-    rpc ModifyUsername(ModifyUsernameRequest) returns (ModifyUsernameResp) {
-        option (google.api.http) = {
-            put: "/api/v1/user/{user_id}/profile/username"
-            body: "*"
-        };
-    }
-    rpc GetUserDetail(GetUserDetailRequest) returns (GetUserDetailResp) {
-        option (google.api.http) = {
-            get: "/api/v1/user/{user_id}/profile/user_detail"
-        };
-    }
-    rpc ModifyEmail(ModifyEmailRequest) returns (ModifyEmailResp) {
-        option (google.api.http) = {
-            put: "/api/v1/user/{user_id}/profile/email"
-            body: "*"
-        };
-    }
-    rpc ModifySignature(ModifySignatureRequest) returns (ModifySignatureResp) {
-        option (google.api.http) = {
-            put: "/api/v1/user/{user_id}/profile/signature"
-            body: "*"
-        };
-    }
-    rpc UploadAvatar(UploadAvatarRequest) returns (UploadAvatarResp) {
-        option (google.api.http) = {
-            put: "/api/v1/user/{user_id}/profile/avatar"
-            body: "*"
-        };
-    }
-    rpc ModifyPassword(ModifyPasswordRequest) returns (ModifyPasswordResp) {
-        option (google.api.http) = {
-            put: "/api/v1/user/{user_id}/profile/password/modify"
-            body: "*"
-        };
-    }
-    rpc ForgetPassword(ForgetPasswordRequest) returns (ForgetPasswordResp) {
-        option (google.api.http) = {
-            put: "/api/v1/user/{user_id}/profile/password/forget"
-            body: "*"
-        };
-    }
+    rpc ModifyUsername(ModifyUsernameRequest) returns (ModifyUsernameResp) {}
+    rpc GetUserDetail(GetUserDetailRequest) returns (GetUserDetailResp) {}
+    rpc ModifyEmail(ModifyEmailRequest) returns (ModifyEmailResp) {}
+    rpc ModifySignature(ModifySignatureRequest) returns (ModifySignatureResp) {}
+    rpc UploadAvatar(UploadAvatarRequest) returns (UploadAvatarResp) {}
+    rpc ModifyPassword(ModifyPasswordRequest) returns (ModifyPasswordResp) {}
+    rpc ForgetPassword(ForgetPasswordRequest) returns (ForgetPasswordResp) {}
 }
 message BaseResp {
     int32 status_code = 1;

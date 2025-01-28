@@ -31,7 +31,7 @@ const (
 	AccessTokenHeader  = "Authorization"
 	RefreshTokenHeader = "Refresh-Token"
 
-	// TokenIssuer default token issuer
+	// TokenIssuer is the default token issuer
 	TokenIssuer = "ZEY_HUNTER_ETL"
 )
 
