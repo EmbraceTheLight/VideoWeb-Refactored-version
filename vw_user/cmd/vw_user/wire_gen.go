@@ -42,9 +42,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, email 
 	userInfoUsecase := biz.NewUserInfoUsecase(userInfoRepo, jwtAuth, captchaEmail, logger)
 	userInfoService := service.NewUserInfoService(userInfoUsecase, logger)
 	grpcServer := server.NewGRPCServer(confServer, userIdentityService, userInfoService, logger)
-	httpServer := server.NewHTTPServer(confServer, userIdentityService, userInfoService, jwt, logger)
 	registrar := server.NewRegistrar(registry)
-	app := newApp(logger, grpcServer, httpServer, registrar)
+	app := newApp(logger, grpcServer, registrar)
 	return app, func() {
 		cleanup()
 	}, nil

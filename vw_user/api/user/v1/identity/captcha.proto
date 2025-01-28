@@ -6,16 +6,8 @@ import "google/api/annotations.proto";
 
 option go_package = "user/api/user/v1/identity;v1id";
 service Captcha {
-    rpc GetImageCaptcha(GetImageCaptchaRequest) returns (GetImageCaptchaResp) {
-        option (google.api.http) = {
-            get: "/api/v1/captcha/graphic_captcha",
-        };
-    }
-    rpc GetCodeCaptcha(GetCodeCaptchaRequest) returns (GetCodeCaptchaResp) {
-        option (google.api.http) = {
-            get: "/api/v1/captcha/code_captcha",
-        };
-    }
+    rpc GetImageCaptcha(GetImageCaptchaRequest) returns (GetImageCaptchaResp) {}
+    rpc GetCodeCaptcha(GetCodeCaptchaRequest) returns (GetCodeCaptchaResp) {}
 }
 message GetImageCaptchaRequest {
 }
