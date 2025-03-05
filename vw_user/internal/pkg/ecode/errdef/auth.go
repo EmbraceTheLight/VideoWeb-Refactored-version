@@ -12,6 +12,8 @@ func init() {
 	ErrRefreshTokenExpired = kerr.New(ecode.AUTH_RefreshTokenExpired, "refresh token已过期", "refresh token已过期,请重新登录")
 	ErrParseTokenFailed = kerr.New(ecode.AUTH_ParseTokenFailed, "解析token失败", "服务器内部错误,请稍后再试")
 	ErrCreateTokenFailed = kerr.New(ecode.AUTH_CreateTokenFailed, "创建token失败", "服务器内部错误,请稍后再试")
+	ErrCacheAccessToken = kerr.New(ecode.AUTH_CacheAccessTokenFailed, "缓存access token失败", "服务器内部错误,请稍后再试")
+
 }
 
 var (
@@ -21,4 +23,5 @@ var (
 	ErrRefreshTokenExpired error
 	ErrParseTokenFailed    error
 	ErrCreateTokenFailed   error
+	ErrCacheAccessToken    error
 )

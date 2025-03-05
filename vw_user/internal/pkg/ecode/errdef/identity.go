@@ -13,6 +13,7 @@ func init() {
 		ErrUserNotFound = kerr.New(ecode.IDENTITY_UserNotFound, "用户不存在", "用户不存在")
 		ErrUserPasswordError = kerr.New(ecode.IDENTITY_UserPasswordError, "用户密码错误", "密码错误")
 	}
+
 	// Register errors
 	{
 		ErrUserAlreadyExist = kerr.New(ecode.IDENTITY_UserAlreadyExist, "用户名已存在", "该用户名已存在")
@@ -23,8 +24,15 @@ func init() {
 		ErrVerifyCodeNotMatch = kerr.New(ecode.IDENTITY_VerifyCodeNotMatch, "验证码错误", "验证码错误,请重新输入验证码")
 		ErrEncryptPasswordFailed = kerr.New(ecode.IDENTITY_EncryptPasswordFailed, "用户密码加密失败", "服务器内部错误,请稍后重试")
 		ErrCreateUserDirFailed = kerr.New(ecode.IDENTITY_CreateUserDirFailed, "创建用户目录失败", "服务器内部错误,请稍后重试")
+		ErrCreateUserAvatarFailed = kerr.New(ecode.IDENTITY_CreateUserAvatarFailed, "创建用户头像文件失败", "服务器内部错误,请稍后重试")
 		ErrReadAvatarFailed = kerr.New(ecode.IDENTITY_ReadAvatarFailed, "读取用户头像失败", "服务器内部错误,请稍后重试")
 		ErrSaveAvatarFailed = kerr.New(ecode.IDENTITY_SaveAvatarFailed, "保存用户头像失败", "服务器内部错误,请稍后重试")
+		ErrCreateUserRecordsFailed = kerr.New(ecode.IDENTITY_ErrCreateUserRecordsFailed, "创建用户记录失败", "服务器内部错误,请稍后重试")
+	}
+
+	// Logout errors
+	{
+		ErrLogoutFailed = kerr.New(ecode.IDENTITY_ErrLogoutFailed, "退出登录失败", "退出登录失败")
 	}
 }
 
@@ -36,14 +44,19 @@ var (
 	ErrUserPasswordError error
 
 	// Register errors
-	ErrUserAlreadyExist      error
-	ErrPasswordTooShort      error
-	ErrPasswordNotMatch      error
-	ErrSignatureTooLong      error
-	ErrVerifyCodeExpired     error
-	ErrVerifyCodeNotMatch    error
-	ErrEncryptPasswordFailed error
-	ErrCreateUserDirFailed   error
-	ErrReadAvatarFailed      error
-	ErrSaveAvatarFailed      error
+	ErrUserAlreadyExist        error
+	ErrPasswordTooShort        error
+	ErrPasswordNotMatch        error
+	ErrSignatureTooLong        error
+	ErrVerifyCodeExpired       error
+	ErrVerifyCodeNotMatch      error
+	ErrEncryptPasswordFailed   error
+	ErrCreateUserDirFailed     error
+	ErrCreateUserAvatarFailed  error
+	ErrReadAvatarFailed        error
+	ErrSaveAvatarFailed        error
+	ErrCreateUserRecordsFailed error
+
+	// Logout errors
+	ErrLogoutFailed error
 )

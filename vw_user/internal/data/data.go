@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/mysql"
@@ -17,23 +17,36 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewMySQL, NewRedis, NewMongo, NewUserRepo, NewUserInfoRepo)
+var ProviderSet = wire.NewSet(
+	NewData,
+	NewMySQL,
+	NewRedisClusterClient,
+	NewMongo,
+	NewUserRepo,
+	NewUserInfoRepo,
+	NewCaptRepo,
+	NewFileRepo,
+)
 
 // Data .
 type Data struct {
 	mysql *gorm.DB
-	redis *redis.Client
+	redis *redis.ClusterClient
 	mongo *mongo.Client
 }
 
 // NewData .
-func NewData(mysql *gorm.DB, redis *redis.Client, mongo *mongo.Client, logger log.Logger) (*Data, func(), error) {
+func NewData(
+	mysql *gorm.DB,
+	redisCluster *redis.ClusterClient,
+	mongo *mongo.Client,
+	logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
 	}
 	return &Data{
 		mysql: mysql,
-		redis: redis,
+		redis: redisCluster,
 		mongo: mongo,
 	}, cleanup, nil
 }
@@ -57,23 +70,31 @@ func NewMySQL(c *conf.Data) *gorm.DB {
 	return db
 }
 
-func NewRedis(c *conf.Data) *redis.Client {
-	rdb := redis.NewClient(
-		&redis.Options{
-			Addr:         c.Redis.Host + ":" + c.Redis.Port,
-			Password:     c.Redis.Password,
-			DB:           int(c.Redis.Db),
-			DialTimeout:  c.Redis.DialTimeout.AsDuration(),
-			ReadTimeout:  c.Redis.ReadTimeout.AsDuration(),
-			WriteTimeout: c.Redis.WriteTimeout.AsDuration(),
-		})
-	_, err := rdb.Ping(context.Background()).Result()
+func NewRedisClusterClient(c *conf.Data) *redis.ClusterClient {
+	var address []string
+	ipAddress := c.RedisCluster.Host
+	for _, port := range c.RedisCluster.Port {
+		address = append(address, fmt.Sprintf("%s:%s", ipAddress, port))
+	}
+	redisCluster := redis.NewClusterClient(&redis.ClusterOptions{
+		Addrs:        address,
+		Password:     c.RedisCluster.Password,
+		PoolSize:     int(c.RedisCluster.PoolSize),
+		MinIdleConns: int(c.RedisCluster.MinIdleConns),
+		MaxRetries:   int(c.RedisCluster.MaxRetries),
+		DialTimeout:  c.RedisCluster.DialTimeout.AsDuration(),
+		ReadTimeout:  c.RedisCluster.ReadTimeout.AsDuration(),
+		WriteTimeout: c.RedisCluster.WriteTimeout.AsDuration(),
+		PoolTimeout:  c.RedisCluster.PoolTimeout.AsDuration(),
+	})
+	err := redisCluster.ForEachShard(context.Background(), func(ctx context.Context, shard *redis.Client) error {
+		return shard.Ping(ctx).Err()
+	})
 	if err != nil {
 		panic(err)
 	}
-	return rdb
+	return redisCluster
 }
-
 func NewMongo(c *conf.Data) *mongo.Client {
 	ctx, cancel := context.WithTimeout(utilCtx.NewBaseContext(), time.Duration(c.Mongo.ConnTimeout.Seconds)*time.Second)
 	defer cancel()

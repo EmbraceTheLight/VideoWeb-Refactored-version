@@ -6,11 +6,11 @@
 package main
 
 import (
-	"vw_user/internal/biz"
-	"vw_user/internal/conf"
-	"vw_user/internal/data"
-	"vw_user/internal/server"
-	"vw_user/internal/service"
+	"vw_gateway/internal/biz"
+	"vw_gateway/internal/conf"
+	"vw_gateway/internal/data"
+	"vw_gateway/internal/server"
+	"vw_gateway/internal/service"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
@@ -18,6 +18,6 @@ import (
 )
 
 // wireApp init kratos application.
-func wireApp(*conf.Server, *conf.Data, *conf.Registry, log.Logger) (*kratos.App, func(), error) {
+func wireApp(*conf.Server, *conf.Registry, log.Logger) (*kratos.App, func(), error) {
 	panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
 }
