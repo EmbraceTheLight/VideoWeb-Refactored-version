@@ -7,13 +7,15 @@
 package main
 
 import (
-	"video_web/internal/biz"
-	"video_web/internal/conf"
-	"video_web/internal/data"
-	"video_web/internal/server"
-	"video_web/internal/service"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
+	"vw_gateway/internal/biz"
+	"vw_gateway/internal/conf"
+	"vw_gateway/internal/data"
+	"vw_gateway/internal/pkg/captcha"
+	"vw_gateway/internal/pkg/middlewares/auth"
+	"vw_gateway/internal/server"
+	"vw_gateway/internal/service"
 )
 
 import (
@@ -23,17 +25,32 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
-	dataData, cleanup, err := data.NewData(confData, logger)
+func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Registry, jwt *conf.JWT, email *conf.Email, trace *conf.Trace, confService *conf.Service, logger log.Logger) (*kratos.App, func(), error) {
+	grpcServer := server.NewGRPCServer(confServer, logger)
+	discovery := data.NewDiscovery(registry)
+	identityClient := data.NewUserIdentityClient(discovery, confService)
+	userinfoClient := data.NewUserinfoClient(discovery, confService)
+	captchaClient := data.NewCaptchaClient(discovery, confService)
+	fileServiceClient := data.NewFileClient(discovery, confService)
+	clusterClient := data.NewRedisClusterClient(confData)
+	dataData, cleanup, err := data.NewData(logger, identityClient, userinfoClient, captchaClient, fileServiceClient, clusterClient)
 	if err != nil {
 		return nil, nil, err
 	}
-	greeterRepo := data.NewGreeterRepo(dataData, logger)
-	greeterUsecase := biz.NewGreeterUsecase(greeterRepo, logger)
-	greeterService := service.NewGreeterService(greeterUsecase)
-	grpcServer := server.NewGRPCServer(confServer, greeterService, logger)
-	httpServer := server.NewHTTPServer(confServer, greeterService, logger)
-	app := newApp(logger, grpcServer, httpServer)
+	captchaRepo := data.NewCaptchaRepo(logger, dataData)
+	captchaEmail := captcha.NewEmail(email, logger)
+	captchaUsecase := biz.NewCaptchaUsecase(logger, captchaRepo, captchaEmail)
+	captchaService := service.NewCaptchaService(logger, captchaUsecase)
+	userFileRepo := data.NewUserFileRepo(dataData, logger)
+	userFileUsecase := biz.NewUserFileUsecase(userFileRepo, logger)
+	userFileService := service.NewUserFileService(userFileUsecase, logger)
+	userIdentityRepo := data.NewUserIdentityRepo(dataData, logger)
+	jwtAuth := auth.NewJWTAuth(jwt, clusterClient)
+	userIdentityUsecase := biz.NewUserIdentityUsecase(userIdentityRepo, jwtAuth, logger)
+	userIdentityService := service.NewUserIdentityService(userIdentityUsecase, logger)
+	httpServer := server.NewHTTPServer(confServer, jwt, captchaService, userFileService, userIdentityService, clusterClient, logger)
+	registrar := data.NewRegistrar(registry)
+	app := newApp(logger, grpcServer, httpServer, registrar)
 	return app, func() {
 		cleanup()
 	}, nil

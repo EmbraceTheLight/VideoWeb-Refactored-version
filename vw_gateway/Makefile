@@ -55,6 +55,11 @@ generate:
 	go generate ./...
 	go mod tidy
 
+.PHONY: wire
+# wire
+wire:
+	cd ./cmd/vw_gateway && wire
+
 .PHONY: all
 # generate all
 all:

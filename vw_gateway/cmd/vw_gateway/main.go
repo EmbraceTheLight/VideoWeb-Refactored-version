@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/go-kratos/kratos/v2/registry"
 	"os"
+	"util/monitor"
 
 	"vw_gateway/internal/conf"
 
@@ -21,13 +22,13 @@ import (
 // go build -ldflags "-X main.Version=x.y.z"
 var (
 	// Name is the name of the compiled software.
-	Name string
+	Name string = "vw_gateway"
 	// Version is the version of the compiled software.
-	Version string
+	Version string = "vw_gateway.v1"
 	// flagconf is the config flag.
 	flagconf string
 
-	id, _ = os.Hostname()
+	id = "vw_gateway"
 )
 
 func init() {
@@ -76,7 +77,12 @@ func main() {
 		panic(err)
 	}
 
-	app, cleanup, err := wireApp(bc.Server, bc.Registry, logger)
+	// 配置jaeger链路追踪服务
+	if err := monitor.SetTracerProvider(bc.Trace.Endpoint, Name); err != nil {
+		panic(err)
+	}
+
+	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Registry, bc.Jwt, bc.Email, bc.Trace, bc.Service, logger)
 	if err != nil {
 		panic(err)
 	}

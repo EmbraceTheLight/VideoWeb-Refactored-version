@@ -25,7 +25,7 @@ import (
 // go build -ldflags "-X main.Version=x.y.z"
 var (
 	// Name is the name of the compiled software.
-	Name string = "vw_video"
+	Name string = "video_web.vw_video"
 	// Version is the version of the compiled software.
 	Version string
 	// flagconf is the config flag.
@@ -35,7 +35,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
+	flag.StringVar(&flagconf, "conf", "../../configs/config.yaml", "config path, eg: -conf config.yaml")
 }
 
 func newApp(logger log.Logger, gs *grpc.Server, consulRegistrar registry.Registrar) *kratos.App {

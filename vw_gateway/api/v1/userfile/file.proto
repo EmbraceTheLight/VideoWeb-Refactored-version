@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package gateway.v1.file;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "vw_gateway/api/v1/userfile;filev1";
+
+service FileService {
+    rpc UploadAvatar(google.protobuf.Empty) returns (UploadAvatarResp) {
+        option (google.api.http) = {
+            post: "/v1/userfile/file/upload"
+            body: "*"
+        };
+    }
+}
+
+message UploadAvatarResp {
+    string file_path = 1;
+}

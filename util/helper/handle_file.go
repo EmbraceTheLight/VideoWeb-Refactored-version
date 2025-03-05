@@ -1,10 +1,10 @@
 package helper
 
 import (
-	"github.com/go-kratos/kratos/v2/transport/http"
 	"io"
 	"io/fs"
 	"mime/multipart"
+	"net/http"
 	"os"
 )
 
@@ -29,15 +29,15 @@ func FormFile(req *http.Request, name string) (*multipart.FileHeader, error) {
 		}
 	}
 	f, fh, err := req.FormFile(name)
+	defer f.Close()
 	if err != nil {
 		return nil, err
 	}
-	_ = f.Close()
 	return fh, nil
 }
 
-// ReadFileContent read the content of file
-func ReadFileContent(filename string) ([]byte, error) {
+// ReadFileContentFromFile read the content of local file
+func ReadFileContentFromFile(filename string) ([]byte, error) {
 	f, err := os.Open(filename)
 	defer f.Close()
 	if err != nil {
@@ -50,13 +50,24 @@ func ReadFileContent(filename string) ([]byte, error) {
 	return ret, nil
 }
 
-// WriteToNewFile write the content of src to a new file at dst
-func WriteToNewFile(src *multipart.FileHeader, dst string) error {
-	srcFile, err := src.Open()
-	defer srcFile.Close()
+// ReadFileContentFromFileHeader read the content of file header
+func ReadFileContentFromFileHeader(file *multipart.FileHeader, fileContent *[]byte) error {
+	f, err := file.Open()
 	if err != nil {
 		return err
 	}
+	_, err = f.Read(*fileContent)
+	if err != nil {
+		return err
+
+	}
+	return nil
+}
+
+// WriteToNewFile write the content of src to a new file at dst
+func WriteToNewFile(dst string, src string) error {
+	srcFile, err := os.Open(src)
+	defer srcFile.Close()
 
 	dstFile, err := os.Create(dst)
 	defer dstFile.Close()

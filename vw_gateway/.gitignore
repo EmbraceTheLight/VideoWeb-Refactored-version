@@ -36,3 +36,6 @@ bin/
 .vscode/
 .idea/
 *.swp
+
+# private info file
+configs/config.yaml
