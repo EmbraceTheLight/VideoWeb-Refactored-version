@@ -1,4 +1,4 @@
-package captcha
+package captcha_test
 
 import (
 	"context"
@@ -7,20 +7,21 @@ import (
 	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
-	"vw_user/internal/conf"
+	"vw_gateway/internal/conf"
+	"vw_gateway/internal/pkg/captcha"
 )
 
 func TestImageCaptcha(t *testing.T) {
-	id, b64s, ans, err := GenerateGraphicCaptcha()
+	id, b64s, ans, err := captcha.GenerateGraphicCaptcha()
 	require.NoError(t, err)
 	spew.Dump(id, b64s, ans)
 }
 
 func TestCodeCaptcha(t *testing.T) {
 	c := &conf.Email{
-		SmtpHost:       "smtp.qq.com",
-		SmtpPort:       465,
-		SmtpUsername:   "1010642166@qq.com",
+		SmtpHost:       "<host> e.g. smtp.qq.com",
+		SmtpPort:       <Port>,
+		SmtpUsername:   "<Email>",
 		SmtpPassword:   "<PASSWORD>",
 		SmtpServername: "smtp.qq.com",
 	}
@@ -28,7 +29,7 @@ func TestCodeCaptcha(t *testing.T) {
 		"ts", log.DefaultTimestamp,
 		"caller", log.DefaultCaller,
 	)
-	e := NewEmail(c, logger)
+	e := captcha.NewEmail(c, logger)
 	err := e.SendCode(context.Background(), "10eltzey10@gmail.com", e.CreateVerificationCode())
 	require.NoError(t, err)
 }

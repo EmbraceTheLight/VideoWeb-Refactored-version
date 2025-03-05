@@ -36,16 +36,6 @@ data:
     password: <your mongo_password>
     max_open_conns: 100
     conn_timeout: 1s
-jwt:
-  secret: <your jwt_secret>
-  access_token_expiration: 2                    #2 hours
-  refresh_token_expiration: 15                  #15 days
-email:
-  smtp_host: smtp.qq.com
-  smtp_port: 465
-  smtp_username: <your E-mail>
-  smtp_password: <your E-mail authorization code>
-  smtp_servername: smtp.qq.com
 registry:
   consul:
     address: 127.0.0.1:8500
