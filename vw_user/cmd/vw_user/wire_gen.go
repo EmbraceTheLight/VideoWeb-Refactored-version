@@ -12,8 +12,6 @@ import (
 	"vw_user/internal/biz"
 	"vw_user/internal/conf"
 	"vw_user/internal/data"
-	"vw_user/internal/pkg/captcha"
-	"vw_user/internal/pkg/middlewares/auth"
 	"vw_user/internal/server"
 	"vw_user/internal/service"
 )
@@ -25,23 +23,26 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, email *conf.Email, registry *conf.Registry, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Registry, logger log.Logger) (*kratos.App, func(), error) {
 	db := data.NewMySQL(confData)
-	client := data.NewRedis(confData)
-	mongoClient := data.NewMongo(confData)
-	dataData, cleanup, err := data.NewData(db, client, mongoClient, logger)
+	clusterClient := data.NewRedisClusterClient(confData)
+	client := data.NewMongo(confData)
+	dataData, cleanup, err := data.NewData(db, clusterClient, client, logger)
 	if err != nil {
 		return nil, nil, err
 	}
 	userIdentityRepo := data.NewUserRepo(dataData, logger)
 	userInfoRepo := data.NewUserInfoRepo(dataData, logger)
-	jwtAuth := auth.NewJWTAuth(jwt)
-	captchaEmail := captcha.NewEmail(email, logger)
-	userIdentityUsecase := biz.NewUserIdentityUsecase(userIdentityRepo, userInfoRepo, jwtAuth, captchaEmail, logger)
+	userIdentityUsecase := biz.NewUserIdentityUsecase(userIdentityRepo, userInfoRepo, logger)
 	userIdentityService := service.NewUserIdentityService(userIdentityUsecase, logger)
-	userInfoUsecase := biz.NewUserInfoUsecase(userInfoRepo, jwtAuth, captchaEmail, logger)
+	userInfoUsecase := biz.NewUserInfoUsecase(userInfoRepo, logger)
 	userInfoService := service.NewUserInfoService(userInfoUsecase, logger)
-	grpcServer := server.NewGRPCServer(confServer, userIdentityService, userInfoService, logger)
+	captchaRepo := data.NewCaptRepo(dataData, logger)
+	captchaUsecase := biz.NewCaptchaUsecase(logger, captchaRepo)
+	captchaService := service.NewCaptchaService(logger, captchaUsecase)
+	fileUsecase := biz.NewFileUsecase(logger)
+	fileService := service.NewFileService(logger, fileUsecase)
+	grpcServer := server.NewGRPCServer(confServer, userIdentityService, userInfoService, captchaService, fileService, logger)
 	registrar := server.NewRegistrar(registry)
 	app := newApp(logger, grpcServer, registrar)
 	return app, func() {
