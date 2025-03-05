@@ -15,11 +15,8 @@ const (
 	IDENTITY_VerifyCodeNotMatch
 	IDENTITY_EncryptPasswordFailed
 	IDENTITY_CreateUserDirFailed
-	IDENTITY_CreateUserAvatarFailed
 	IDENTITY_ReadAvatarFailed
 	IDENTITY_SaveAvatarFailed
-	IDENTITY_ErrLogoutFailed
-	IDENTITY_ErrCreateUserRecordsFailed
 
 	// auth errors
 	AUTH_TokenMissing
@@ -28,7 +25,6 @@ const (
 	AUTH_RefreshTokenExpired
 	AUTH_ParseTokenFailed
 	AUTH_CreateTokenFailed
-	AUTH_CacheAccessTokenFailed
 )
 
 var ()

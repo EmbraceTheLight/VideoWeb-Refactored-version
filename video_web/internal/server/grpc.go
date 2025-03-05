@@ -1,12 +1,9 @@
 package server
 
 import (
-	"github.com/go-kratos/kratos/v2/middleware/logging"
-	"github.com/go-kratos/kratos/v2/middleware/tracing"
-	v1id "vw_user/api/user/v1/identity"
-	v1info "vw_user/api/user/v1/userinfo"
-	"vw_user/internal/conf"
-	"vw_user/internal/service"
+	v1 "video_web/api/helloworld/v1"
+	"video_web/internal/conf"
+	"video_web/internal/service"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -14,12 +11,10 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, identity *service.UserIdentityService, info *service.UserInfoService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
-			tracing.Server(),
-			logging.Server(logger),
 		),
 	}
 	if c.Grpc.Network != "" {
@@ -32,8 +27,6 @@ func NewGRPCServer(c *conf.Server, identity *service.UserIdentityService, info *
 		opts = append(opts, grpc.Timeout(c.Grpc.Timeout.AsDuration()))
 	}
 	srv := grpc.NewServer(opts...)
-	v1id.RegisterIdentityServer(srv, identity)
-	v1id.RegisterCaptchaServer(srv, identity)
-	v1info.RegisterUserinfoServer(srv, info)
+	v1.RegisterGreeterServer(srv, greeter)
 	return srv
 }
