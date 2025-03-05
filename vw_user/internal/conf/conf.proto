@@ -8,8 +8,9 @@ import "google/protobuf/duration.proto";
 message Bootstrap {
     Server server     = 1;
     Data data         = 2;
-    Trace trace       = 3;
-    Registry registry = 4;
+    JWT jwt           = 3;
+    Email email       = 4;
+    Registry registry = 5;
 }
 
 message Server {
@@ -38,17 +39,14 @@ message Data {
         int32 max_open  = 7;
         int32 log_level = 8;
     }
-    message RedisCluster {
+    message Redis {
         string host                            = 1;
-        repeated string port                   = 2;
+        string port                            = 2;
         string password                        = 3;
-        google.protobuf.Duration dial_timeout  = 4;
-        google.protobuf.Duration read_timeout  = 5;
-        google.protobuf.Duration write_timeout = 6;
-        google.protobuf.Duration pool_timeout  = 7;
-        int32 pool_size                        = 8;
-        int32 max_retries                      = 9;
-        int32 min_idle_conns                   = 10;
+        int32 db                               = 4;
+        google.protobuf.Duration dial_timeout  = 5;
+        google.protobuf.Duration read_timeout  = 6;
+        google.protobuf.Duration write_timeout = 7;
     }
     message Mongo {
         string host                           = 1;
@@ -58,15 +56,23 @@ message Data {
         int32 max_open                        = 5;
         google.protobuf.Duration conn_timeout = 6;
     }
-    Mysql mysql                = 1;
-    RedisCluster redis_cluster = 2;
-    Mongo mongo                = 3;
+    Mysql mysql = 1;
+    Redis redis = 2;
+    Mongo mongo = 3;
 }
 
-message Trace {
-    string endpoint = 1;
+message JWT {
+    string secret                  = 1;
+    int64 access_token_expiration  = 2;
+    int64 refresh_token_expiration = 3;
 }
-
+message Email {
+    string smtp_host       = 1;
+    int32 smtp_port        = 2;
+    string smtp_username   = 3;
+    string smtp_password   = 4;
+    string smtp_servername = 5;
+}
 message Registry {
     message Consul {
         string address = 1;
