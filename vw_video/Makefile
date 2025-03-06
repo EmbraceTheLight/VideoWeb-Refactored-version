@@ -56,6 +56,12 @@ generate:
 	go mod tidy
 
 .PHONY: errors
+
+.PHONY: wire
+# wire
+wire:
+	cd ./cmd/vw_video && wire
+
 # generate errors
 errors:
 	protoc --proto_path=. \

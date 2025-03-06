@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/go-kratos/kratos/v2/registry"
 	"os"
+	"util/monitor"
 
 	"vw_user/internal/conf"
 
@@ -19,13 +20,13 @@ import (
 // go build -ldflags "-X main.Version=x.y.z"
 var (
 	// Name is the name of the compiled software.
-	Name string = "vw_user"
+	Name string = "videoweb.user.service"
 	// Version is the version of the compiled software.
-	Version string
+	Version string = "videoweb.user.service.v1"
 	// flagconf is the config flag.
 	flagconf string
 
-	id, _ = os.Hostname()
+	id = "vw_user"
 )
 
 func init() {
@@ -73,7 +74,11 @@ func main() {
 		panic(err)
 	}
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Jwt, bc.Email, bc.Registry, logger)
+	if err := monitor.SetTracerProvider(bc.Trace.Endpoint, Name); err != nil {
+		panic(err)
+	}
+
+	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Registry, logger)
 	if err != nil {
 		panic(err)
 	}

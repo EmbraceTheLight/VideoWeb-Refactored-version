@@ -1,0 +1,110 @@
+syntax = "proto3";
+package user.v1.info;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "user/api/user/v1/info;v1info";
+
+service Userinfo {
+    // userinfo
+    rpc GetUserSummaryInfoByUsername(GetUserSummaryInfoByUsernameReq) returns (GetUserSummaryInfoByUsernameResp) {}
+    rpc ModifyUsername(ModifyUsernameRequest) returns (ModifyUsernameResp) {}
+    rpc GetUserDetail(GetUserDetailRequest) returns (GetUserDetailResp) {}
+    rpc ModifyEmail(ModifyEmailRequest) returns (ModifyEmailResp) {}
+    rpc ModifySignature(ModifySignatureRequest) returns (ModifySignatureResp) {}
+    rpc UploadAvatar(UploadAvatarRequest) returns (UploadAvatarResp) {}
+    rpc ModifyPassword(ModifyPasswordRequest) returns (ModifyPasswordResp) {}
+    rpc ForgetPassword(ForgetPasswordRequest) returns (ForgetPasswordResp) {}
+}
+
+message GetUserSummaryInfoByUsernameReq {
+    string username = 1;
+}
+message GetUserSummaryInfoByUsernameResp {
+    int64 user_id                      = 1;
+    string username                    = 2;
+    string password                    = 3;
+    string email                       = 4;
+    int32 gender                       = 5;
+    string signature                   = 6;
+    string avatar_path                 = 7;
+    google.protobuf.Timestamp Birthday = 8;
+    bool is_admin                      = 9;
+}
+
+message BaseResp {
+    int32 status_code = 1;
+    string msg        = 2;
+}
+message ModifyUsernameRequest {
+    int64 user_id   = 1;
+    string username = 2;
+}
+message ModifyUsernameResp {
+    BaseResp resp = 1;
+}
+message GetUserDetailRequest {
+    int64 user_id = 1;
+}
+message GetUserDetailResp {
+    message UserDetail {
+        int64 user_id      = 1;
+        string username    = 2;
+        string email       = 3;
+        string signature   = 4;
+        string avatar_path = 5;
+        int64 cnt_likes    = 6;
+        int64 cnt_follows  = 7;
+        int64 cnt_fans     = 8;
+    }
+    message UserLevel {
+        uint32 next_level_exp = 1;
+        uint32 exp            = 2;
+        uint32 level          = 3;
+    }
+    BaseResp resp          = 1;
+    UserDetail user_detail = 2;
+    UserLevel user_level   = 3;
+}
+
+message ModifyEmailRequest {
+    int64 user_id = 1;
+    string email  = 2;
+    string code   = 3;  // verification code
+}
+message ModifyEmailResp {
+    BaseResp resp = 1;
+}
+message ModifySignatureRequest {
+    int64 user_id        = 1;
+    string new_signature = 2;
+}
+message ModifySignatureResp {
+    BaseResp resp = 1;
+}
+message UploadAvatarRequest {
+    int64 user_id     = 1;
+    bytes avatar_file = 2;
+}
+message UploadAvatarResp {
+    BaseResp resp = 1;
+}
+message ModifyPasswordRequest {
+    int64 user_id          = 1;  // user id
+    string old_password    = 2;  // old password
+    string new_password    = 3;  // new password
+    string repeat_password = 4;  // repeat new password
+}
+message ModifyPasswordResp {
+    BaseResp resp = 1;
+}
+message ForgetPasswordRequest {
+    int64 user_id          = 1;  // user id
+    string email           = 2;  // email of the user
+    string code            = 3;  // verification code
+    string new_password    = 4;  // new password
+    string repeat_password = 5;  // repeat new password
+}
+message ForgetPasswordResp {
+    BaseResp resp = 1;
+}

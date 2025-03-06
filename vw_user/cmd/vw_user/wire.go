@@ -9,8 +9,6 @@ import (
 	"vw_user/internal/biz"
 	"vw_user/internal/conf"
 	"vw_user/internal/data"
-	"vw_user/internal/pkg/captcha"
-	"vw_user/internal/pkg/middlewares"
 	"vw_user/internal/server"
 	"vw_user/internal/service"
 
@@ -20,6 +18,6 @@ import (
 )
 
 // wireApp init kratos application.
-func wireApp(*conf.Server, *conf.Data, *conf.JWT, *conf.Email, *conf.Registry, log.Logger) (*kratos.App, func(), error) {
-	panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, middlewares.ProviderSet, captcha.Provider, newApp))
+func wireApp(*conf.Server, *conf.Data, *conf.Registry, log.Logger) (*kratos.App, func(), error) {
+	panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
 }

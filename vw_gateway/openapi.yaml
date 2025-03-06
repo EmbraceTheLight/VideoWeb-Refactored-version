@@ -1,0 +1,230 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: ""
+    version: 0.0.1
+paths:
+    /api/v1/captcha/code_captcha:
+        get:
+            tags:
+                - Captcha
+            operationId: Captcha_GetCodeCaptcha
+            parameters:
+                - name: email
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.v1.captcha.GetCodeCaptchaResp'
+    /api/v1/captcha/graphic_captcha:
+        get:
+            tags:
+                - Captcha
+            operationId: Captcha_GetImageCaptcha
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.v1.captcha.GetImageCaptchaResp'
+    /api/v1/user/login:
+        post:
+            tags:
+                - Identity
+            operationId: Identity_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.v1.id.LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.v1.id.LoginResp'
+    /api/v1/user/logout:
+        post:
+            tags:
+                - Identity
+            operationId: Identity_Logout
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.v1.id.LogoutRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.v1.id.LogoutResp'
+    /api/v1/user/register:
+        post:
+            tags:
+                - Identity
+            operationId: Identity_Register
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.v1.id.RegisterRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.v1.id.RegisterResp'
+    /v1/userfile/file/upload:
+        post:
+            tags:
+                - FileService
+            operationId: FileService_UploadAvatar
+            requestBody:
+                content:
+                    application/json: {}
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.v1.file.UploadAvatarResp'
+components:
+    schemas:
+        gateway.v1.captcha.GetCodeCaptchaResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                code:
+                    type: string
+        gateway.v1.captcha.GetImageCaptchaResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                captchaResult:
+                    $ref: '#/components/schemas/gateway.v1.captcha.GetImageCaptchaResp_CaptchaResult'
+        gateway.v1.captcha.GetImageCaptchaResp_CaptchaResult:
+            type: object
+            properties:
+                id:
+                    type: string
+                b64log:
+                    type: string
+                answer:
+                    type: string
+        gateway.v1.file.UploadAvatarResp:
+            type: object
+            properties:
+                filePath:
+                    type: string
+        gateway.v1.id.LoginRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+            description: 用户登录所需请求、响应
+        gateway.v1.id.LoginResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    description: app status code,The same below
+                    format: int32
+                msg:
+                    type: string
+                    description: app response message,The same below
+                data:
+                    $ref: '#/components/schemas/gateway.v1.id.LoginResp_Data'
+        gateway.v1.id.LoginResp_Data:
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                refreshToken:
+                    type: string
+            description: when users login successfully, return two tokens to them
+        gateway.v1.id.LogoutRequest:
+            type: object
+            properties:
+                accessToken:
+                    type: string
+            description: 用户注销所需请求、响应
+        gateway.v1.id.LogoutResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+        gateway.v1.id.RegisterRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+                repeatPassword:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                email:
+                    type: string
+                birthday:
+                    type: string
+                signature:
+                    type: string
+                inputCode:
+                    type: string
+                verifyCode:
+                    type: string
+            description: 用户注册所需请求、响应
+        gateway.v1.id.RegisterResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/gateway.v1.id.RegisterResp_Data'
+        gateway.v1.id.RegisterResp_Data:
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                refreshToken:
+                    type: string
+tags:
+    - name: Captcha
+    - name: FileService
+    - name: Identity
+      description: 用户身份相关服务

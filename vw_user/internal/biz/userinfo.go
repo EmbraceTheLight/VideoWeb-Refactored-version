@@ -5,8 +5,6 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"time"
 	"vw_user/internal/data/dal/model"
-	"vw_user/internal/pkg/captcha"
-	"vw_user/internal/pkg/middlewares/auth"
 )
 
 type UserSummaryInfo struct {
@@ -55,18 +53,14 @@ type UserInfoRepo interface {
 }
 
 type UserInfoUsecase struct {
-	infoRepo      UserInfoRepo
-	email         *captcha.Email
-	jwtAuthorizer *auth.JWTAuth
-	logger        *log.Helper
+	infoRepo UserInfoRepo
+	logger   *log.Helper
 }
 
-func NewUserInfoUsecase(repo UserInfoRepo, jwtAuthorizer *auth.JWTAuth, email *captcha.Email, logger log.Logger) *UserInfoUsecase {
+func NewUserInfoUsecase(repo UserInfoRepo, logger log.Logger) *UserInfoUsecase {
 	return &UserInfoUsecase{
-		infoRepo:      repo,
-		jwtAuthorizer: jwtAuthorizer,
-		email:         email,
-		logger:        log.NewHelper(logger),
+		infoRepo: repo,
+		logger:   log.NewHelper(logger),
 	}
 }
 
@@ -82,14 +76,11 @@ func (u *UserInfoUsecase) GetUserDetail(ctx context.Context, userId int64) (*mod
 	return userinfo, userlevel, nil
 }
 
-//func (u *UserInfoUsecase)
-
-// GetCaptchaCode get captcha code and send to `sendto`
-func (u *UserInfoUsecase) GetCaptchaCode(ctx context.Context, sendto string) (string, error) {
-	code := u.email.CreateVerificationCode()
-	err := u.email.SendCode(ctx, sendto, code)
+// GetUserSummaryInfoByUsername get user summary info by username
+func (u *UserInfoUsecase) GetUserSummaryInfoByUsername(ctx context.Context, username string) (*UserSummaryInfo, error) {
+	info, err := u.infoRepo.GetUserSummaryInfoByUsername(ctx, username)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return code, nil
+	return info, nil
 }

@@ -1,0 +1,84 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "video_web/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+message Bootstrap {
+    Server server     = 1;
+    Registry registry = 2;
+    Trace trace       = 3;
+    Data data         = 4;
+    JWT jwt           = 5;
+    Email email       = 6;
+    Service service   = 7;
+}
+
+message Server {
+    message HTTP {
+        string network                   = 1;
+        string addr                      = 2;
+        google.protobuf.Duration timeout = 3;
+    }
+    message GRPC {
+        string network                   = 1;
+        string addr                      = 2;
+        google.protobuf.Duration timeout = 3;
+    }
+    HTTP http = 1;
+    GRPC grpc = 2;
+}
+
+message Data {
+    message RedisCluster {
+        string host                            = 1;
+        repeated string port                   = 2;
+        string password                        = 3;
+        google.protobuf.Duration dial_timeout  = 4;
+        google.protobuf.Duration read_timeout  = 5;
+        google.protobuf.Duration write_timeout = 6;
+        google.protobuf.Duration pool_timeout  = 7;
+        int32 pool_size                        = 8;
+        int32 max_retries                      = 9;
+        int32 min_idle_conns                   = 10;
+    }
+    RedisCluster redis_cluster = 1;
+}
+
+message JWT {
+    string secret                  = 1;
+    int64 access_token_expiration  = 2;
+    int64 refresh_token_expiration = 3;
+}
+
+message Email {
+    string smtp_host       = 1;
+    int32 smtp_port        = 2;
+    string smtp_username   = 3;
+    string smtp_password   = 4;
+    string smtp_servername = 5;
+}
+
+message Registry {
+    message Consul {
+        string address = 1;
+        string scheme  = 2;
+    }
+    Consul consul = 1;
+}
+
+message Trace {
+    string endpoint = 1;
+}
+
+message Service {
+    message User {
+        string endpoint = 1;
+    }
+    message Video {
+        string endpoint = 1;
+    }
+    User user   = 1;
+    Video video = 2;
+}

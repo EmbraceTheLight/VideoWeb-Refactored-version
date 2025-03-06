@@ -7,9 +7,6 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/selector"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
-	"time"
-	"vw_user/internal/conf"
-	"vw_user/internal/pkg/middlewares/auth"
 )
 
 func NewWhitelistMatcher() selector.MatchFunc {
@@ -18,15 +15,11 @@ func NewWhitelistMatcher() selector.MatchFunc {
 	}
 }
 
-func NewGinEngine(jwt *conf.JWT) *gin.Engine {
+func NewGinEngine() *gin.Engine {
 	r := gin.Default()
 	r.Use(kgin.Middlewares(
 		recovery.Recovery(),
 		tracing.Server(),
-		// jwt鉴权中间件
-		selector.Server(
-			auth.JwtAuth(jwt.Secret, time.Duration(jwt.AccessTokenExpiration)*time.Hour),
-		).Match(NewWhitelistMatcher()).Build(),
 	))
 	return r
 }
