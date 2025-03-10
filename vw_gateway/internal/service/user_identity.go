@@ -13,6 +13,7 @@ type UserIdentityService struct {
 	logger   *log.Helper
 	identity *biz.UserIdentityUsecase
 	captcha  *biz.CaptchaUsecase
+	info     *biz.UserInfo
 }
 
 func NewUserIdentityService(identity *biz.UserIdentityUsecase, logger log.Logger) *UserIdentityService {
@@ -34,7 +35,6 @@ func (uid *UserIdentityService) Register(ctx context.Context, req *idv1.Register
 		Signature:      req.Signature,
 		Birthday:       birthday,
 		InputCode:      req.InputCode,
-		VerifyCode:     req.VerifyCode,
 	})
 
 	if err != nil {

@@ -14,6 +14,7 @@ import (
 	captv1 "vw_gateway/api/v1/captcha"
 	idv1 "vw_gateway/api/v1/identity"
 	filev1 "vw_gateway/api/v1/userfile"
+	infov1 "vw_gateway/api/v1/userinfo"
 	"vw_gateway/internal/conf"
 	"vw_gateway/internal/pkg/codecs"
 	"vw_gateway/internal/pkg/middlewares/auth"
@@ -50,6 +51,7 @@ func NewHTTPServer(
 	file *service.UserFileService,
 	identity *service.UserIdentityService,
 	redis *redis.ClusterClient,
+	info *service.UserinfoService,
 	logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
@@ -86,5 +88,6 @@ func NewHTTPServer(
 	idv1.RegisterIdentityHTTPServer(srv, identity)
 	captv1.RegisterCaptchaHTTPServer(srv, captcha)
 	filev1.RegisterFileServiceHTTPServer(srv, file)
+	infov1.RegisterUserinfoHTTPServer(srv, info)
 	return srv
 }

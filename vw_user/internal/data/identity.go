@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/crypto/bcrypt"
 	"strconv"
 	"time"
 	"util/helper"
@@ -30,6 +31,14 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserIdentityRepo {
 		data:   data,
 		logger: log.NewHelper(logger),
 	}
+}
+
+func (u *userIdentityRepo) CheckPassword(ctx context.Context, password, hashedPassword string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	if err != nil {
+		return errdef.ErrUserPasswordError
+	}
+	return nil
 }
 
 func (u *userIdentityRepo) AddExpForLogin(ctx context.Context, userId int64) error {

@@ -60,7 +60,6 @@ message RegisterRequest {
     string birthday       = 6;
     string signature      = 7;
     string input_code     = 8;  // The code of user's input.
-    string verify_code    = 9;  // Correct verify code, which is cached in Redis. user gets this code from their email.
 }
 message RegisterResp {
     int32 status_code = 1;

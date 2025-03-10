@@ -72,8 +72,8 @@ func (u *FileUsecase) UploadAvatar(stream grpc.ClientStreamingServer[filev1.Uplo
 
 			// 2. compute the new user's directory path, with the user id.
 			userDir = filepath.Join(resourcePath, strconv.FormatInt(userID, 10))
-			err = helper.CreateDir(userDir, os.ModePerm)
 
+			err = helper.CreateDir(userDir, os.ModePerm)
 			if err != nil {
 				return helper.HandleError(errdef.ErrCreateUserDirFailed, err)
 			}

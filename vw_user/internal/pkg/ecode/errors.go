@@ -1,8 +1,11 @@
 package ecode
 
 const (
+	// Intertal errors
+	INTERNAL_ErrInternal = 4001 + iota
+
 	// identity errors
-	IDENTITY_LoginFailed = 4001 + iota
+	IDENTITY_LoginFailed
 	IDENTITY_UserNameEmpty
 	IDENTITY_UserPasswordEmpty
 	IDENTITY_UserNotFound
@@ -29,6 +32,15 @@ const (
 	AUTH_ParseTokenFailed
 	AUTH_CreateTokenFailed
 	AUTH_CacheAccessTokenFailed
+
+	// userinfo errors
+	USERINFO_ForgetPasswordFailed
+	USERINFO_ModifyEmailFailed
+	USERINFO_ModifyEmailFailed_Get
+	USERINFO_ModifyPasswordFailed
+	USERINFO_ModifyUsernameFailed
+	USERINFO_GetUserInfoFailed
+	USERINFO_ModifySignatureFailed
 )
 
 var ()

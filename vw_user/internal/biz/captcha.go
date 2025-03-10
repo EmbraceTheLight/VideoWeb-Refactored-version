@@ -8,8 +8,9 @@ import (
 
 type CaptchaRepo interface {
 	// DeleteCodeFromCache delete code cache from Redis
-	DeleteCodeFromCache(ctx context.Context, code string) error
+	DeleteCodeFromCache(ctx context.Context, email string) error
 	SetCodeToCache(ctx context.Context, email, code string, expiration time.Duration) error
+	GetCodeFromCache(ctx context.Context, email string) (string, error)
 }
 
 type CaptchaUsecase struct {
@@ -24,8 +25,8 @@ func NewCaptchaUsecase(logger log.Logger, repo CaptchaRepo) *CaptchaUsecase {
 	}
 }
 
-func (cu *CaptchaUsecase) DeleteCodeFromCache(ctx context.Context, code string) error {
-	return cu.repo.DeleteCodeFromCache(ctx, code)
+func (cu *CaptchaUsecase) DeleteCodeFromCache(ctx context.Context, email string) error {
+	return cu.repo.DeleteCodeFromCache(ctx, email)
 }
 
 func (cu *CaptchaUsecase) SetCodeToCache(ctx context.Context, email, code string, expiration time.Duration) error {
