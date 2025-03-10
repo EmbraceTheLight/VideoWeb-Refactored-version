@@ -8,37 +8,18 @@ import "google/protobuf/empty.proto";
 option go_package = "vw_user/api/v1/identity;idv1";
 
 service Identity {
-    // user identity
-    rpc CheckUsernamePassword(CheckUsernamePasswordReq) returns (CheckUsernamePasswordResp) {}
-
-    // user identity
     rpc CacheAccessToken(CacheAccessTokenReq) returns (google.protobuf.Empty) {}
-
-    // user identity
-    rpc AddExpForLogin(AddExpForLoginReq) returns (google.protobuf.Empty) {}
 
     rpc Register(RegisterReq) returns (RegisterResp) {}
 
-    rpc Logout(LogoutReq) returns (google.protobuf.Empty) {}
-}
+    rpc Login(LoginReq) returns (LoginResp) {}
 
-message CheckUsernamePasswordReq {
-    string username         = 1;
-    string password         = 2;
-    string correct_password = 3;
-}
-message CheckUsernamePasswordResp {
-    string code    = 1;
-    string message = 2;
+    rpc Logout(LogoutReq) returns (google.protobuf.Empty) {}
 }
 
 message CacheAccessTokenReq {
     string access_token                 = 1;
     google.protobuf.Duration expiration = 2;
-}
-
-message AddExpForLoginReq {
-    int64 user_id = 1;
 }
 
 message RegisterReq {
@@ -57,6 +38,18 @@ message RegisterResp {
     string msg        = 2;
     int64 userID      = 3;
     bool is_admin     = 4;
+}
+
+message LoginReq {
+    string username = 1;
+    string password = 2;
+}
+message LoginResp {
+    int32 code      = 1;
+    string msg      = 2;
+    int64 user_id   = 3;
+    string username = 4;
+    bool is_admin   = 5;
 }
 
 message LogoutReq {

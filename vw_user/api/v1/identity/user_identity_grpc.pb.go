@@ -20,24 +20,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Identity_CheckUsernamePassword_FullMethodName = "/user.v1.id.Identity/CheckUsernamePassword"
-	Identity_CacheAccessToken_FullMethodName      = "/user.v1.id.Identity/CacheAccessToken"
-	Identity_AddExpForLogin_FullMethodName        = "/user.v1.id.Identity/AddExpForLogin"
-	Identity_Register_FullMethodName              = "/user.v1.id.Identity/Register"
-	Identity_Logout_FullMethodName                = "/user.v1.id.Identity/Logout"
+	Identity_CacheAccessToken_FullMethodName = "/user.v1.id.Identity/CacheAccessToken"
+	Identity_Register_FullMethodName         = "/user.v1.id.Identity/Register"
+	Identity_Login_FullMethodName            = "/user.v1.id.Identity/Login"
+	Identity_Logout_FullMethodName           = "/user.v1.id.Identity/Logout"
 )
 
 // IdentityClient is the client API for Identity service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type IdentityClient interface {
-	// user identity
-	CheckUsernamePassword(ctx context.Context, in *CheckUsernamePasswordReq, opts ...grpc.CallOption) (*CheckUsernamePasswordResp, error)
-	// user identity
 	CacheAccessToken(ctx context.Context, in *CacheAccessTokenReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// user identity
-	AddExpForLogin(ctx context.Context, in *AddExpForLoginReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterResp, error)
+	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error)
 	Logout(ctx context.Context, in *LogoutReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -47,16 +42,6 @@ type identityClient struct {
 
 func NewIdentityClient(cc grpc.ClientConnInterface) IdentityClient {
 	return &identityClient{cc}
-}
-
-func (c *identityClient) CheckUsernamePassword(ctx context.Context, in *CheckUsernamePasswordReq, opts ...grpc.CallOption) (*CheckUsernamePasswordResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CheckUsernamePasswordResp)
-	err := c.cc.Invoke(ctx, Identity_CheckUsernamePassword_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *identityClient) CacheAccessToken(ctx context.Context, in *CacheAccessTokenReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
@@ -69,20 +54,20 @@ func (c *identityClient) CacheAccessToken(ctx context.Context, in *CacheAccessTo
 	return out, nil
 }
 
-func (c *identityClient) AddExpForLogin(ctx context.Context, in *AddExpForLoginReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *identityClient) Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Identity_AddExpForLogin_FullMethodName, in, out, cOpts...)
+	out := new(RegisterResp)
+	err := c.cc.Invoke(ctx, Identity_Register_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *identityClient) Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterResp, error) {
+func (c *identityClient) Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RegisterResp)
-	err := c.cc.Invoke(ctx, Identity_Register_FullMethodName, in, out, cOpts...)
+	out := new(LoginResp)
+	err := c.cc.Invoke(ctx, Identity_Login_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,13 +88,9 @@ func (c *identityClient) Logout(ctx context.Context, in *LogoutReq, opts ...grpc
 // All implementations must embed UnimplementedIdentityServer
 // for forward compatibility.
 type IdentityServer interface {
-	// user identity
-	CheckUsernamePassword(context.Context, *CheckUsernamePasswordReq) (*CheckUsernamePasswordResp, error)
-	// user identity
 	CacheAccessToken(context.Context, *CacheAccessTokenReq) (*emptypb.Empty, error)
-	// user identity
-	AddExpForLogin(context.Context, *AddExpForLoginReq) (*emptypb.Empty, error)
 	Register(context.Context, *RegisterReq) (*RegisterResp, error)
+	Login(context.Context, *LoginReq) (*LoginResp, error)
 	Logout(context.Context, *LogoutReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedIdentityServer()
 }
@@ -121,17 +102,14 @@ type IdentityServer interface {
 // pointer dereference when methods are called.
 type UnimplementedIdentityServer struct{}
 
-func (UnimplementedIdentityServer) CheckUsernamePassword(context.Context, *CheckUsernamePasswordReq) (*CheckUsernamePasswordResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckUsernamePassword not implemented")
-}
 func (UnimplementedIdentityServer) CacheAccessToken(context.Context, *CacheAccessTokenReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CacheAccessToken not implemented")
 }
-func (UnimplementedIdentityServer) AddExpForLogin(context.Context, *AddExpForLoginReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddExpForLogin not implemented")
-}
 func (UnimplementedIdentityServer) Register(context.Context, *RegisterReq) (*RegisterResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
+}
+func (UnimplementedIdentityServer) Login(context.Context, *LoginReq) (*LoginResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedIdentityServer) Logout(context.Context, *LogoutReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
@@ -157,24 +135,6 @@ func RegisterIdentityServer(s grpc.ServiceRegistrar, srv IdentityServer) {
 	s.RegisterService(&Identity_ServiceDesc, srv)
 }
 
-func _Identity_CheckUsernamePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CheckUsernamePasswordReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IdentityServer).CheckUsernamePassword(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Identity_CheckUsernamePassword_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IdentityServer).CheckUsernamePassword(ctx, req.(*CheckUsernamePasswordReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Identity_CacheAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CacheAccessTokenReq)
 	if err := dec(in); err != nil {
@@ -193,24 +153,6 @@ func _Identity_CacheAccessToken_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Identity_AddExpForLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddExpForLoginReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IdentityServer).AddExpForLogin(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Identity_AddExpForLogin_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IdentityServer).AddExpForLogin(ctx, req.(*AddExpForLoginReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Identity_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RegisterReq)
 	if err := dec(in); err != nil {
@@ -225,6 +167,24 @@ func _Identity_Register_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(IdentityServer).Register(ctx, req.(*RegisterReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Identity_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityServer).Login(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Identity_Login_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityServer).Login(ctx, req.(*LoginReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -255,20 +215,16 @@ var Identity_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*IdentityServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CheckUsernamePassword",
-			Handler:    _Identity_CheckUsernamePassword_Handler,
-		},
-		{
 			MethodName: "CacheAccessToken",
 			Handler:    _Identity_CacheAccessToken_Handler,
 		},
 		{
-			MethodName: "AddExpForLogin",
-			Handler:    _Identity_AddExpForLogin_Handler,
-		},
-		{
 			MethodName: "Register",
 			Handler:    _Identity_Register_Handler,
+		},
+		{
+			MethodName: "Login",
+			Handler:    _Identity_Login_Handler,
 		},
 		{
 			MethodName: "Logout",

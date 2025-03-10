@@ -29,3 +29,8 @@ func (r *captchaRepo) SetCodeToCache(ctx context.Context, email, code string, ex
 	return err
 
 }
+
+func (r *captchaRepo) GetCodeFromCache(ctx context.Context, email string) (string, error) {
+	code, err := r.data.redis.Get(ctx, email).Result()
+	return code, err
+}

@@ -7,4 +7,5 @@ var ProviderSet = wire.NewSet(
 	NewUserIdentityService,
 	NewCaptchaService,
 	NewUserFileService,
+	NewUserinfoService,
 )

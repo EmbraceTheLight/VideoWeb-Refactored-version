@@ -3,11 +3,8 @@ package service
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
-	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"time"
-	"vw_user/internal/pkg/ecode/errdef"
-
 	idv1 "vw_user/api/v1/identity"
 	"vw_user/internal/biz"
 )
@@ -25,34 +22,6 @@ func NewUserIdentityService(identity *biz.UserIdentityUsecase, logger log.Logger
 	}
 }
 
-func (s *UserIdentityService) CheckUsernamePassword(ctx context.Context, req *idv1.CheckUsernamePasswordReq) (*idv1.CheckUsernamePasswordResp, error) {
-	username, inputPasswd, correctPasswd := req.Username, req.Password, req.CorrectPassword
-	if username == "" || inputPasswd == "" {
-		if username == "" {
-			return nil, errdef.ErrUserNameEmpty
-		} else { //password == ""
-			return nil, errdef.ErrUserPasswordEmpty
-		}
-	}
-
-	// check password
-	if err := bcrypt.CompareHashAndPassword([]byte(correctPasswd), []byte(inputPasswd)); err != nil {
-		return nil, errdef.ErrUserPasswordError
-	}
-	return &idv1.CheckUsernamePasswordResp{
-		Code:    "200",
-		Message: "success",
-	}, nil
-}
-
-func (s *UserIdentityService) CacheAccessToken(ctx context.Context, req *idv1.CacheAccessTokenReq) (*emptypb.Empty, error) {
-	return nil, s.identity.CacheAccessToken(ctx, req.AccessToken, req.Expiration.AsDuration())
-}
-
-func (s *UserIdentityService) AddExpForLogin(ctx context.Context, req *idv1.AddExpForLoginReq) (*emptypb.Empty, error) {
-	return nil, s.identity.AddExpForLogin(ctx, req.UserId)
-}
-
 func (s *UserIdentityService) Register(ctx context.Context, req *idv1.RegisterReq) (*idv1.RegisterResp, error) {
 	birthday, _ := time.Parse("2006-01-02", req.Birthday)
 	userID, isAdmin, err := s.identity.Register(ctx, &biz.RegisterInfo{
@@ -62,7 +31,6 @@ func (s *UserIdentityService) Register(ctx context.Context, req *idv1.RegisterRe
 		RepeatPassword: req.RepeatPassword,
 		Gender:         req.Gender,
 		InputCode:      req.InputCode,
-		VerifyCode:     req.VerifyCode,
 		Email:          req.Email,
 		Signature:      req.Signature,
 		Birthday:       birthday,
@@ -80,4 +48,12 @@ func (s *UserIdentityService) Register(ctx context.Context, req *idv1.RegisterRe
 
 func (s *UserIdentityService) Logout(ctx context.Context, req *idv1.LogoutReq) (*emptypb.Empty, error) {
 	return nil, s.identity.Logout(ctx, req.AccessToken)
+}
+
+func (s *UserIdentityService) Login(ctx context.Context, req *idv1.LoginReq) (*idv1.LoginResp, error) {
+	return s.identity.Login(ctx, req.Username, req.Password)
+}
+
+func (s *UserIdentityService) CacheAccessToken(ctx context.Context, req *idv1.CacheAccessTokenReq) (*emptypb.Empty, error) {
+	return nil, s.identity.CacheAccessToken(ctx, req.AccessToken, req.Expiration.AsDuration())
 }

@@ -13,7 +13,6 @@ type RegisterInfo struct {
 	RepeatPassword string
 	Gender         int32
 	InputCode      string
-	VerifyCode     string
 	Email          string
 	Signature      string
 	Birthday       time.Time
@@ -30,12 +29,16 @@ type UserSummaryInfo struct {
 	IsAdmin    bool
 }
 
+type LoginResponse struct {
+	UserId   int64
+	Username string
+	IsAdmin  bool
+}
+
 type UserIdentityRepo interface {
-	GetUserSummaryInfoByUsername(ctx context.Context, username string) (*UserSummaryInfo, error)
-	CheckUsernamePassword(ctx context.Context, username, inputPassword, correctPassword string) error
 	CacheAccessToken(ctx context.Context, accessToken string, expireTime time.Duration) error
-	AddExpForLogin(ctx context.Context, userID int64) error
 	Register(ctx context.Context, registerInfo *RegisterInfo) (userID int64, isAdmin bool, err error)
+	Login(ctx context.Context, username, password string) (*LoginResponse, error)
 	Logout(ctx context.Context, accessToken string) error
 }
 
@@ -64,25 +67,22 @@ func (uc *UserIdentityUsecase) Register(ctx context.Context, registerInfo *Regis
 }
 
 func (uc *UserIdentityUsecase) Login(ctx context.Context, username, password string) (accessToken, refreshToken string, err error) {
-	userinfo, err := uc.identityRepo.GetUserSummaryInfoByUsername(ctx, username)
+	resp, err := uc.identityRepo.Login(ctx, username, password)
 	if err != nil {
 		return "", "", err
 	}
 
-	err = uc.identityRepo.CheckUsernamePassword(ctx, username, password, userinfo.Password)
+	atoken, rtoken, err := uc.jwt.CreateToken(resp.UserId, resp.Username, resp.IsAdmin)
 	if err != nil {
 		return "", "", err
 	}
 
-	atoken, rtoken, err := uc.jwt.CreateToken(userinfo.UserID, userinfo.Username, userinfo.IsAdmin)
+	err = uc.identityRepo.CacheAccessToken(ctx, atoken, uc.jwt.AccessExpireTime)
 	if err != nil {
+		// TODO: 做异步处理
 		return "", "", err
 	}
 
-	err = uc.identityRepo.AddExpForLogin(ctx, userinfo.UserID)
-	if err != nil {
-		return "", "", err
-	}
 	return atoken, rtoken, nil
 }
 

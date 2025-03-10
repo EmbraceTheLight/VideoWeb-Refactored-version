@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package vw_user.api.v1.userinfo;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+option go_package = "vw_user/api/v1/user_info;infov1";
+
+service Userinfo {
+    rpc GetUserinfo(userinfoReq) returns (userinfoResp) {}
+
+    rpc ModifyEmail(modifyEmailReq) returns (modifyEmailResp) {}
+
+    rpc ModifyPassword(modifyPasswordReq) returns (google.protobuf.Empty) {};
+
+    rpc ModifyUserSignature(modifySignatureReq) returns (modifySignatureResp) {}
+
+    rpc ForgetPassword(forgetPasswordReq) returns (google.protobuf.Empty) {}
+
+    rpc ModifyUsername(modifyUsernameReq) returns (modifyUsernameResp) {}
+}
+
+message userinfoReq {
+    int64 user_id = 1;
+}
+message userinfoResp {
+    message UserInfo {
+        string user_name                   = 1;
+        string email                       = 2;
+        string signature                   = 3;
+        int32 shells                       = 4;
+        int32 cnt_fans                     = 5;
+        int32 cnt_follows                  = 6;
+        int32 cnt_videos                   = 7;
+        string avatar_path                 = 8;
+        int32 gender                       = 9;
+        google.protobuf.Timestamp birthday = 10;
+    }
+    UserInfo user_info = 1;
+}
+
+message modifyEmailReq {
+    int64 user_id     = 1;
+    string email      = 2;
+    string input_code = 3;  // the verify code that inputted by user
+}
+message modifyEmailResp {
+    int64 user_id = 1;
+    string email  = 2;
+}
+
+message modifyPasswordReq {
+    int64 user_id       = 1;
+    string old_password = 2;
+    string new_password = 3;
+}
+
+message modifySignatureReq {
+    int64 user_id    = 1;
+    string signature = 2;
+}
+message modifySignatureResp {
+    string new_signature = 1;
+}
+
+message forgetPasswordReq {
+    int64 user_id       = 1;
+    string email        = 2;
+    string input_code   = 3;
+    string new_password = 4;
+}
+
+message modifyUsernameReq {
+    int64 user_id       = 1;
+    string new_username = 2;
+}
+message modifyUsernameResp {
+    string new_username = 1;
+}

@@ -2,8 +2,11 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -11,6 +14,7 @@ import (
 	"unicode/utf8"
 	"util/helper"
 	"util/snowflake"
+	idv1 "vw_user/api/v1/identity"
 	"vw_user/internal/data/dal/model"
 	"vw_user/internal/data/dal/query"
 	"vw_user/internal/pkg/ecode/errdef"
@@ -19,6 +23,7 @@ import (
 type UserIdentityRepo interface {
 	CacheAccessToken(ctx context.Context, accessToken string, expiration time.Duration) error
 	AddExpForLogin(ctx context.Context, userID int64) error
+	CheckPassword(ctx context.Context, password, hashedPassword string) error
 	CreatRecordsForRegister(ctx context.Context, newUser *model.User) error
 	DeleteCachedAccessToken(ctx context.Context, accessToken string) error
 }
@@ -30,7 +35,6 @@ type RegisterInfo struct {
 	RepeatPassword string
 	Gender         int32
 	InputCode      string
-	VerifyCode     string
 	Email          string
 	Signature      string
 	Birthday       time.Time
@@ -40,19 +44,21 @@ type RegisterInfo struct {
 type UserIdentityUsecase struct {
 	infoRepo     UserInfoRepo
 	identityRepo UserIdentityRepo
+	captcha      CaptchaRepo
 	logger       *log.Helper
 }
 
-func NewUserIdentityUsecase(idRepo UserIdentityRepo, infoRepo UserInfoRepo, logger log.Logger) *UserIdentityUsecase {
+func NewUserIdentityUsecase(idRepo UserIdentityRepo, infoRepo UserInfoRepo, captcha CaptchaRepo, logger log.Logger) *UserIdentityUsecase {
 	return &UserIdentityUsecase{
 		identityRepo: idRepo,
 		infoRepo:     infoRepo,
+		captcha:      captcha,
 		logger:       log.NewHelper(logger),
 	}
 }
 
 func (uc *UserIdentityUsecase) Register(ctx context.Context, registerInfo *RegisterInfo) (userID int64, isAdmin bool, err error) {
-	newUser, err := uc.handleRegisterInfo(registerInfo)
+	newUser, err := uc.handleRegisterInfo(ctx, registerInfo)
 	if err != nil {
 		return 0, false, err
 	}
@@ -114,10 +120,25 @@ func (uc *UserIdentityUsecase) Logout(ctx context.Context, accessToken string) e
 // handleRegisterInfo check the register information
 // create a new user model and fill its dynamic fields (such as encrypted password, e.g.)
 // and return the user model, if there is no error.
-func (uc *UserIdentityUsecase) handleRegisterInfo(registerInfo *RegisterInfo) (*model.User, error) {
+func (uc *UserIdentityUsecase) handleRegisterInfo(ctx context.Context, registerInfo *RegisterInfo) (*model.User, error) {
 	// check register info
 	userdo := query.User
-	count, _ := userdo.Where(userdo.Username.Eq(registerInfo.Username)).Count()
+	count, err := userdo.Where(userdo.Username.Eq(registerInfo.Username)).Count()
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, helper.HandleError(errdef.INTERNAL_ERROR, err)
+		}
+	}
+
+	verifyCode, err := uc.captcha.GetCodeFromCache(ctx, registerInfo.Email)
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, helper.HandleError(errdef.ErrVerifyCodeExpired, nil)
+		} else {
+			return nil, helper.HandleError(errdef.INTERNAL_ERROR, err)
+		}
+	}
+
 	switch {
 	case count > 0: //已有同名用户
 		return nil, errdef.ErrUserAlreadyExist
@@ -127,7 +148,7 @@ func (uc *UserIdentityUsecase) handleRegisterInfo(registerInfo *RegisterInfo) (*
 		return nil, errdef.ErrPasswordNotMatch
 	case utf8.RuneCountInString(registerInfo.Signature) > 25:
 		return nil, errdef.ErrSignatureTooLong
-	case registerInfo.InputCode != registerInfo.VerifyCode:
+	case registerInfo.InputCode != verifyCode:
 		return nil, errdef.ErrVerifyCodeNotMatch
 	}
 
@@ -154,4 +175,28 @@ func (uc *UserIdentityUsecase) handleRegisterInfo(registerInfo *RegisterInfo) (*
 	}
 
 	return newUser, nil
+}
+
+func (uc *UserIdentityUsecase) Login(ctx context.Context, username, password string) (*idv1.LoginResp, error) {
+	userinfo, err := uc.infoRepo.GetUserInfoByUsername(ctx, username)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.identityRepo.CheckPassword(ctx, password, userinfo.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.identityRepo.AddExpForLogin(ctx, userinfo.UserId)
+	if err != nil {
+		return nil, err
+	}
+	return &idv1.LoginResp{
+		Code:     200,
+		Msg:      "用户登录成功",
+		UserId:   userinfo.UserId,
+		Username: userinfo.Username,
+		IsAdmin:  userinfo.IsAdmin,
+	}, nil
 }
