@@ -89,6 +89,144 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/gateway.v1.id.RegisterResp'
+    /api/v1/userinfo/{userId}:
+        get:
+            tags:
+                - Userinfo
+            operationId: Userinfo_Userinfo
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.UserinfoResp'
+    /api/v1/userinfo/{userId}/forget_password:
+        post:
+            tags:
+                - Userinfo
+            operationId: Userinfo_ForgetPassword
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ForgetPasswordReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ForgetPasswordResp'
+    /api/v1/userinfo/{userId}/modify_email:
+        post:
+            tags:
+                - Userinfo
+            operationId: Userinfo_ModifyEmail
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyEmailReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyEmailResp'
+    /api/v1/userinfo/{userId}/modify_password:
+        post:
+            tags:
+                - Userinfo
+            operationId: Userinfo_ModifyPassword
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyPasswordReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyPasswordResp'
+    /api/v1/userinfo/{userId}/modify_signature:
+        post:
+            tags:
+                - Userinfo
+            operationId: Userinfo_ModifyUserSignature
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifySignatureReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifySignatureResp'
+    /api/v1/userinfo/{userId}/modify_username:
+        post:
+            tags:
+                - Userinfo
+            operationId: Userinfo_ModifyUsername
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyUsernameReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyUsernameResp'
     /v1/userfile/file/upload:
         post:
             tags:
@@ -203,8 +341,6 @@ components:
                     type: string
                 inputCode:
                     type: string
-                verifyCode:
-                    type: string
             description: 用户注册所需请求、响应
         gateway.v1.id.RegisterResp:
             type: object
@@ -223,8 +359,126 @@ components:
                     type: string
                 refreshToken:
                     type: string
+        vw_gateway.api.v1.userinfo.CommonResp:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        vw_gateway.api.v1.userinfo.ForgetPasswordReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                email:
+                    type: string
+                newPassword:
+                    type: string
+                inputCode:
+                    type: string
+        vw_gateway.api.v1.userinfo.ForgetPasswordResp:
+            type: object
+            properties:
+                common:
+                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.CommonResp'
+        vw_gateway.api.v1.userinfo.ModifyEmailReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                email:
+                    type: string
+                inputCode:
+                    type: string
+        vw_gateway.api.v1.userinfo.ModifyEmailResp:
+            type: object
+            properties:
+                email:
+                    type: string
+                common:
+                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.CommonResp'
+        vw_gateway.api.v1.userinfo.ModifyPasswordReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                oldPassword:
+                    type: string
+                newPassword:
+                    type: string
+        vw_gateway.api.v1.userinfo.ModifyPasswordResp:
+            type: object
+            properties:
+                common:
+                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.CommonResp'
+        vw_gateway.api.v1.userinfo.ModifySignatureReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                signature:
+                    type: string
+        vw_gateway.api.v1.userinfo.ModifySignatureResp:
+            type: object
+            properties:
+                newSignature:
+                    type: string
+                common:
+                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.CommonResp'
+        vw_gateway.api.v1.userinfo.ModifyUsernameReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                newUsername:
+                    type: string
+        vw_gateway.api.v1.userinfo.ModifyUsernameResp:
+            type: object
+            properties:
+                newUsername:
+                    type: string
+                common:
+                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.CommonResp'
+        vw_gateway.api.v1.userinfo.UserinfoResp:
+            type: object
+            properties:
+                userInfo:
+                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.UserinfoResp_UserInfo'
+                common:
+                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.CommonResp'
+        vw_gateway.api.v1.userinfo.UserinfoResp_UserInfo:
+            type: object
+            properties:
+                userName:
+                    type: string
+                email:
+                    type: string
+                signature:
+                    type: string
+                shells:
+                    type: integer
+                    format: int32
+                cntFans:
+                    type: integer
+                    format: int32
+                cntFollows:
+                    type: integer
+                    format: int32
+                cntVideos:
+                    type: integer
+                    format: int32
+                avatarPath:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                birthday:
+                    type: string
 tags:
     - name: Captcha
     - name: FileService
     - name: Identity
       description: 用户身份相关服务
+    - name: Userinfo

@@ -10,6 +10,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"strings"
 	"time"
+	"util/helper"
 	"vw_gateway/internal/conf"
 	"vw_gateway/internal/pkg/ecode/errdef"
 )
@@ -19,16 +20,13 @@ type JWTAuth struct {
 
 	AccessExpireTime  time.Duration
 	RefreshExpireTime time.Duration
-
-	redis *redis.ClusterClient
 }
 
-func NewJWTAuth(cfg *conf.JWT, redis *redis.ClusterClient) *JWTAuth {
+func NewJWTAuth(cfg *conf.JWT) *JWTAuth {
 	return &JWTAuth{
 		Secret:            cfg.Secret,
 		AccessExpireTime:  time.Duration(cfg.AccessTokenExpiration) * time.Hour,
 		RefreshExpireTime: time.Duration(cfg.RefreshTokenExpiration) * 24 * time.Hour,
-		redis:             redis,
 	}
 }
 
@@ -101,7 +99,7 @@ func (t *RefreshTokenClaims) getTokenString(secret string) (tokenString string, 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, t)
 	tokenString, err = token.SignedString([]byte(secret))
 	if err != nil {
-		return "", errdef.ErrCreateTokenFailed
+		return "", helper.HandleError(errdef.ErrCreateTokenFailed, err)
 	}
 	return
 }
@@ -113,13 +111,7 @@ func (jwtAuthorizer *JWTAuth) CreateToken(userID int64, username string, isAdmin
 	atokenClaims.padding(userID, username, isAdmin, jwtAuthorizer.AccessExpireTime)
 	accessToken, err = atokenClaims.getTokenString(jwtAuthorizer.Secret)
 	if err != nil {
-		return "", "", errdef.ErrCreateTokenFailed
-	}
-
-	// Set access token to redis
-	err = jwtAuthorizer.redis.Set(context.Background(), accessToken, "1", jwtAuthorizer.AccessExpireTime).Err()
-	if err != nil {
-
+		return "", "", helper.HandleError(errdef.ErrCreateTokenFailed, err)
 	}
 
 	// Create refresh token
@@ -127,7 +119,7 @@ func (jwtAuthorizer *JWTAuth) CreateToken(userID int64, username string, isAdmin
 	rtokenClaims.padding(jwtAuthorizer.RefreshExpireTime)
 	refreshToken, err = rtokenClaims.getTokenString(jwtAuthorizer.Secret)
 	if err != nil {
-		return "", "", errdef.ErrCreateTokenFailed
+		return "", "", helper.HandleError(errdef.ErrCreateTokenFailed, err)
 	}
 	return
 }
@@ -196,6 +188,7 @@ func JwtAuth(secret string, accessTokenExpireTime time.Duration, redisCluster *r
 		}
 	}
 }
+
 func getToken(tr transport.Transporter, secret, headerString string) (tokenClaims *jwt.Token, err error) {
 	tokenString := tr.RequestHeader().Get(headerString) //get token from header,which contains "Bearer "
 	auths := strings.SplitN(tokenString, " ", 2)        //get raw token
@@ -211,7 +204,7 @@ func getToken(tr transport.Transporter, secret, headerString string) (tokenClaim
 			return nil, errdef.ErrParseTokenFailed
 		}
 	} else { //headerString == RefreshTokenHeader
-		rtokenClaims := new(jwt.RegisteredClaims)
+		rtokenClaims := new(RefreshTokenClaims)
 		tokenClaims, err = jwt.ParseWithClaims(auths[1], rtokenClaims, func(token *jwt.Token) (interface{}, error) {
 			return []byte(secret), nil
 		})

@@ -33,6 +33,7 @@ var ProviderSet = wire.NewSet(
 	NewCaptchaClient,
 	NewRedisClusterClient,
 	NewFileClient,
+	NewUserInfoRepo,
 )
 
 // Data .
