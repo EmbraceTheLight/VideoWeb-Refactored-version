@@ -8,6 +8,7 @@ import (
 	"vw_user/internal/biz"
 	"vw_user/internal/data/dal/model"
 	"vw_user/internal/data/dal/query"
+	"vw_user/internal/domain"
 	"vw_user/internal/pkg/ecode/errdef"
 )
 
@@ -23,10 +24,27 @@ func NewUserInfoRepo(data *Data, logger log.Logger) biz.UserInfoRepo {
 	}
 }
 
-func (u *userInfoRepo) GetUserSummaryInfoByUsername(ctx context.Context, username string) (*biz.UserSummaryInfo, error) {
+func (u *userInfoRepo) GetUserInfoByUsername(ctx context.Context, username string) (*domain.UserInfo, error) {
 	user := query.User
 	userdo := user.WithContext(ctx)
-	tmp, err := userdo.Where(user.Username.Eq(username)).
+	userInfo, err := userdo.Where(user.Username.Eq(username)).
+		Select(user.UserID, user.Username, user.IsAdmin, user.Email, user.Password,
+			user.Gender, user.AvatarPath, user.Birthday, user.Signature, user.Shells,
+			user.CntFollows, user.CntFans).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errdef.ErrUserNotFound
+		}
+		return nil, err
+	}
+
+	return domain.NewUserInfo(userInfo), nil
+}
+
+func (u *userInfoRepo) GetUserInfoByUserId(ctx context.Context, userid int64) (*domain.UserInfo, error) {
+	user := query.User
+	userdo := user.WithContext(ctx)
+	userInfo, err := userdo.Where(user.UserID.Eq(userid)).
 		Select(user.UserID, user.Username, user.IsAdmin, user.Email, user.Password,
 			user.Gender, user.AvatarPath, user.Birthday, user.Signature).First()
 	if err != nil {
@@ -35,35 +53,7 @@ func (u *userInfoRepo) GetUserSummaryInfoByUsername(ctx context.Context, usernam
 		}
 		return nil, err
 	}
-	return modelUser2userSummary(tmp)[0], nil
-}
-
-func (u *userInfoRepo) GetUserSummaryInfoByUserId(ctx context.Context, userid int64) (*biz.UserSummaryInfo, error) {
-	user := query.User
-	userdo := user.WithContext(ctx)
-	tmp, err := userdo.Where(user.UserID.Eq(userid)).
-		Select(user.UserID, user.Username, user.IsAdmin, user.Email, user.Password,
-			user.Gender, user.AvatarPath, user.Birthday, user.Signature).First()
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errdef.ErrUserNotFound
-		}
-		return nil, err
-	}
-	return modelUser2userSummary(tmp)[0], nil
-}
-
-func (u *userInfoRepo) GetUserInfo(ctx context.Context, userId int64) (*model.User, error) {
-	user := query.User
-	userdo := user.WithContext(ctx)
-	userInfo, err := userdo.Omit(user.Version).Where(user.UserID.Eq(userId)).First()
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errdef.ErrUserNotFound
-		}
-		return nil, err
-	}
-	return userInfo, nil
+	return domain.NewUserInfo(userInfo), nil
 }
 
 func (u *userInfoRepo) GetUserLevelById(ctx context.Context, userId int64) (*model.UserLevel, error) {
@@ -79,7 +69,7 @@ func (u *userInfoRepo) GetUserLevelById(ctx context.Context, userId int64) (*mod
 	return userLevelInfo, nil
 }
 
-func (u *userInfoRepo) GetUserFansByUserID(ctx context.Context, userId int64) ([]*biz.UserSummaryInfo, error) {
+func (u *userInfoRepo) GetUserFansByUserID(ctx context.Context, userId int64) ([]*domain.UserInfo, error) {
 	// get user's fans' Ids
 	var fansIds = make([]int64, 0)
 	result := u.data.mysql.Select("followed_id").Where("user_id = ?", userId).Find(&fansIds)
@@ -91,10 +81,14 @@ func (u *userInfoRepo) GetUserFansByUserID(ctx context.Context, userId int64) ([
 	}
 
 	// get user's fans' info by fansIds
-	return getUsersSummaryInfoByIDs(ctx, fansIds)
+	users, err := getUsersSummaryInfoByIDs(ctx, fansIds)
+	if err != nil {
+		return nil, err
+	}
+	return domain.NewUserInfos(users...), nil
 }
 
-func (u *userInfoRepo) GetUserFollowersByUserIDFavoriteID(ctx context.Context, userId, followListId int64) ([]*biz.UserSummaryInfo, error) {
+func (u *userInfoRepo) GetUserFollowersByUserIDFavoriteID(ctx context.Context, userId, followListId int64) ([]*domain.UserSummary, error) {
 	//find followers' ids by user_id and followlist_id
 	followersIds := make([]int64, 0)
 	result := u.data.mysql.Select("user_id").
@@ -107,23 +101,71 @@ func (u *userInfoRepo) GetUserFollowersByUserIDFavoriteID(ctx context.Context, u
 	}
 
 	//find followers' info by followers' ids
-	return getUsersSummaryInfoByIDs(ctx, followersIds)
+	users, err := getUsersSummaryInfoByIDs(ctx, followersIds)
+	if err != nil {
+		return nil, err
+	}
+	return domain.NewUserSummaries(users...), nil
 }
 
-func modelUser2userSummary(users ...*model.User) []*biz.UserSummaryInfo {
-	if len(users) == 0 {
-		return nil
+func (u *userInfoRepo) UpdateEmail(ctx context.Context, userId int64, newEmail string) error {
+	user := query.User
+	userDo := user.WithContext(ctx)
+	_, err := userDo.Where(user.UserID.Eq(userId)).Update(user.Email, newEmail)
+	if err != nil {
+		return err
 	}
-	size := len(users)
-	result := make([]*biz.UserSummaryInfo, size)
-	for i, user := range users {
-		result[i] = new(biz.UserSummaryInfo)
-		result[i].Padding(user)
-	}
-	return result
+	return nil
 }
 
-func getUsersSummaryInfoByIDs(ctx context.Context, userIds []int64) ([]*biz.UserSummaryInfo, error) {
+func (u *userInfoRepo) UpdatePassword(ctx context.Context, userId int64, encryptedPassword string) error {
+	user := query.User
+	userDo := user.WithContext(ctx)
+	_, err := userDo.Where(user.UserID.Eq(userId)).Update(user.Password, encryptedPassword)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *userInfoRepo) UpdateUserSignature(ctx context.Context, userId int64, signature string) error {
+	user := query.User
+	userDo := user.WithContext(ctx)
+	_, err := userDo.Where(user.UserID.Eq(userId)).Update(user.Signature, signature)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// CheckUsernameConflict check if the new username is conflict with existing username
+func (u *userInfoRepo) CheckUsernameConflict(ctx context.Context, newUsername string) (ok bool, err error) {
+	user := query.User
+	userDo := user.WithContext(ctx)
+	count, err := userDo.Where(user.Username.Eq(newUsername)).Count()
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, err
+		}
+	}
+	if count > 0 {
+		return false, nil
+	}
+	return true, nil
+}
+
+// UpdateUsername update user username
+func (u *userInfoRepo) UpdateUsername(ctx context.Context, userId int64, newUsername string) error {
+	user := query.User
+	userDo := user.WithContext(ctx)
+	_, err := userDo.Where(user.UserID.Eq(userId)).Update(user.Username, newUsername)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func getUsersSummaryInfoByIDs(ctx context.Context, userIds []int64) ([]*model.User, error) {
 	user := query.User
 	userdo := user.WithContext(ctx)
 	userInfo, err := userdo.Where(user.UserID.In(userIds...)).Find()
@@ -133,5 +175,5 @@ func getUsersSummaryInfoByIDs(ctx context.Context, userIds []int64) ([]*biz.User
 		}
 		return nil, err
 	}
-	return modelUser2userSummary(userInfo...), nil
+	return userInfo, nil
 }
