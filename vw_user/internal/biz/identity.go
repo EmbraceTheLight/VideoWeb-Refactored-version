@@ -21,11 +21,11 @@ import (
 )
 
 type UserIdentityRepo interface {
-	CacheAccessToken(ctx context.Context, accessToken string, expiration time.Duration) error
+	CacheAccessToken(ctx context.Context, userId, accessToken string, expiration time.Duration) error
 	AddExpForLogin(ctx context.Context, userID int64) error
 	CheckPassword(ctx context.Context, password, hashedPassword string) error
 	CreatRecordsForRegister(ctx context.Context, newUser *model.User) error
-	DeleteCachedAccessToken(ctx context.Context, accessToken string) error
+	DeleteCachedAccessToken(ctx context.Context, userId string) error
 }
 
 type RegisterInfo struct {
@@ -96,8 +96,8 @@ func (uc *UserIdentityUsecase) Register(ctx context.Context, registerInfo *Regis
 	return newUser.UserID, newUser.IsAdmin, nil
 }
 
-func (uc *UserIdentityUsecase) CacheAccessToken(ctx context.Context, accessToken string, expiration time.Duration) error {
-	return uc.identityRepo.CacheAccessToken(ctx, accessToken, expiration)
+func (uc *UserIdentityUsecase) CacheAccessToken(ctx context.Context, userId, accessToken string, expiration time.Duration) error {
+	return uc.identityRepo.CacheAccessToken(ctx, userId, accessToken, expiration)
 }
 
 func (uc *UserIdentityUsecase) AddExpForLogin(ctx context.Context, userID int64) error {
@@ -109,8 +109,8 @@ func (uc *UserIdentityUsecase) AddExpForLogin(ctx context.Context, userID int64)
 	return nil
 }
 
-func (uc *UserIdentityUsecase) Logout(ctx context.Context, accessToken string) error {
-	err := uc.identityRepo.DeleteCachedAccessToken(ctx, accessToken)
+func (uc *UserIdentityUsecase) Logout(ctx context.Context, userId string) error {
+	err := uc.identityRepo.DeleteCachedAccessToken(ctx, userId)
 	if err != nil {
 		return errdef.ErrLogoutFailed
 	}

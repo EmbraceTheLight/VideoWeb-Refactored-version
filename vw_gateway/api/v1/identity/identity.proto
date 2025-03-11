@@ -24,7 +24,7 @@ service Identity {
 
     rpc Logout(LogoutRequest) returns (LogoutResp) {
         option (google.api.http) = {
-            post: "/api/v1/user/logout",
+            post: "/api/v1/user/{user_id}/logout",
             body: "*"
         };
     };
@@ -73,7 +73,7 @@ message RegisterResp {
 
 //用户注销所需请求、响应
 message LogoutRequest {
-    string access_token = 1;
+    string user_id = 1;
 }
 message LogoutResp {
     int32 status_code = 1;

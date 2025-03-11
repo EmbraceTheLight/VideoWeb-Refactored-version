@@ -1,8 +1,11 @@
 package ecode
 
 const (
+	// Intertal errors
+	INTERNAL_ErrInternal = 4001 + iota
+
 	// identity errors
-	IDENTITY_LoginFailed = 4001 + iota
+	IDENTITY_LoginFailed
 	IDENTITY_UserNameEmpty
 	IDENTITY_UserPasswordEmpty
 	IDENTITY_UserNotFound
