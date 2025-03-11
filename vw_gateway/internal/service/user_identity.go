@@ -70,7 +70,7 @@ func (uid *UserIdentityService) Login(ctx context.Context, req *idv1.LoginReques
 }
 
 func (uid *UserIdentityService) Logout(ctx context.Context, req *idv1.LogoutRequest) (*idv1.LogoutResp, error) {
-	err := uid.identity.Logout(ctx, req.AccessToken)
+	err := uid.identity.Logout(ctx, req.UserId)
 	if err != nil {
 		return nil, err
 	}

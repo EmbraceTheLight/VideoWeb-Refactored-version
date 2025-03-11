@@ -7,9 +7,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
-	_ "vw_user/internal/data"
-	"vw_user/internal/data/dal/query"
-	"vw_user/internal/pkg/middlewares/auth"
+	_ "vw_gateway/internal/data"
+
+	"vw_gateway/internal/pkg/middlewares/auth"
 )
 
 func dump(a ...interface{}) {

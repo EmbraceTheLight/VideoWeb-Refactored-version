@@ -310,7 +310,7 @@ components:
         gateway.v1.id.LogoutRequest:
             type: object
             properties:
-                accessToken:
+                userId:
                     type: string
             description: 用户注销所需请求、响应
         gateway.v1.id.LogoutResp:

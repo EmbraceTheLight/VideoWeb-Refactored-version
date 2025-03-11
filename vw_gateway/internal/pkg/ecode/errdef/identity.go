@@ -32,7 +32,7 @@ func init() {
 
 var (
 	// Login errors
-	ErrUserLoggedOut error
+	ErrUserLoggedOut *kerr.Error
 
 	// Register errors
 	//ErrUserAlreadyExist      error

@@ -11,6 +11,6 @@ func init() {
 }
 
 var (
-	ErrFormFileFiled      error
-	ErrUploadAvatarFailed error
+	ErrFormFileFiled      *kerr.Error
+	ErrUploadAvatarFailed *kerr.Error
 )

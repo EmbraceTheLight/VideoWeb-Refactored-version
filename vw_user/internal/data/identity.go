@@ -74,8 +74,8 @@ func (u *userIdentityRepo) AddExpForLogin(ctx context.Context, userId int64) err
 	return nil
 }
 
-func (u *userIdentityRepo) CacheAccessToken(ctx context.Context, accessToken string, expiration time.Duration) error {
-	_, err := u.data.redis.SetEx(ctx, accessToken, "1", expiration).Result()
+func (u *userIdentityRepo) CacheAccessToken(ctx context.Context, userId, accessToken string, expiration time.Duration) error {
+	_, err := u.data.redis.SetEx(ctx, userId, accessToken, expiration).Result()
 	if err != nil {
 		return helper.HandleError(errdef.ErrCacheAccessToken, err)
 	}
@@ -143,7 +143,7 @@ func (u *userIdentityRepo) CreatRecordsForRegister(ctx context.Context, newUser 
 	return nil
 }
 
-func (u *userIdentityRepo) DeleteCachedAccessToken(ctx context.Context, accessToken string) error {
-	_, err := u.data.redis.Del(ctx, accessToken).Result()
+func (u *userIdentityRepo) DeleteCachedAccessToken(ctx context.Context, userId string) error {
+	_, err := u.data.redis.Del(ctx, userId).Result()
 	return err
 }

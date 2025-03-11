@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
+	"strconv"
 	"time"
 	"vw_gateway/internal/pkg/middlewares/auth"
 )
@@ -36,10 +37,10 @@ type LoginResponse struct {
 }
 
 type UserIdentityRepo interface {
-	CacheAccessToken(ctx context.Context, accessToken string, expireTime time.Duration) error
+	CacheAccessToken(ctx context.Context, userId, accessToken string, expireTime time.Duration) error
 	Register(ctx context.Context, registerInfo *RegisterInfo) (userID int64, isAdmin bool, err error)
 	Login(ctx context.Context, username, password string) (*LoginResponse, error)
-	Logout(ctx context.Context, accessToken string) error
+	Logout(ctx context.Context, userId string) error
 }
 
 type UserIdentityUsecase struct {
@@ -77,7 +78,7 @@ func (uc *UserIdentityUsecase) Login(ctx context.Context, username, password str
 		return "", "", err
 	}
 
-	err = uc.identityRepo.CacheAccessToken(ctx, atoken, uc.jwt.AccessExpireTime)
+	err = uc.identityRepo.CacheAccessToken(ctx, strconv.FormatInt(resp.UserId, 10), atoken, uc.jwt.RefreshExpireTime)
 	if err != nil {
 		// TODO: 做异步处理
 		return "", "", err
@@ -86,6 +87,6 @@ func (uc *UserIdentityUsecase) Login(ctx context.Context, username, password str
 	return atoken, rtoken, nil
 }
 
-func (uc *UserIdentityUsecase) Logout(ctx context.Context, token string) error {
-	return uc.identityRepo.Logout(ctx, token)
+func (uc *UserIdentityUsecase) Logout(ctx context.Context, userId string) error {
+	return uc.identityRepo.Logout(ctx, userId)
 }
