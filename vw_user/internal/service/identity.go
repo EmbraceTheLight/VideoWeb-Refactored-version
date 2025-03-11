@@ -47,7 +47,7 @@ func (s *UserIdentityService) Register(ctx context.Context, req *idv1.RegisterRe
 }
 
 func (s *UserIdentityService) Logout(ctx context.Context, req *idv1.LogoutReq) (*emptypb.Empty, error) {
-	return nil, s.identity.Logout(ctx, req.AccessToken)
+	return nil, s.identity.Logout(ctx, req.UserId)
 }
 
 func (s *UserIdentityService) Login(ctx context.Context, req *idv1.LoginReq) (*idv1.LoginResp, error) {
@@ -55,5 +55,5 @@ func (s *UserIdentityService) Login(ctx context.Context, req *idv1.LoginReq) (*i
 }
 
 func (s *UserIdentityService) CacheAccessToken(ctx context.Context, req *idv1.CacheAccessTokenReq) (*emptypb.Empty, error) {
-	return nil, s.identity.CacheAccessToken(ctx, req.AccessToken, req.Expiration.AsDuration())
+	return nil, s.identity.CacheAccessToken(ctx, req.UserId, req.AccessToken, req.Expiration.AsDuration())
 }

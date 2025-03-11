@@ -15,10 +15,10 @@ func init() {
 }
 
 var (
-	ErrTokenMissing        error
-	ErrTokenInvalid        error
-	ErrAccessTokenExpired  error
-	ErrRefreshTokenExpired error
-	ErrParseTokenFailed    error
-	ErrCreateTokenFailed   error
+	ErrTokenMissing        *kerr.Error
+	ErrTokenInvalid        *kerr.Error
+	ErrAccessTokenExpired  *kerr.Error
+	ErrRefreshTokenExpired *kerr.Error
+	ErrParseTokenFailed    *kerr.Error
+	ErrCreateTokenFailed   *kerr.Error
 )

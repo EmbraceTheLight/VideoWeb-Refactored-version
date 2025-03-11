@@ -38,25 +38,25 @@ func init() {
 
 var (
 	// Login errors
-	ErrUserNameEmpty     error
-	ErrUserPasswordEmpty error
-	ErrUserNotFound      error
-	ErrUserPasswordError error
+	ErrUserNameEmpty     *kerr.Error
+	ErrUserPasswordEmpty *kerr.Error
+	ErrUserNotFound      *kerr.Error
+	ErrUserPasswordError *kerr.Error
 
 	// Register errors
-	ErrUserAlreadyExist        error
-	ErrPasswordTooShort        error
-	ErrPasswordNotMatch        error
-	ErrSignatureTooLong        error
-	ErrVerifyCodeExpired       error
-	ErrVerifyCodeNotMatch      error
-	ErrEncryptPasswordFailed   error
-	ErrCreateUserDirFailed     error
-	ErrCreateUserAvatarFailed  error
-	ErrReadAvatarFailed        error
-	ErrSaveAvatarFailed        error
-	ErrCreateUserRecordsFailed error
+	ErrUserAlreadyExist        *kerr.Error
+	ErrPasswordTooShort        *kerr.Error
+	ErrPasswordNotMatch        *kerr.Error
+	ErrSignatureTooLong        *kerr.Error
+	ErrVerifyCodeExpired       *kerr.Error
+	ErrVerifyCodeNotMatch      *kerr.Error
+	ErrEncryptPasswordFailed   *kerr.Error
+	ErrCreateUserDirFailed     *kerr.Error
+	ErrCreateUserAvatarFailed  *kerr.Error
+	ErrReadAvatarFailed        *kerr.Error
+	ErrSaveAvatarFailed        *kerr.Error
+	ErrCreateUserRecordsFailed *kerr.Error
 
 	// Logout errors
-	ErrLogoutFailed error
+	ErrLogoutFailed *kerr.Error
 )

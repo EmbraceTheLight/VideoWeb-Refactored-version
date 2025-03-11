@@ -18,8 +18,9 @@ service Identity {
 }
 
 message CacheAccessTokenReq {
-    string access_token                 = 1;
-    google.protobuf.Duration expiration = 2;
+    string user_id                      = 1;
+    string access_token                 = 2;
+    google.protobuf.Duration expiration = 3;
 }
 
 message RegisterReq {
@@ -53,5 +54,5 @@ message LoginResp {
 }
 
 message LogoutReq {
-    string access_token = 1;
+    string user_id = 1;
 }

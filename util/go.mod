@@ -6,6 +6,7 @@ toolchain go1.23.3
 
 require (
 	github.com/go-kratos/kratos/v2 v2.8.3
+	github.com/spewerspew/spew v0.0.0-20230513223542-89b69fbbe2bd
 	github.com/yitter/idgenerator-go v1.3.3
 	go.opentelemetry.io/otel v1.24.0
 	go.opentelemetry.io/otel/exporters/jaeger v1.17.0

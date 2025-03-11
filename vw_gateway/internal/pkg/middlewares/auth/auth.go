@@ -3,11 +3,11 @@ package auth
 import (
 	"context"
 	"errors"
-	kerr "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/redis/go-redis/v9"
+	"strconv"
 	"strings"
 	"time"
 	"util/helper"
@@ -129,7 +129,7 @@ func JwtAuth(secret string, accessTokenExpireTime time.Duration, redisCluster *r
 		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
 			if tr, ok := transport.FromServerContext(ctx); ok {
 
-				// Get access token from header and check if it is valid (exist in redis).
+				// Get access token from header and check if it is existed in redis.
 				var atoken *jwt.Token
 				atoken, err = getToken(tr, secret, AccessTokenHeader)
 				if err != nil {
@@ -143,26 +143,32 @@ func JwtAuth(secret string, accessTokenExpireTime time.Duration, redisCluster *r
 					return nil, err
 				}
 
-				// Check if access token is existed in redis,
-				// because user may log out manually,
-				// which will delete access token in redis
-				_, err2 := redisCluster.Get(ctx, atoken.Raw).Result()
-				aTokenExist := errors.Is(err2, redis.Nil)
-				if err2 != nil && !aTokenExist { // Other error occurs
-					return nil, err2
-				}
-
 				aclaims, atok := atoken.Claims.(*AccessTokenClaims)
 				rclaims, rtok := rtoken.Claims.(*RefreshTokenClaims)
 
-				if (atok && rtok) &&
-					atoken.Valid &&
-					!aTokenExist { // if aTokenExist is false, goto the else block, which means user needs to Login Manually
-					//判断是否过期，是否需要刷新
+				if !atok || !rtok {
+					return nil, errdef.ErrTokenInvalid
+				}
+
+				// Check if access token is existed in redis,
+				// because user may log out manually, or the refresh token is expired,
+				// which will delete access token in redis.
+				_, err2 := redisCluster.Get(ctx, strconv.FormatInt(aclaims.UserID, 10)).Result()
+				aTokenNotExist := errors.Is(err2, redis.Nil)
+				if err2 != nil { // Other error occurs
+					if aTokenNotExist {
+						return nil, errdef.ErrUserLoggedOut
+					}
+					return nil, helper.HandleError(errdef.INTERNAL_ERROR, err2)
+				}
+
+				// Access token is invalid. Check if access token is expired
+				if !atoken.Valid {
+					// Check if access token is expired
 					if aclaims.isExpired() {
 						if rclaims.isExpired() { // refresh token expired，need login again
 							return nil, errdef.ErrRefreshTokenExpired
-						} else {
+						} else { // refresh token is not expired, need to refresh access token
 							// refresh access token
 							atokenClaims := NewAccessTokenClaims()
 							atokenClaims.padding(aclaims.UserID, aclaims.Username, aclaims.IsAdmin, accessTokenExpireTime)
@@ -171,17 +177,18 @@ func JwtAuth(secret string, accessTokenExpireTime time.Duration, redisCluster *r
 								return nil, err
 							}
 
-							redisCluster.Set(ctx, accessToken, "1", accessTokenExpireTime)
-							return nil, (errdef.ErrAccessTokenExpired.(*kerr.Error)).WithMetadata(map[string]string{
+							// update redis cache:
+							// ? Set the access token to redis cache with the refresh-token's expiration time.
+							// ? If we set the access-token's expiration time of access token in redis, user has to log in manually and frequently,
+							// ? in this case, the refresh-token is meaningless.
+							redisCluster.Set(ctx, strconv.FormatInt(aclaims.UserID, 10), accessToken, rclaims.ExpiresAt.Time.Sub(time.Now()))
+							return nil, helper.HandleError(errdef.ErrAccessTokenExpired.WithMetadata(map[string]string{
 								"access_token": accessToken,
-							})
+							}), nil)
 						}
+					} else {
+						return nil, errdef.ErrTokenInvalid
 					}
-				} else {
-					if aTokenExist {
-						return nil, errdef.ErrUserLoggedOut
-					}
-					return nil, errdef.ErrTokenInvalid
 				}
 			}
 			return handler(ctx, req)
@@ -200,17 +207,29 @@ func getToken(tr transport.Transporter, secret, headerString string) (tokenClaim
 		tokenClaims, err = jwt.ParseWithClaims(auths[1], atokenClaims, func(token *jwt.Token) (interface{}, error) {
 			return []byte(secret), nil
 		})
+
 		if err != nil {
-			return nil, errdef.ErrParseTokenFailed
+			// Skip this error case: token is expired, but it doesn't have other error.
+			// IN this case, the error will return nil, because the logic of handling expired token is in middleware.
+			if strings.EqualFold("token has invalid claims: token is expired", err.Error()) {
+				return tokenClaims, nil
+			}
+			return nil, helper.HandleError(errdef.ErrParseTokenFailed, err)
 		}
+
 	} else { //headerString == RefreshTokenHeader
 		rtokenClaims := new(RefreshTokenClaims)
 		tokenClaims, err = jwt.ParseWithClaims(auths[1], rtokenClaims, func(token *jwt.Token) (interface{}, error) {
 			return []byte(secret), nil
 		})
+
 		if err != nil {
-			return nil, errdef.ErrParseTokenFailed
+			if strings.EqualFold("token has invalid claims: token is expired", err.Error()) {
+				return
+			}
+			return nil, helper.HandleError(errdef.ErrParseTokenFailed, err)
 		}
+
 	}
 	return
 }

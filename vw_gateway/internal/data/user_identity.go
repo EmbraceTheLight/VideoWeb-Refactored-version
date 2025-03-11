@@ -21,8 +21,9 @@ func NewUserIdentityRepo(data *Data, logger log.Logger) biz.UserIdentityRepo {
 	}
 }
 
-func (u *userIdentityRepo) CacheAccessToken(ctx context.Context, accessToken string, expiration time.Duration) error {
+func (u *userIdentityRepo) CacheAccessToken(ctx context.Context, userId, accessToken string, expiration time.Duration) error {
 	_, err := u.data.userIdentityClient.CacheAccessToken(ctx, &idv1.CacheAccessTokenReq{
+		UserId:      userId,
 		AccessToken: accessToken,
 		Expiration:  durationpb.New(expiration),
 	})
@@ -46,9 +47,9 @@ func (u *userIdentityRepo) Register(ctx context.Context, registerInfo *biz.Regis
 	return resp.UserID, resp.IsAdmin, err
 }
 
-func (u *userIdentityRepo) Logout(ctx context.Context, accessToken string) error {
+func (u *userIdentityRepo) Logout(ctx context.Context, userId string) error {
 	_, err := u.data.userIdentityClient.Logout(ctx, &idv1.LogoutReq{
-		AccessToken: accessToken,
+		UserId: userId,
 	})
 	return err
 }
