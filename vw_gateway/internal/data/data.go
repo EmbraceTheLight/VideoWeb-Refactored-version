@@ -12,6 +12,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"vw_gateway/internal/conf"
 	captv1 "vw_user/api/v1/captcha"
+	favorv1 "vw_user/api/v1/favorites"
 	idv1 "vw_user/api/v1/identity"
 	filev1 "vw_user/api/v1/userfile"
 	infov1 "vw_user/api/v1/userinfo"
@@ -34,6 +35,8 @@ var ProviderSet = wire.NewSet(
 	NewRedisClusterClient,
 	NewFileClient,
 	NewUserInfoRepo,
+	NewFavoritesRepo,
+	NewFavoritesClient,
 )
 
 // Data .
@@ -43,7 +46,9 @@ type Data struct {
 	userInfoClient     infov1.UserinfoClient
 	captchaClient      captv1.CaptchaClient
 	fileClient         filev1.FileServiceClient
-	redis              *redis.ClusterClient
+	favoritesClient    favorv1.FavoriteClient
+
+	redis *redis.ClusterClient
 }
 
 // NewData .
@@ -53,6 +58,8 @@ func NewData(
 	infoClient infov1.UserinfoClient,
 	captchaClient captv1.CaptchaClient,
 	fileClient filev1.FileServiceClient,
+	favoritesClient favorv1.FavoriteClient,
+
 	redisCluster *redis.ClusterClient,
 ) (*Data, func(), error) {
 	cleanup := func() {
@@ -65,6 +72,7 @@ func NewData(
 		userInfoClient:     infoClient,
 		captchaClient:      captchaClient,
 		fileClient:         fileClient,
+		favoritesClient:    favoritesClient,
 		redis:              redisCluster,
 	}, cleanup, nil
 }
@@ -181,4 +189,20 @@ func NewFileClient(r registry.Discovery, s *conf.Service) filev1.FileServiceClie
 		panic(err)
 	}
 	return filev1.NewFileServiceClient(conn)
+}
+
+func NewFavoritesClient(r registry.Discovery, s *conf.Service) favorv1.FavoriteClient {
+	conn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint(s.User.Endpoint),
+		grpc.WithDiscovery(r),
+		grpc.WithMiddleware(
+			recovery.Recovery(),
+			tracing.Client(),
+		),
+	)
+	if err != nil {
+		panic(err)
+	}
+	return favorv1.NewFavoriteClient(conn)
 }

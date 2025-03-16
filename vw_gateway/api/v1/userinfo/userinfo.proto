@@ -14,35 +14,35 @@ service Userinfo {
 
     rpc ModifyEmail(modifyEmailReq) returns (modifyEmailResp) {
         option (google.api.http) = {
-            post: "/api/v1/userinfo/{user_id}/modify_email",
+            post: "/api/v1/userinfo/{user_id}/modifyEmail",
             body: "*"
         };
     }
 
     rpc ModifyPassword(modifyPasswordReq) returns (modifyPasswordResp) {
         option (google.api.http) = {
-            post: "/api/v1/userinfo/{user_id}/modify_password",
+            post: "/api/v1/userinfo/{user_id}/modifyPassword",
             body: "*"
         };
     };
 
     rpc ModifyUserSignature(modifySignatureReq) returns (modifySignatureResp) {
         option (google.api.http) = {
-            post: "/api/v1/userinfo/{user_id}/modify_signature",
+            post: "/api/v1/userinfo/{user_id}/modifySignature",
             body: "*";
     };
 }
 
 rpc ForgetPassword(forgetPasswordReq) returns (forgetPasswordResp) {
     option (google.api.http) = {
-        post: "/api/v1/userinfo/{user_id}/forget_password",
+        post: "/api/v1/userinfo/{user_id}/forgetPassword",
         body: "*";
 };
 }
 
 rpc ModifyUsername(modifyUsernameReq) returns (modifyUsernameResp) {
     option (google.api.http) = {
-        post: "/api/v1/userinfo/{user_id}/modify_username",
+        post: "/api/v1/userinfo/{user_id}/modifyUsername",
         body: "*";
 };
 }

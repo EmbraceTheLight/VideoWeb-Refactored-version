@@ -21,7 +21,7 @@ func GenerateGraphicCaptcha() (id, b64s, ans string, err error) {
 		Length:          4,
 		Source:          "abcdefghijklmnopqrstuvwxyz0123456789",
 		BgColor:         &randRGBA,
-		Fonts:           []string{"wqy-microhei.ttc"},
+		Fonts:           []string{"wqy-microhei.ttc", "sans-serif"},
 	}
 	var driver base64Captcha.Driver = driverString.ConvertFonts()
 	captcha := base64Captcha.NewCaptcha(driver, store)

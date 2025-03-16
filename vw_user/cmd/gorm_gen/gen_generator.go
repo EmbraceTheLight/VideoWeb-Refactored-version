@@ -5,7 +5,7 @@ import (
 	"github.com/go-kratos/kratos/v2/config/file"
 	"gorm.io/gen"
 	"gorm.io/gorm"
-	"vw_user/cmd/tools/gorm_gen/methods"
+	"vw_user/cmd/gorm_gen/methods"
 	"vw_user/internal/conf"
 	"vw_user/internal/data"
 )
