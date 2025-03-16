@@ -11,6 +11,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"time"
+	"util"
 	utilCtx "util/context"
 	"vw_user/internal/conf"
 	"vw_user/internal/data/dal/query"
@@ -26,13 +27,23 @@ var ProviderSet = wire.NewSet(
 	NewUserInfoRepo,
 	NewCaptRepo,
 	NewFileRepo,
+	NewFavoritesRepo,
+	NewTransaction,
 )
+
+// transactionKey is a context key for gorm transactionKey
+type transactionKey struct{}
 
 // Data .
 type Data struct {
 	mysql *gorm.DB
 	redis *redis.ClusterClient
 	mongo *mongo.Client
+}
+
+// NewTransaction return a util.Transaction interface.
+func NewTransaction(d *Data) util.Transaction {
+	return d
 }
 
 // NewData .
@@ -111,4 +122,42 @@ func NewMongo(c *conf.Data) *mongo.Client {
 		panic(err)
 	}
 	return mongoCli
+}
+
+// WithTx starts and commits(or rollbacks) a transaction Automatically.
+// Closure function fn is defined at Biz layer, and it contains the transaction logic you want to execute.
+func (d *Data) WithTx(ctx context.Context, fn func(context.Context) error) error {
+	var err error
+	ctx, commit := startTx(ctx)
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic: %v", r) // 确保 err 被赋值，事务正确回滚
+			commit(err)
+			panic(r) // 继续抛出 panic，防止业务逻辑被吞掉
+		}
+		commit(err)
+	}()
+	err = fn(ctx)
+	return err
+}
+
+// startTx sets transactionKey to context and starts a transaction.
+func startTx(ctx context.Context) (context.Context, func(err error)) {
+	tx := query.Q.Begin()
+	ctx = utilCtx.WithValue(ctx, transactionKey{}, tx) // set transactionKey to context
+	return ctx, func(err error) { commitTx(ctx, err) }
+}
+
+// commitTx commits the transactionKey in context.
+// err is the error that out of the transaction.
+func commitTx(ctx context.Context, err error) {
+	value := utilCtx.MustGetValue(ctx, transactionKey{})
+
+	tx := value.(*query.QueryTx)
+
+	if err != nil || tx.Error != nil {
+		tx.Rollback()
+		return
+	}
+	tx.Commit()
 }

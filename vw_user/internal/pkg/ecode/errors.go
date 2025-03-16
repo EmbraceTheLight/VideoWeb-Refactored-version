@@ -41,6 +41,13 @@ const (
 	USERINFO_ModifyUsernameFailed
 	USERINFO_GetUserInfoFailed
 	USERINFO_ModifySignatureFailed
+
+	// favoritee errors
+	FAVORITES_CreateFavoritesFailed
+	FAVORITES_FavoritesNameConflict
+	FAVORITES_DeleteFavoritesFailed
+	FAVORITES_ModifyFavoritesFailed
+	FAVORITES_FavoritesNotEmpty
 )
 
 var ()
