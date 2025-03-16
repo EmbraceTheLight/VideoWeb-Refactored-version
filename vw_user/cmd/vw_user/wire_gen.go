@@ -42,7 +42,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Regist
 	captchaService := service.NewCaptchaService(logger, captchaUsecase)
 	fileUsecase := biz.NewFileUsecase(logger)
 	fileService := service.NewFileService(logger, fileUsecase)
-	grpcServer := server.NewGRPCServer(confServer, userIdentityService, userInfoService, captchaService, fileService, logger)
+	favoritesRepo := data.NewFavoritesRepo(dataData, logger)
+	transaction := data.NewTransaction(dataData)
+	favoritesUsecase := biz.NewFavoritesUsecase(favoritesRepo, transaction, logger)
+	favoritesService := service.NewFavoritesService(favoritesUsecase, logger)
+	grpcServer := server.NewGRPCServer(confServer, userIdentityService, userInfoService, captchaService, fileService, favoritesService, logger)
 	registrar := server.NewRegistrar(registry)
 	app := newApp(logger, grpcServer, registrar)
 	return app, func() {

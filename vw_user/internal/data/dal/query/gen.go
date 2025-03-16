@@ -16,59 +16,64 @@ import (
 )
 
 var (
-	Q            = new(Query)
-	FollowList   *followList
-	User         *user
-	UserFan      *userFan
-	UserFavorite *userFavorite
-	UserFollow   *userFollow
-	UserLevel    *userLevel
+	Q             = new(Query)
+	Favorite      *favorite
+	FavoriteVideo *favoriteVideo
+	FollowList    *followList
+	User          *user
+	UserFan       *userFan
+	UserFollow    *userFollow
+	UserLevel     *userLevel
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
+	Favorite = &Q.Favorite
+	FavoriteVideo = &Q.FavoriteVideo
 	FollowList = &Q.FollowList
 	User = &Q.User
 	UserFan = &Q.UserFan
-	UserFavorite = &Q.UserFavorite
 	UserFollow = &Q.UserFollow
 	UserLevel = &Q.UserLevel
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:           db,
-		FollowList:   newFollowList(db, opts...),
-		User:         newUser(db, opts...),
-		UserFan:      newUserFan(db, opts...),
-		UserFavorite: newUserFavorite(db, opts...),
-		UserFollow:   newUserFollow(db, opts...),
-		UserLevel:    newUserLevel(db, opts...),
+		db:            db,
+		Favorite:      newFavorite(db, opts...),
+		FavoriteVideo: newFavoriteVideo(db, opts...),
+		FollowList:    newFollowList(db, opts...),
+		User:          newUser(db, opts...),
+		UserFan:       newUserFan(db, opts...),
+		UserFollow:    newUserFollow(db, opts...),
+		UserLevel:     newUserLevel(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	FollowList   followList
-	User         user
-	UserFan      userFan
-	UserFavorite userFavorite
-	UserFollow   userFollow
-	UserLevel    userLevel
+	Favorite      favorite
+	FavoriteVideo favoriteVideo
+	FollowList    followList
+	User          user
+	UserFan       userFan
+	UserFollow    userFollow
+	UserLevel     userLevel
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:           db,
-		FollowList:   q.FollowList.clone(db),
-		User:         q.User.clone(db),
-		UserFan:      q.UserFan.clone(db),
-		UserFavorite: q.UserFavorite.clone(db),
-		UserFollow:   q.UserFollow.clone(db),
-		UserLevel:    q.UserLevel.clone(db),
+		db:            db,
+		Favorite:      q.Favorite.clone(db),
+		FavoriteVideo: q.FavoriteVideo.clone(db),
+		FollowList:    q.FollowList.clone(db),
+		User:          q.User.clone(db),
+		UserFan:       q.UserFan.clone(db),
+		UserFollow:    q.UserFollow.clone(db),
+		UserLevel:     q.UserLevel.clone(db),
 	}
 }
 
@@ -82,33 +87,36 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:           db,
-		FollowList:   q.FollowList.replaceDB(db),
-		User:         q.User.replaceDB(db),
-		UserFan:      q.UserFan.replaceDB(db),
-		UserFavorite: q.UserFavorite.replaceDB(db),
-		UserFollow:   q.UserFollow.replaceDB(db),
-		UserLevel:    q.UserLevel.replaceDB(db),
+		db:            db,
+		Favorite:      q.Favorite.replaceDB(db),
+		FavoriteVideo: q.FavoriteVideo.replaceDB(db),
+		FollowList:    q.FollowList.replaceDB(db),
+		User:          q.User.replaceDB(db),
+		UserFan:       q.UserFan.replaceDB(db),
+		UserFollow:    q.UserFollow.replaceDB(db),
+		UserLevel:     q.UserLevel.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	FollowList   IFollowListDo
-	User         IUserDo
-	UserFan      IUserFanDo
-	UserFavorite IUserFavoriteDo
-	UserFollow   IUserFollowDo
-	UserLevel    IUserLevelDo
+	Favorite      IFavoriteDo
+	FavoriteVideo IFavoriteVideoDo
+	FollowList    IFollowListDo
+	User          IUserDo
+	UserFan       IUserFanDo
+	UserFollow    IUserFollowDo
+	UserLevel     IUserLevelDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		FollowList:   q.FollowList.WithContext(ctx),
-		User:         q.User.WithContext(ctx),
-		UserFan:      q.UserFan.WithContext(ctx),
-		UserFavorite: q.UserFavorite.WithContext(ctx),
-		UserFollow:   q.UserFollow.WithContext(ctx),
-		UserLevel:    q.UserLevel.WithContext(ctx),
+		Favorite:      q.Favorite.WithContext(ctx),
+		FavoriteVideo: q.FavoriteVideo.WithContext(ctx),
+		FollowList:    q.FollowList.WithContext(ctx),
+		User:          q.User.WithContext(ctx),
+		UserFan:       q.UserFan.WithContext(ctx),
+		UserFollow:    q.UserFollow.WithContext(ctx),
+		UserLevel:     q.UserLevel.WithContext(ctx),
 	}
 }
 

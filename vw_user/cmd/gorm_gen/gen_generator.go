@@ -14,7 +14,7 @@ import (
 func main() {
 	db := getGormDB()
 	g := gen.NewGenerator(gen.Config{
-		OutPath: "../../../internal/data/dal/query",
+		OutPath: "../../internal/data/dal/query",
 
 		// WithDefaultQuery 生成默认查询结构体(作为全局变量使用), 即`Q`结构体和其字段(各表模型)
 		// WithoutContext 生成没有context调用限制的代码供查询
@@ -65,14 +65,16 @@ func main() {
 		gen.FieldType("exp", "uint32"),
 		gen.FieldType("next_exp", "uint32"),
 		gen.WithMethod(methods.UserLevel{}))
-	followlist := g.GenerateModel("follow_list")
+	followList := g.GenerateModel("follow_list")
 	userFollows := g.GenerateModel("user_follows")
 	userFollowed := g.GenerateModel("user_fans")
-	userFavorites := g.GenerateModel("user_favorites")
+	favorites := g.GenerateModel("favorites")
+	favoriteVideo := g.GenerateModel("favorite_video")
 
 	g.ApplyBasic(
-		user, level, followlist,
-		userFollows, userFollowed, userFavorites)
+		user, level,
+		followList, userFollows, userFollowed,
+		favorites, favoriteVideo)
 
 	g.Execute()
 
@@ -80,7 +82,7 @@ func main() {
 func getGormDB() *gorm.DB {
 	c := config.New(
 		config.WithSource(
-			file.NewSource("../../../configs/config.yaml"),
+			file.NewSource("../../configs/config.yaml"),
 		),
 	)
 	defer c.Close()

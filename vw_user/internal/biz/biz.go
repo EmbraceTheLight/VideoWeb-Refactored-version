@@ -12,6 +12,7 @@ var ProviderSet = wire.NewSet(
 	NewUserInfoUsecase,
 	NewCaptchaUsecase,
 	NewFileUsecase,
+	NewFavoritesUsecase,
 )
 
 var (
