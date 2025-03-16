@@ -8,13 +8,13 @@ option go_package = "vw_gateway/api/v1/captcha;captv1";
 service Captcha {
     rpc GetImageCaptcha(GetImageCaptchaRequest) returns (GetImageCaptchaResp) {
         option (google.api.http) = {
-            get: "/api/v1/captcha/graphic_captcha",
+            get: "/api/v1/captcha/graphicCaptcha",
         };
     }
 
     rpc GetCodeCaptcha(GetCodeCaptchaReq) returns (GetCodeCaptchaResp) {
         option (google.api.http) = {
-            get: "/api/v1/captcha/code_captcha",
+            get: "/api/v1/captcha/codeCaptcha",
         };
     }
 }

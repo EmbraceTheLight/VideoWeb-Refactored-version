@@ -32,8 +32,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Regist
 	userinfoClient := data.NewUserinfoClient(discovery, confService)
 	captchaClient := data.NewCaptchaClient(discovery, confService)
 	fileServiceClient := data.NewFileClient(discovery, confService)
+	favoriteClient := data.NewFavoritesClient(discovery, confService)
 	clusterClient := data.NewRedisClusterClient(confData)
-	dataData, cleanup, err := data.NewData(logger, identityClient, userinfoClient, captchaClient, fileServiceClient, clusterClient)
+	dataData, cleanup, err := data.NewData(logger, identityClient, userinfoClient, captchaClient, fileServiceClient, favoriteClient, clusterClient)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -51,7 +52,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Regist
 	userinfoRepo := data.NewUserInfoRepo(dataData, logger)
 	userinfoUsecase := biz.NewUserinfoUsecase(userinfoRepo, logger)
 	userinfoService := service.NewUserinfoService(userinfoUsecase, logger)
-	httpServer := server.NewHTTPServer(confServer, jwt, captchaService, userFileService, userIdentityService, clusterClient, userinfoService, logger)
+	favoritesRepo := data.NewFavoritesRepo(dataData, favoriteClient, logger)
+	favoritesUsecase := biz.NewFavoritesUsecase(favoritesRepo, logger)
+	favoritesService := service.NewFavoritesService(favoritesUsecase, logger)
+	httpServer := server.NewHTTPServer(confServer, jwt, captchaService, userFileService, userIdentityService, clusterClient, userinfoService, favoritesService, logger)
 	registrar := data.NewRegistrar(registry)
 	app := newApp(logger, grpcServer, httpServer, registrar)
 	return app, func() {

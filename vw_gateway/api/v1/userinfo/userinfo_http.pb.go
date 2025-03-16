@@ -38,11 +38,11 @@ type UserinfoHTTPServer interface {
 func RegisterUserinfoHTTPServer(s *http.Server, srv UserinfoHTTPServer) {
 	r := s.Route("/")
 	r.GET("/api/v1/userinfo/{user_id}", _Userinfo_Userinfo0_HTTP_Handler(srv))
-	r.POST("/api/v1/userinfo/{user_id}/modify_email", _Userinfo_ModifyEmail0_HTTP_Handler(srv))
-	r.POST("/api/v1/userinfo/{user_id}/modify_password", _Userinfo_ModifyPassword0_HTTP_Handler(srv))
-	r.POST("/api/v1/userinfo/{user_id}/modify_signature", _Userinfo_ModifyUserSignature0_HTTP_Handler(srv))
-	r.POST("/api/v1/userinfo/{user_id}/forget_password", _Userinfo_ForgetPassword0_HTTP_Handler(srv))
-	r.POST("/api/v1/userinfo/{user_id}/modify_username", _Userinfo_ModifyUsername0_HTTP_Handler(srv))
+	r.POST("/api/v1/userinfo/{user_id}/modifyEmail", _Userinfo_ModifyEmail0_HTTP_Handler(srv))
+	r.POST("/api/v1/userinfo/{user_id}/modifyPassword", _Userinfo_ModifyPassword0_HTTP_Handler(srv))
+	r.POST("/api/v1/userinfo/{user_id}/modifySignature", _Userinfo_ModifyUserSignature0_HTTP_Handler(srv))
+	r.POST("/api/v1/userinfo/{user_id}/forgetPassword", _Userinfo_ForgetPassword0_HTTP_Handler(srv))
+	r.POST("/api/v1/userinfo/{user_id}/modifyUsername", _Userinfo_ModifyUsername0_HTTP_Handler(srv))
 }
 
 func _Userinfo_Userinfo0_HTTP_Handler(srv UserinfoHTTPServer) func(ctx http.Context) error {
@@ -211,7 +211,7 @@ func NewUserinfoHTTPClient(client *http.Client) UserinfoHTTPClient {
 
 func (c *UserinfoHTTPClientImpl) ForgetPassword(ctx context.Context, in *ForgetPasswordReq, opts ...http.CallOption) (*ForgetPasswordResp, error) {
 	var out ForgetPasswordResp
-	pattern := "/api/v1/userinfo/{user_id}/forget_password"
+	pattern := "/api/v1/userinfo/{user_id}/forgetPassword"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationUserinfoForgetPassword))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -224,7 +224,7 @@ func (c *UserinfoHTTPClientImpl) ForgetPassword(ctx context.Context, in *ForgetP
 
 func (c *UserinfoHTTPClientImpl) ModifyEmail(ctx context.Context, in *ModifyEmailReq, opts ...http.CallOption) (*ModifyEmailResp, error) {
 	var out ModifyEmailResp
-	pattern := "/api/v1/userinfo/{user_id}/modify_email"
+	pattern := "/api/v1/userinfo/{user_id}/modifyEmail"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationUserinfoModifyEmail))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -237,7 +237,7 @@ func (c *UserinfoHTTPClientImpl) ModifyEmail(ctx context.Context, in *ModifyEmai
 
 func (c *UserinfoHTTPClientImpl) ModifyPassword(ctx context.Context, in *ModifyPasswordReq, opts ...http.CallOption) (*ModifyPasswordResp, error) {
 	var out ModifyPasswordResp
-	pattern := "/api/v1/userinfo/{user_id}/modify_password"
+	pattern := "/api/v1/userinfo/{user_id}/modifyPassword"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationUserinfoModifyPassword))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -250,7 +250,7 @@ func (c *UserinfoHTTPClientImpl) ModifyPassword(ctx context.Context, in *ModifyP
 
 func (c *UserinfoHTTPClientImpl) ModifyUserSignature(ctx context.Context, in *ModifySignatureReq, opts ...http.CallOption) (*ModifySignatureResp, error) {
 	var out ModifySignatureResp
-	pattern := "/api/v1/userinfo/{user_id}/modify_signature"
+	pattern := "/api/v1/userinfo/{user_id}/modifySignature"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationUserinfoModifyUserSignature))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -263,7 +263,7 @@ func (c *UserinfoHTTPClientImpl) ModifyUserSignature(ctx context.Context, in *Mo
 
 func (c *UserinfoHTTPClientImpl) ModifyUsername(ctx context.Context, in *ModifyUsernameReq, opts ...http.CallOption) (*ModifyUsernameResp, error) {
 	var out ModifyUsernameResp
-	pattern := "/api/v1/userinfo/{user_id}/modify_username"
+	pattern := "/api/v1/userinfo/{user_id}/modifyUsername"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationUserinfoModifyUsername))
 	opts = append(opts, http.PathTemplate(pattern))

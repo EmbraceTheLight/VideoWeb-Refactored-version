@@ -33,7 +33,7 @@ func RegisterIdentityHTTPServer(s *http.Server, srv IdentityHTTPServer) {
 	r := s.Route("/")
 	r.POST("/api/v1/user/login", _Identity_Login0_HTTP_Handler(srv))
 	r.POST("/api/v1/user/register", _Identity_Register0_HTTP_Handler(srv))
-	r.POST("/api/v1/user/logout", _Identity_Logout0_HTTP_Handler(srv))
+	r.POST("/api/v1/user/{user_id}/logout", _Identity_Logout0_HTTP_Handler(srv))
 }
 
 func _Identity_Login0_HTTP_Handler(srv IdentityHTTPServer) func(ctx http.Context) error {
@@ -89,6 +89,9 @@ func _Identity_Logout0_HTTP_Handler(srv IdentityHTTPServer) func(ctx http.Contex
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
 		http.SetOperation(ctx, OperationIdentityLogout)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.Logout(ctx, req.(*LogoutRequest))
@@ -131,7 +134,7 @@ func (c *IdentityHTTPClientImpl) Login(ctx context.Context, in *LoginRequest, op
 
 func (c *IdentityHTTPClientImpl) Logout(ctx context.Context, in *LogoutRequest, opts ...http.CallOption) (*LogoutResp, error) {
 	var out LogoutResp
-	pattern := "/api/v1/user/logout"
+	pattern := "/api/v1/user/{user_id}/logout"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationIdentityLogout))
 	opts = append(opts, http.PathTemplate(pattern))

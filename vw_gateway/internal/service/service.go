@@ -8,4 +8,5 @@ var ProviderSet = wire.NewSet(
 	NewCaptchaService,
 	NewUserFileService,
 	NewUserinfoService,
+	NewFavoritesService,
 )

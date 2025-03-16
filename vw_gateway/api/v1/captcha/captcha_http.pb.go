@@ -29,8 +29,8 @@ type CaptchaHTTPServer interface {
 
 func RegisterCaptchaHTTPServer(s *http.Server, srv CaptchaHTTPServer) {
 	r := s.Route("/")
-	r.GET("/api/v1/captcha/graphic_captcha", _Captcha_GetImageCaptcha0_HTTP_Handler(srv))
-	r.GET("/api/v1/captcha/code_captcha", _Captcha_GetCodeCaptcha0_HTTP_Handler(srv))
+	r.GET("/api/v1/captcha/graphicCaptcha", _Captcha_GetImageCaptcha0_HTTP_Handler(srv))
+	r.GET("/api/v1/captcha/codeCaptcha", _Captcha_GetCodeCaptcha0_HTTP_Handler(srv))
 }
 
 func _Captcha_GetImageCaptcha0_HTTP_Handler(srv CaptchaHTTPServer) func(ctx http.Context) error {
@@ -86,7 +86,7 @@ func NewCaptchaHTTPClient(client *http.Client) CaptchaHTTPClient {
 
 func (c *CaptchaHTTPClientImpl) GetCodeCaptcha(ctx context.Context, in *GetCodeCaptchaReq, opts ...http.CallOption) (*GetCodeCaptchaResp, error) {
 	var out GetCodeCaptchaResp
-	pattern := "/api/v1/captcha/code_captcha"
+	pattern := "/api/v1/captcha/codeCaptcha"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationCaptchaGetCodeCaptcha))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -99,7 +99,7 @@ func (c *CaptchaHTTPClientImpl) GetCodeCaptcha(ctx context.Context, in *GetCodeC
 
 func (c *CaptchaHTTPClientImpl) GetImageCaptcha(ctx context.Context, in *GetImageCaptchaRequest, opts ...http.CallOption) (*GetImageCaptchaResp, error) {
 	var out GetImageCaptchaResp
-	pattern := "/api/v1/captcha/graphic_captcha"
+	pattern := "/api/v1/captcha/graphicCaptcha"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationCaptchaGetImageCaptcha))
 	opts = append(opts, http.PathTemplate(pattern))

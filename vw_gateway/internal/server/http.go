@@ -12,6 +12,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"time"
 	captv1 "vw_gateway/api/v1/captcha"
+	favorv1 "vw_gateway/api/v1/favorites"
 	idv1 "vw_gateway/api/v1/identity"
 	filev1 "vw_gateway/api/v1/userfile"
 	infov1 "vw_gateway/api/v1/userinfo"
@@ -52,6 +53,7 @@ func NewHTTPServer(
 	identity *service.UserIdentityService,
 	redis *redis.ClusterClient,
 	info *service.UserinfoService,
+	favorites *service.FavoritesService,
 	logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
@@ -69,7 +71,7 @@ func NewHTTPServer(
 			//则需要在AllowedHeaders中显式声明“Content-Type”。
 			//由于Content-Type可能还会有application/octet-stream等类型，所以这里需要显式声明。
 			handlers.AllowedHeaders([]string{"Authorization", "Refresh-Token", "Content-Type"}), // 增加刷新token以及Content-Type的跨域支持.
-			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS", "DELETE"}),
+			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "PATCH", "OPTIONS", "DELETE"}),
 			handlers.AllowedOrigins([]string{"*"}),
 		)),
 		http.RequestDecoder(codecs.RequestDecoder),
@@ -89,5 +91,6 @@ func NewHTTPServer(
 	captv1.RegisterCaptchaHTTPServer(srv, captcha)
 	filev1.RegisterFileServiceHTTPServer(srv, file)
 	infov1.RegisterUserinfoHTTPServer(srv, info)
+	favorv1.RegisterFavoriteHTTPServer(srv, favorites)
 	return srv
 }

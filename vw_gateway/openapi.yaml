@@ -6,7 +6,7 @@ info:
     title: ""
     version: 0.0.1
 paths:
-    /api/v1/captcha/code_captcha:
+    /api/v1/captcha/codeCaptcha:
         get:
             tags:
                 - Captcha
@@ -23,7 +23,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/gateway.v1.captcha.GetCodeCaptchaResp'
-    /api/v1/captcha/graphic_captcha:
+    /api/v1/captcha/graphicCaptcha:
         get:
             tags:
                 - Captcha
@@ -35,6 +35,65 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/gateway.v1.captcha.GetImageCaptchaResp'
+    /api/v1/favorites:
+        post:
+            tags:
+                - Favorite
+            operationId: Favorite_CreateFavorites
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/vw_gateway.api.v1.favorites.CreateFavoritesReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/vw_gateway.api.v1.favorites.CreateFavoritesResp'
+    /api/v1/favorites/{favoritesId}:
+        delete:
+            tags:
+                - Favorite
+            operationId: Favorite_DeleteFavorites
+            parameters:
+                - name: favoritesId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/vw_gateway.api.v1.favorites.DeleteFavoritesResp'
+        patch:
+            tags:
+                - Favorite
+            operationId: Favorite_ModifyFavorites
+            parameters:
+                - name: favoritesId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/vw_gateway.api.v1.favorites.ModifyFavoritesReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/vw_gateway.api.v1.favorites.ModifyFavoritesResp'
     /api/v1/user/login:
         post:
             tags:
@@ -53,24 +112,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/gateway.v1.id.LoginResp'
-    /api/v1/user/logout:
-        post:
-            tags:
-                - Identity
-            operationId: Identity_Logout
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/gateway.v1.id.LogoutRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/gateway.v1.id.LogoutResp'
     /api/v1/user/register:
         post:
             tags:
@@ -89,6 +130,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/gateway.v1.id.RegisterResp'
+    /api/v1/user/{userId}/logout:
+        post:
+            tags:
+                - Identity
+            operationId: Identity_Logout
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.v1.id.LogoutRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.v1.id.LogoutResp'
     /api/v1/userinfo/{userId}:
         get:
             tags:
@@ -107,7 +172,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.UserinfoResp'
-    /api/v1/userinfo/{userId}/forget_password:
+    /api/v1/userinfo/{userId}/forgetPassword:
         post:
             tags:
                 - Userinfo
@@ -131,7 +196,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ForgetPasswordResp'
-    /api/v1/userinfo/{userId}/modify_email:
+    /api/v1/userinfo/{userId}/modifyEmail:
         post:
             tags:
                 - Userinfo
@@ -155,7 +220,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyEmailResp'
-    /api/v1/userinfo/{userId}/modify_password:
+    /api/v1/userinfo/{userId}/modifyPassword:
         post:
             tags:
                 - Userinfo
@@ -179,7 +244,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyPasswordResp'
-    /api/v1/userinfo/{userId}/modify_signature:
+    /api/v1/userinfo/{userId}/modifySignature:
         post:
             tags:
                 - Userinfo
@@ -203,7 +268,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifySignatureResp'
-    /api/v1/userinfo/{userId}/modify_username:
+    /api/v1/userinfo/{userId}/modifyUsername:
         post:
             tags:
                 - Userinfo
@@ -359,6 +424,54 @@ components:
                     type: string
                 refreshToken:
                     type: string
+        vw_gateway.api.v1.favorites.CreateFavoritesReq:
+            type: object
+            properties:
+                favoritesName:
+                    type: string
+                isPrivate:
+                    type: integer
+                    format: int32
+                description:
+                    type: string
+                userId:
+                    type: string
+        vw_gateway.api.v1.favorites.CreateFavoritesResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+        vw_gateway.api.v1.favorites.DeleteFavoritesResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+        vw_gateway.api.v1.favorites.ModifyFavoritesReq:
+            type: object
+            properties:
+                favoritesId:
+                    type: string
+                favoritesName:
+                    type: string
+                isPrivate:
+                    type: integer
+                    format: int32
+                description:
+                    type: string
+        vw_gateway.api.v1.favorites.ModifyFavoritesResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
         vw_gateway.api.v1.userinfo.CommonResp:
             type: object
             properties:
@@ -478,6 +591,7 @@ components:
                     type: string
 tags:
     - name: Captcha
+    - name: Favorite
     - name: FileService
     - name: Identity
       description: 用户身份相关服务

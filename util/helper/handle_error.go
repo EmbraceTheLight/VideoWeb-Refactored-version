@@ -14,19 +14,21 @@ func HandleError(kerror *kerr.Error, additionalErr error) *kerr.Error {
 
 	var aErr = &kerr.Error{}
 	ok := errors.As(additionalErr, &aErr)
-	// if additionalErr is not a kratos error,this is a standard-library error, just take it as the cause of kratos error.
+	// if additionalErr is not a kratos error,this is a standard-library error, just take it as the reason of kratos error.
 	if !ok {
-		retErr.Message = retErr.Message + ": " + additionalErr.Error()
-		return retErr.WithCause(additionalErr)
+		retErr.Reason = retErr.Reason + ": " + additionalErr.Error()
+		return retErr.WithMetadata(map[string]string{"err_reason": additionalErr.Error()})
 
 		// The additionalErr is another kratos error, merge it with the original kratos error.
-		// merge their metadata, and append the additional error's message to the original error's message.
+		// merge their metadata, append the additional error's message to the original error's message,
+		// and append the additional error's reason to the original error's reason.
 	} else {
 		for k, v := range aErr.Metadata {
 			retErr.Metadata[k] = v
 		}
 		retErr.Message = retErr.Message + ": " + aErr.Message
-		return retErr.WithCause(additionalErr)
+		retErr.Reason = retErr.Reason + ": " + aErr.Reason
+		return retErr.WithMetadata(map[string]string{"err_reason": additionalErr.Error()})
 	}
 	//return retErr.WithCause(additionalErr).WithMetadata(map[string]string{"err_msg": additionalErr.Error()})
 }

@@ -2,6 +2,8 @@ package context
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 )
 
@@ -30,12 +32,23 @@ func WithTimeout(parent context.Context, timeout time.Duration) (context.Context
 }
 
 // WithValue 向 context 中注入值
-func WithValue(parent context.Context, key ContextKey, value interface{}) context.Context {
+func WithValue(parent context.Context, key any, value interface{}) context.Context {
 	return context.WithValue(parent, key, value)
 }
 
 // GetValue 从 context 中获取值
-func GetValue(ctx context.Context, key ContextKey) (interface{}, bool) {
+func GetValue(ctx context.Context, key any) (interface{}, bool) {
 	value := ctx.Value(key)
 	return value, value != nil
+}
+
+// MustGetValue 从 context 中获取值，如果不存在则 panic
+func MustGetValue(ctx context.Context, key any) any {
+	value := ctx.Value(key)
+
+	if value == nil {
+		errString := fmt.Sprintf("key %v not found in context", key)
+		panic(errors.New(errString))
+	}
+	return value
 }
