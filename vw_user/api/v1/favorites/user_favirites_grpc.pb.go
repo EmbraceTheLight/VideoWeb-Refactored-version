@@ -20,7 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Favorite_CreateFavorites_FullMethodName = "/vw_user.api.v1.favorites.Favorite/CreateFavorites"
-	Favorite_ModifyFavorites_FullMethodName = "/vw_user.api.v1.favorites.Favorite/UpdateFavorites"
+	Favorite_ModifyFavorites_FullMethodName = "/vw_user.api.v1.favorites.Favorite/ModifyFavorites"
 	Favorite_DeleteFavorites_FullMethodName = "/vw_user.api.v1.favorites.Favorite/DeleteFavorites"
 )
 
@@ -92,7 +92,7 @@ func (UnimplementedFavoriteServer) CreateFavorites(context.Context, *CreateFavor
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFavorites not implemented")
 }
 func (UnimplementedFavoriteServer) ModifyFavorites(context.Context, *ModifyFavoritesReq) (*ModifyFavoritesResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateFavorites not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyFavorites not implemented")
 }
 func (UnimplementedFavoriteServer) DeleteFavorites(context.Context, *DeleteFavoritesReq) (*DeleteFavoritesResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteFavorites not implemented")
@@ -184,7 +184,7 @@ var Favorite_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Favorite_CreateFavorites_Handler,
 		},
 		{
-			MethodName: "UpdateFavorites",
+			MethodName: "ModifyFavorites",
 			Handler:    _Favorite_ModifyFavorites_Handler,
 		},
 		{

@@ -48,6 +48,10 @@ const (
 	FAVORITES_DeleteFavoritesFailed
 	FAVORITES_ModifyFavoritesFailed
 	FAVORITES_FavoritesNotEmpty
+
+	// follow errors
+	FOLLOW_FollowOtherUserFailed
+	FOLLOW_UnfollowOtherUserFailed
 )
 
 var ()

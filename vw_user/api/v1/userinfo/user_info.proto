@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package vw_user.api.v1.userinfo;
 
-import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 option go_package = "vw_user/api/v1/user_info;infov1";
