@@ -9,4 +9,5 @@ var ProviderSet = wire.NewSet(
 	NewUserFileService,
 	NewUserinfoService,
 	NewFavoritesService,
+	NewFollowService,
 )

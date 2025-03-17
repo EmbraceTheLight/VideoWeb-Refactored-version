@@ -292,6 +292,53 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyUsernameResp'
+    /api/v1/{userId}/follow:
+        put:
+            tags:
+                - Follow
+            operationId: Follow_UnfollowUser
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/vw_gateway.api.v1.follow.UnfollowUserReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/vw_gateway.api.v1.follow.UnfollowUserResp'
+        post:
+            tags:
+                - Follow
+            operationId: Follow_FollowUser
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/vw_gateway.api.v1.follow.FollowUserReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/vw_gateway.api.v1.follow.FollowUserResp'
     /v1/userfile/file/upload:
         post:
             tags:
@@ -472,6 +519,38 @@ components:
                     format: int32
                 msg:
                     type: string
+        vw_gateway.api.v1.follow.FollowUserReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                followerUserId:
+                    type: string
+                followListId:
+                    type: string
+        vw_gateway.api.v1.follow.FollowUserResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        vw_gateway.api.v1.follow.UnfollowUserReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                followedUserId:
+                    type: string
+        vw_gateway.api.v1.follow.UnfollowUserResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
         vw_gateway.api.v1.userinfo.CommonResp:
             type: object
             properties:
@@ -593,6 +672,7 @@ tags:
     - name: Captcha
     - name: Favorite
     - name: FileService
+    - name: Follow
     - name: Identity
       description: 用户身份相关服务
     - name: Userinfo

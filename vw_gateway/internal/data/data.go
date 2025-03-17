@@ -13,6 +13,7 @@ import (
 	"vw_gateway/internal/conf"
 	captv1 "vw_user/api/v1/captcha"
 	favorv1 "vw_user/api/v1/favorites"
+	followv1 "vw_user/api/v1/follow"
 	idv1 "vw_user/api/v1/identity"
 	filev1 "vw_user/api/v1/userfile"
 	infov1 "vw_user/api/v1/userinfo"
@@ -29,14 +30,16 @@ var ProviderSet = wire.NewSet(
 	NewUserIdentityRepo,
 	NewCaptchaRepo,
 	NewUserFileRepo,
+	NewFollowRepo,
+	NewUserInfoRepo,
+	NewFavoritesRepo,
 	NewUserIdentityClient,
 	NewUserinfoClient,
 	NewCaptchaClient,
 	NewRedisClusterClient,
 	NewFileClient,
-	NewUserInfoRepo,
-	NewFavoritesRepo,
 	NewFavoritesClient,
+	NewFollowClient,
 )
 
 // Data .
@@ -47,6 +50,7 @@ type Data struct {
 	captchaClient      captv1.CaptchaClient
 	fileClient         filev1.FileServiceClient
 	favoritesClient    favorv1.FavoriteClient
+	followClient       followv1.FollowClient
 
 	redis *redis.ClusterClient
 }
@@ -59,7 +63,7 @@ func NewData(
 	captchaClient captv1.CaptchaClient,
 	fileClient filev1.FileServiceClient,
 	favoritesClient favorv1.FavoriteClient,
-
+	followClient followv1.FollowClient,
 	redisCluster *redis.ClusterClient,
 ) (*Data, func(), error) {
 	cleanup := func() {
@@ -73,6 +77,7 @@ func NewData(
 		captchaClient:      captchaClient,
 		fileClient:         fileClient,
 		favoritesClient:    favoritesClient,
+		followClient:       followClient,
 		redis:              redisCluster,
 	}, cleanup, nil
 }
@@ -205,4 +210,20 @@ func NewFavoritesClient(r registry.Discovery, s *conf.Service) favorv1.FavoriteC
 		panic(err)
 	}
 	return favorv1.NewFavoriteClient(conn)
+}
+
+func NewFollowClient(r registry.Discovery, s *conf.Service) followv1.FollowClient {
+	conn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint(s.User.Endpoint),
+		grpc.WithDiscovery(r),
+		grpc.WithMiddleware(
+			recovery.Recovery(),
+			tracing.Client(),
+		),
+	)
+	if err != nil {
+		panic(err)
+	}
+	return followv1.NewFollowClient(conn)
 }

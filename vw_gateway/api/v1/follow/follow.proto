@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package vw_gateway.api.v1.follow;
+
+import "google/api/annotations.proto";
+option go_package = "vw_gateway/api/v1/follow;followv1";
+
+service Follow {
+    rpc FollowUser(FollowUserReq) returns (FollowUserResp) {
+        option (google.api.http) = {
+            post: "/api/v1/{user_id}/follow",
+            body: "*",
+        };
+    }
+
+    rpc UnfollowUser(UnfollowUserReq) returns (UnfollowUserResp) {
+        option (google.api.http) = {
+            put: "/api/v1/{user_id}/follow",
+            body: "*",
+        };
+    }
+}
+
+message FollowUserReq {
+    int64 user_id          = 1;
+    int64 follower_user_id = 2;
+    int64 follow_list_id   = 3;
+}
+message FollowUserResp {
+    int32 status_code = 1;
+    string message    = 2;
+}
+
+message UnfollowUserReq {
+    int64 user_id          = 1;
+    int64 followed_user_id = 2;
+}
+message UnfollowUserResp {
+    int32 status_code = 1;
+    string message    = 2;
+}
