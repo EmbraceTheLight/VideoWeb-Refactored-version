@@ -5,27 +5,13 @@ import (
 	stderr "errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
-	utilCtx "util/context"
 	"vw_user/internal/biz"
 	"vw_user/internal/data/dal/model"
-	"vw_user/internal/data/dal/query"
 )
 
 type favoritesRepo struct {
 	logger *log.Helper
 	data   *Data
-}
-
-// getQuery is a helper function.
-// It returns common query *query.Query or transactional query *query.QueryTx.Query.
-// With this function, methods of data layer don't need to care about if it's in transactionKey or not.
-func getQuery(ctx context.Context) *query.Query {
-	// if ctx has transactionKey, return transactional query
-	tx, ok := utilCtx.GetValue(ctx, transactionKey{})
-	if ok {
-		return tx.(*query.QueryTx).Query
-	}
-	return query.Q
 }
 
 func NewFavoritesRepo(data *Data, logger log.Logger) biz.FavoritesRepo {
