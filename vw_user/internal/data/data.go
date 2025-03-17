@@ -155,9 +155,38 @@ func commitTx(ctx context.Context, err error) {
 
 	tx := value.(*query.QueryTx)
 
+	// Handle panic which could occur in tilCtx.MustGetValue.
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic: %v", r) // 确保 err 被赋值，事务正确回滚
+			tx.Rollback()
+			panic(r) // 继续抛出 panic，防止业务逻辑被吞掉
+		}
+	}()
+
 	if err != nil || tx.Error != nil {
 		tx.Rollback()
 		return
 	}
 	tx.Commit()
+}
+
+// Begin  starts a transaction manually.
+// ! DON'T FORGET TO CALL THE COMMIT function to COMMIT or ROLLBACK TRANSACTION MANUALLY.
+func Begin(ctx context.Context) (context.Context, *query.QueryTx, func(err error)) {
+	tx := query.Q.Begin()
+	ctx = utilCtx.WithValue(ctx, transactionKey{}, tx) // set transactionKey to context
+	return ctx, tx, func(err error) { commitTx(ctx, err) }
+}
+
+// getQuery is a helper function.
+// It returns common query *query.Query or transactional query *(query.QueryTx).Query.
+// With this function, methods of data layer don't need to care about if it's in transactionKey or not.
+func getQuery(ctx context.Context) *query.Query {
+	// if ctx has transactionKey, return transactional query
+	tx, ok := utilCtx.GetValue(ctx, transactionKey{})
+	if ok {
+		return tx.(*query.QueryTx).Query
+	}
+	return query.Q
 }
