@@ -13,6 +13,7 @@ import (
 	"time"
 	captv1 "vw_gateway/api/v1/captcha"
 	favorv1 "vw_gateway/api/v1/favorites"
+	followv1 "vw_gateway/api/v1/follow"
 	idv1 "vw_gateway/api/v1/identity"
 	filev1 "vw_gateway/api/v1/userfile"
 	infov1 "vw_gateway/api/v1/userinfo"
@@ -51,6 +52,7 @@ func NewHTTPServer(
 	captcha *service.CaptchaService,
 	file *service.UserFileService,
 	identity *service.UserIdentityService,
+	follow *service.FollowService,
 	redis *redis.ClusterClient,
 	info *service.UserinfoService,
 	favorites *service.FavoritesService,
@@ -92,5 +94,6 @@ func NewHTTPServer(
 	filev1.RegisterFileServiceHTTPServer(srv, file)
 	infov1.RegisterUserinfoHTTPServer(srv, info)
 	favorv1.RegisterFavoriteHTTPServer(srv, favorites)
+	followv1.RegisterFollowHTTPServer(srv, follow)
 	return srv
 }
