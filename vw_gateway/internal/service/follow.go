@@ -39,6 +39,6 @@ func (fs *FollowService) UnfollowUser(ctx context.Context, req *followv1.Unfollo
 	}
 	return &followv1.UnfollowUserResp{
 		StatusCode: http.StatusOK,
-		Message:    "关注用户成功",
+		Message:    "取消关注用户成功",
 	}, nil
 }

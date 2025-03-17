@@ -33,8 +33,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Regist
 	captchaClient := data.NewCaptchaClient(discovery, confService)
 	fileServiceClient := data.NewFileClient(discovery, confService)
 	favoriteClient := data.NewFavoritesClient(discovery, confService)
+	followClient := data.NewFollowClient(discovery, confService)
 	clusterClient := data.NewRedisClusterClient(confData)
-	dataData, cleanup, err := data.NewData(logger, identityClient, userinfoClient, captchaClient, fileServiceClient, favoriteClient, clusterClient)
+	dataData, cleanup, err := data.NewData(logger, identityClient, userinfoClient, captchaClient, fileServiceClient, favoriteClient, followClient, clusterClient)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -49,13 +50,16 @@ func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Regist
 	jwtAuth := auth.NewJWTAuth(jwt)
 	userIdentityUsecase := biz.NewUserIdentityUsecase(userIdentityRepo, jwtAuth, logger)
 	userIdentityService := service.NewUserIdentityService(userIdentityUsecase, logger)
+	followRepo := data.NewFollowRepo(dataData, logger)
+	followUsecase := biz.NewFollowUsecase(followRepo, logger)
+	followService := service.NewFollowService(logger, followUsecase)
 	userinfoRepo := data.NewUserInfoRepo(dataData, logger)
 	userinfoUsecase := biz.NewUserinfoUsecase(userinfoRepo, logger)
 	userinfoService := service.NewUserinfoService(userinfoUsecase, logger)
 	favoritesRepo := data.NewFavoritesRepo(dataData, favoriteClient, logger)
 	favoritesUsecase := biz.NewFavoritesUsecase(favoritesRepo, logger)
 	favoritesService := service.NewFavoritesService(favoritesUsecase, logger)
-	httpServer := server.NewHTTPServer(confServer, jwt, captchaService, userFileService, userIdentityService, clusterClient, userinfoService, favoritesService, logger)
+	httpServer := server.NewHTTPServer(confServer, jwt, captchaService, userFileService, userIdentityService, followService, clusterClient, userinfoService, favoritesService, logger)
 	registrar := data.NewRegistrar(registry)
 	app := newApp(logger, grpcServer, httpServer, registrar)
 	return app, func() {
