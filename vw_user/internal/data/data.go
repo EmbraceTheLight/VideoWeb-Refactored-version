@@ -28,6 +28,7 @@ var ProviderSet = wire.NewSet(
 	NewCaptRepo,
 	NewFileRepo,
 	NewFavoritesRepo,
+	NewFollowRepo,
 	NewTransaction,
 )
 
@@ -173,10 +174,10 @@ func commitTx(ctx context.Context, err error) {
 
 // BeginTx  starts a transaction manually.
 // ! DON'T FORGET TO CALL THE COMMIT function to COMMIT or ROLLBACK TRANSACTION MANUALLY.
-func BeginTx(ctx context.Context) (context.Context, *query.QueryTx, func(err error)) {
+func BeginTx(ctx context.Context) (context.Context, func(err error)) {
 	tx := query.Q.Begin()
 	ctx = utilCtx.WithValue(ctx, transactionKey{}, tx) // set transactionKey to context
-	return ctx, tx, func(err error) { commitTx(ctx, err) }
+	return ctx, func(err error) { commitTx(ctx, err) }
 }
 
 // getQuery is a helper function.

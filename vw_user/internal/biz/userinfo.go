@@ -26,7 +26,7 @@ type UserInfoRepo interface {
 	GetUserFansByUserID(ctx context.Context, userId int64) ([]*domain.UserInfo, error)
 
 	// GetUserFollowersByUserIDFavoriteID GetUserFollowersByUserID get user followers by user id and followList id
-	GetUserFollowersByUserIDFavoriteID(ctx context.Context, userId, followListID int64) ([]*domain.UserSummary, error)
+	GetUserFollowersByUserIDFollowListID(ctx context.Context, userId, followListID int64) ([]*domain.UserSummary, error)
 
 	// UpdateEmail update user email
 	UpdateEmail(ctx context.Context, userId int64, newEmail string) error
@@ -42,6 +42,12 @@ type UserInfoRepo interface {
 
 	// UpdateUsername update user username
 	UpdateUsername(ctx context.Context, userId int64, newUsername string) error
+
+	// UpdateCntFollows update user fans count
+	UpdateCntFollows(ctx context.Context, userId int64, change int64) error
+
+	// UpdateCntFans update user fans count
+	UpdateCntFans(ctx context.Context, userId int64, change int64) error
 }
 
 type UserInfoUsecase struct {
