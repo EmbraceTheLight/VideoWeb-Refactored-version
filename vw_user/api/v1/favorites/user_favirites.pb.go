@@ -472,10 +472,10 @@ var file_v1_favorites_user_favirites_proto_goTypes = []any{
 }
 var file_v1_favorites_user_favirites_proto_depIdxs = []int32{
 	0, // 0: vw_user.api.v1.favorites.Favorite.CreateFavorites:input_type -> vw_user.api.v1.favorites.CreateFavoritesReq
-	2, // 1: vw_user.api.v1.favorites.Favorite.UpdateFavorites:input_type -> vw_user.api.v1.favorites.ModifyFavoritesReq
+	2, // 1: vw_user.api.v1.favorites.Favorite.ModifyFavorites:input_type -> vw_user.api.v1.favorites.ModifyFavoritesReq
 	4, // 2: vw_user.api.v1.favorites.Favorite.DeleteFavorites:input_type -> vw_user.api.v1.favorites.DeleteFavoritesReq
 	1, // 3: vw_user.api.v1.favorites.Favorite.CreateFavorites:output_type -> vw_user.api.v1.favorites.CreateFavoritesResp
-	3, // 4: vw_user.api.v1.favorites.Favorite.UpdateFavorites:output_type -> vw_user.api.v1.favorites.ModifyFavoritesResp
+	3, // 4: vw_user.api.v1.favorites.Favorite.ModifyFavorites:output_type -> vw_user.api.v1.favorites.ModifyFavoritesResp
 	5, // 5: vw_user.api.v1.favorites.Favorite.DeleteFavorites:output_type -> vw_user.api.v1.favorites.DeleteFavoritesResp
 	3, // [3:6] is the sub-list for method output_type
 	0, // [0:3] is the sub-list for method input_type

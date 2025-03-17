@@ -5,6 +5,7 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	captv1 "vw_user/api/v1/captcha"
 	favorv1 "vw_user/api/v1/favorites"
+	followv1 "vw_user/api/v1/follow"
 	idv1 "vw_user/api/v1/identity"
 	filev1 "vw_user/api/v1/userfile"
 	infov1 "vw_user/api/v1/userinfo"
@@ -23,6 +24,7 @@ func NewGRPCServer(
 	info *service.UserInfoService,
 	captcha *service.CaptchaService,
 	file *service.FileService,
+	follow *service.FollowService,
 	favorites *service.FavoritesService,
 	logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
@@ -48,5 +50,6 @@ func NewGRPCServer(
 	infov1.RegisterUserinfoServer(srv, info)
 	filev1.RegisterFileServiceServer(srv, file)
 	favorv1.RegisterFavoriteServer(srv, favorites)
+	followv1.RegisterFollowServer(srv, follow)
 	return srv
 }

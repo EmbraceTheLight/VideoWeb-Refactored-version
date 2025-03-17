@@ -2,10 +2,12 @@ package data
 
 import (
 	"context"
+	stderr "errors"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
 	"vw_user/internal/biz"
+
 	"vw_user/internal/data/dal/model"
 	"vw_user/internal/data/dal/query"
 	"vw_user/internal/domain"
@@ -25,7 +27,7 @@ func NewUserInfoRepo(data *Data, logger log.Logger) biz.UserInfoRepo {
 }
 
 func (u *userInfoRepo) GetUserInfoByUsername(ctx context.Context, username string) (*domain.UserInfo, error) {
-	user := query.User
+	user := getQuery(ctx).User
 	userdo := user.WithContext(ctx)
 	userInfo, err := userdo.Where(user.Username.Eq(username)).
 		Select(user.UserID, user.Username, user.IsAdmin, user.Email, user.Password,
@@ -42,7 +44,7 @@ func (u *userInfoRepo) GetUserInfoByUsername(ctx context.Context, username strin
 }
 
 func (u *userInfoRepo) GetUserInfoByUserId(ctx context.Context, userid int64) (*domain.UserInfo, error) {
-	user := query.User
+	user := getQuery(ctx).User
 	userdo := user.WithContext(ctx)
 	userInfo, err := userdo.Where(user.UserID.Eq(userid)).
 		Select(user.UserID, user.Username, user.IsAdmin, user.Email, user.Password,
@@ -57,7 +59,7 @@ func (u *userInfoRepo) GetUserInfoByUserId(ctx context.Context, userid int64) (*
 }
 
 func (u *userInfoRepo) GetUserLevelById(ctx context.Context, userId int64) (*model.UserLevel, error) {
-	userLevel := query.UserLevel
+	userLevel := getQuery(ctx).UserLevel
 	userLevelDo := userLevel.WithContext(ctx)
 	userLevelInfo, err := userLevelDo.Where(userLevel.UserID.Eq(userId)).First()
 	if err != nil {
@@ -70,7 +72,25 @@ func (u *userInfoRepo) GetUserLevelById(ctx context.Context, userId int64) (*mod
 }
 
 func (u *userInfoRepo) GetUserFansByUserID(ctx context.Context, userId int64) ([]*domain.UserInfo, error) {
-	// get user's fans' Ids
+	// get userFan's fans' Ids
+	/*  TODO: Apply this code to get userFan's fans' Ids
+	//userFan := getQuery(ctx).UserFan
+	//userFanDo := userFan.WithContext(ctx)
+	//
+	//tmp, err := userFanDo.Select(userFan.FollowerID).Where(userFan.UserID.Eq(userId)).Find()
+	//if err != nil {
+	//	if errors.Is(err, gorm.ErrRecordNotFound) {
+	//		return nil, errdef.ErrUserNotFound
+	//	}
+	//	return nil, err
+	//}
+	//var fansIds = make([]int64, len(tmp))
+	//for i, v := range tmp {
+	//	fansIds[i] = v.FollowerID
+	//}
+	//users, err := getUsersSummaryInfoByIDs(ctx,fansIds)
+	*/
+
 	var fansIds = make([]int64, 0)
 	result := u.data.mysql.Select("followed_id").Where("user_id = ?", userId).Find(&fansIds)
 	if result.Error != nil {
@@ -80,7 +100,7 @@ func (u *userInfoRepo) GetUserFansByUserID(ctx context.Context, userId int64) ([
 		return nil, result.Error
 	}
 
-	// get user's fans' info by fansIds
+	// get userFan's fans' info by fansIds
 	users, err := getUsersSummaryInfoByIDs(ctx, fansIds)
 	if err != nil {
 		return nil, err
@@ -88,7 +108,7 @@ func (u *userInfoRepo) GetUserFansByUserID(ctx context.Context, userId int64) ([
 	return domain.NewUserInfos(users...), nil
 }
 
-func (u *userInfoRepo) GetUserFollowersByUserIDFavoriteID(ctx context.Context, userId, followListId int64) ([]*domain.UserSummary, error) {
+func (u *userInfoRepo) GetUserFollowersByUserIDFollowListID(ctx context.Context, userId, followListId int64) ([]*domain.UserSummary, error) {
 	//find followers' ids by user_id and followlist_id
 	followersIds := make([]int64, 0)
 	result := u.data.mysql.Select("user_id").
@@ -129,7 +149,7 @@ func (u *userInfoRepo) UpdatePassword(ctx context.Context, userId int64, encrypt
 }
 
 func (u *userInfoRepo) UpdateUserSignature(ctx context.Context, userId int64, signature string) error {
-	user := query.User
+	user := getQuery(ctx).User
 	userDo := user.WithContext(ctx)
 	_, err := userDo.Where(user.UserID.Eq(userId)).Update(user.Signature, signature)
 	if err != nil {
@@ -140,7 +160,7 @@ func (u *userInfoRepo) UpdateUserSignature(ctx context.Context, userId int64, si
 
 // CheckUsernameConflict check if the new username is conflict with existing username
 func (u *userInfoRepo) CheckUsernameConflict(ctx context.Context, newUsername string) (ok bool, err error) {
-	user := query.User
+	user := getQuery(ctx).User
 	userDo := user.WithContext(ctx)
 	count, err := userDo.Where(user.Username.Eq(newUsername)).Count()
 	if err != nil {
@@ -156,7 +176,7 @@ func (u *userInfoRepo) CheckUsernameConflict(ctx context.Context, newUsername st
 
 // UpdateUsername update user username
 func (u *userInfoRepo) UpdateUsername(ctx context.Context, userId int64, newUsername string) error {
-	user := query.User
+	user := getQuery(ctx).User
 	userDo := user.WithContext(ctx)
 	_, err := userDo.Where(user.UserID.Eq(userId)).Update(user.Username, newUsername)
 	if err != nil {
@@ -165,8 +185,50 @@ func (u *userInfoRepo) UpdateUsername(ctx context.Context, userId int64, newUser
 	return nil
 }
 
+// UpdateCntFollows update user fans count
+func (u *userInfoRepo) UpdateCntFollows(ctx context.Context, userId int64, change int64) error {
+	// 1. Check if the change is valid
+	user := getQuery(ctx).User
+	userDo := user.WithContext(ctx)
+	tmpUser, err := userDo.Where(user.UserID.Eq(userId)).First()
+	if err != nil {
+		return err
+	}
+	if tmpUser.CntFollows+change < 0 {
+		return stderr.New("cnt_follows can not be less than 0")
+	}
+
+	// 2. Update cnt_follows
+	_, err = userDo.Where(user.UserID.Eq(userId)).Update(user.CntFollows, user.CntFollows.Add(change))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateCntFans update user fans count
+func (u *userInfoRepo) UpdateCntFans(ctx context.Context, userId int64, change int64) error {
+	// 1. Check if the change is valid
+	user := getQuery(ctx).User
+	userDo := user.WithContext(ctx)
+	tmpUser, err := userDo.Where(user.UserID.Eq(userId)).First()
+	if err != nil {
+		return err
+	}
+	if tmpUser.CntFans+change < 0 {
+		return stderr.New("cnt_fans can not be less than 0")
+	}
+
+	// 2. Update cnt_fans
+	_, err = userDo.Where(user.UserID.Eq(userId)).Update(user.CntFans, user.CntFans.Add(change))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func getUsersSummaryInfoByIDs(ctx context.Context, userIds []int64) ([]*model.User, error) {
-	user := query.User
+	user := getQuery(ctx).User
 	userdo := user.WithContext(ctx)
 	userInfo, err := userdo.Where(user.UserID.In(userIds...)).Find()
 	if err != nil {
