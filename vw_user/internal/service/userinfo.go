@@ -28,7 +28,7 @@ func (info *UserInfoService) GetUserinfo(ctx context.Context, req *infov1.Userin
 		return nil, err
 	}
 	return &infov1.UserinfoResp{
-		UserInfo: &infov1.UserinfoResp_UserInfo{
+		UserInfo: &infov1.UserInfo{
 			UserName:   user.Username,
 			Email:      user.Email,
 			Signature:  user.Signature,

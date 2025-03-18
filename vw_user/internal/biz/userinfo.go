@@ -25,8 +25,8 @@ type UserInfoRepo interface {
 	// GetUserFansByUserID get user fans by user id
 	GetUserFansByUserID(ctx context.Context, userId int64) ([]*domain.UserInfo, error)
 
-	// GetUserFollowersByUserIDFavoriteID GetUserFollowersByUserID get user followers by user id and followList id
-	GetUserFollowersByUserIDFollowListID(ctx context.Context, userId, followListID int64) ([]*domain.UserSummary, error)
+	// GetUserFollowersByUserIDFollowListID GetUserFollowersByUserID get user followers by user id and followList id
+	GetUserFolloweesByUserIDFollowListID(ctx context.Context, userId, followListID int64, pageNum, pageSize int32) ([]*domain.UserSummary, error)
 
 	// UpdateEmail update user email
 	UpdateEmail(ctx context.Context, userId int64, newEmail string) error

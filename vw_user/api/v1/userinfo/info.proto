@@ -1,10 +1,11 @@
 syntax = "proto3";
 
-package user.v1.userinfo;
+package user.v1.info;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
-option go_package = "vw_user/api/v1/user_info;infov1";
+
+option go_package = "vw_user/api/v1/userinfo;infov1";
 
 service Userinfo {
     rpc GetUserinfo(userinfoReq) returns (userinfoResp) {}
