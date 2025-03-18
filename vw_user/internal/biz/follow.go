@@ -6,6 +6,7 @@ import (
 	"util"
 	"util/helper"
 	"vw_user/internal/data/dal/model"
+	"vw_user/internal/domain"
 	"vw_user/internal/pkg/ecode/errdef"
 )
 
@@ -98,4 +99,9 @@ func (uc *FollowUsecase) Unfollow(ctx context.Context, followerID, followeeID in
 		return helper.HandleError(errdef.ErrUnfollowOtherUserFailed, err)
 	}
 	return nil
+}
+
+// GetFolloweesInfo Gets followees' summary info by user id and follow list id.
+func (uc *FollowUsecase) GetFolloweesInfo(ctx context.Context, userId int64, followListId int64, pageNum int32, pageSize int32) ([]*domain.UserSummary, error) {
+	return uc.infoRepo.GetUserFolloweesByUserIDFollowListID(ctx, userId, followListId, pageNum, pageSize)
 }

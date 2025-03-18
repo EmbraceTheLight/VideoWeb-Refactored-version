@@ -2,11 +2,15 @@ syntax = "proto3";
 
 package user.v1.follow;
 
+import "v1/userinfo/info.proto";
+import "google/protobuf/timestamp.proto";
+
 option go_package = "vw_user/api/v1/follow;followv1";
 
 service Follow {
     rpc FollowUser(FollowUserReq) returns (FollowUserResp) {}
     rpc UnfollowUser(UnfollowUserReq) returns (UnfollowUserResp) {}
+    rpc GetFolloweesInfo(GetFolloweesInfoReq) returns (GetFolloweesInfoResp) {}
 }
 
 message FollowUserReq {
@@ -26,4 +30,24 @@ message UnfollowUserReq {
 message UnfollowUserResp {
     int32 status_code = 1;
     string message    = 2;
+}
+
+message GetFolloweesInfoReq {
+    int64 user_id        = 1;
+    int64 follow_list_id = 2;
+    int32 page_num       = 3;
+    int32 page_size      = 4;
+}
+message GetFolloweesInfoResp {
+    int32 status_code = 1;
+    string message    = 2;
+    message UserSummary {
+        string username                    = 1;
+        string email                       = 2;
+        string signature                   = 3;
+        string avatar_path                 = 4;
+        int32 gender                       = 5;
+        google.protobuf.Timestamp birthday = 6;
+    }
+    repeated UserSummary followees_info = 3;
 }

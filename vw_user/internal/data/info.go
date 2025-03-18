@@ -88,7 +88,7 @@ func (u *userInfoRepo) GetUserFansByUserID(ctx context.Context, userId int64) ([
 	//for i, v := range tmp {
 	//	fansIds[i] = v.FollowerID
 	//}
-	//users, err := getUsersSummaryInfoByIDs(ctx,fansIds)
+	//users, err := getUsersInfoByIDs(ctx,fansIds)
 	*/
 
 	var fansIds = make([]int64, 0)
@@ -101,30 +101,34 @@ func (u *userInfoRepo) GetUserFansByUserID(ctx context.Context, userId int64) ([
 	}
 
 	// get userFan's fans' info by fansIds
-	users, err := getUsersSummaryInfoByIDs(ctx, fansIds)
+	users, err := getUsersInfoByIDs(ctx, fansIds)
 	if err != nil {
 		return nil, err
 	}
 	return domain.NewUserInfos(users...), nil
 }
 
-func (u *userInfoRepo) GetUserFollowersByUserIDFollowListID(ctx context.Context, userId, followListId int64) ([]*domain.UserSummary, error) {
-	//find followers' ids by user_id and followlist_id
-	followersIds := make([]int64, 0)
-	result := u.data.mysql.Select("user_id").
-		Where("user_id = ?,followlist_id = ?", userId, followListId).Find(&followersIds)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, errdef.ErrUserNotFound
-		}
-		return nil, result.Error
+func (u *userInfoRepo) GetUserFolloweesByUserIDFollowListID(ctx context.Context, userId, followListId int64, pageNum, pageSize int32) ([]*domain.UserSummary, error) {
+	userFollow := getQuery(ctx).UserFollow
+	userFollowDo := userFollow.WithContext(ctx)
+
+	// Get user followees' ids
+	tmpIds, _, err := userFollowDo.Select(userFollow.FollowUserID).
+		Where(userFollow.UserID.Eq(userId), userFollow.FollowlistID.Eq(followListId)).
+		FindByPage(int((pageNum-1)*pageSize), int(pageSize))
+
+	// Get user followees' info by ids
+	userIds := make([]int64, len(tmpIds))
+	for i, v := range tmpIds {
+		userIds[i] = v.FollowUserID
 	}
 
-	//find followers' info by followers' ids
-	users, err := getUsersSummaryInfoByIDs(ctx, followersIds)
+	// Transform user ids to user summaries
+	users, err := getUsersInfoByIDs(ctx, userIds)
 	if err != nil {
 		return nil, err
 	}
+
 	return domain.NewUserSummaries(users...), nil
 }
 
@@ -227,7 +231,7 @@ func (u *userInfoRepo) UpdateCntFans(ctx context.Context, userId int64, change i
 	return nil
 }
 
-func getUsersSummaryInfoByIDs(ctx context.Context, userIds []int64) ([]*model.User, error) {
+func getUsersInfoByIDs(ctx context.Context, userIds []int64) ([]*model.User, error) {
 	user := getQuery(ctx).User
 	userdo := user.WithContext(ctx)
 	userInfo, err := userdo.Where(user.UserID.In(userIds...)).Find()

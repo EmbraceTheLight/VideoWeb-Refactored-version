@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Follow_FollowUser_FullMethodName   = "/user.v1.follow.Follow/FollowUser"
-	Follow_UnfollowUser_FullMethodName = "/user.v1.follow.Follow/UnfollowUser"
+	Follow_FollowUser_FullMethodName       = "/user.v1.follow.Follow/FollowUser"
+	Follow_UnfollowUser_FullMethodName     = "/user.v1.follow.Follow/UnfollowUser"
+	Follow_GetFolloweesInfo_FullMethodName = "/user.v1.follow.Follow/GetFolloweesInfo"
 )
 
 // FollowClient is the client API for Follow service.
@@ -29,6 +30,7 @@ const (
 type FollowClient interface {
 	FollowUser(ctx context.Context, in *FollowUserReq, opts ...grpc.CallOption) (*FollowUserResp, error)
 	UnfollowUser(ctx context.Context, in *UnfollowUserReq, opts ...grpc.CallOption) (*UnfollowUserResp, error)
+	GetFolloweesInfo(ctx context.Context, in *GetFolloweesInfoReq, opts ...grpc.CallOption) (*GetFolloweesInfoResp, error)
 }
 
 type followClient struct {
@@ -59,12 +61,23 @@ func (c *followClient) UnfollowUser(ctx context.Context, in *UnfollowUserReq, op
 	return out, nil
 }
 
+func (c *followClient) GetFolloweesInfo(ctx context.Context, in *GetFolloweesInfoReq, opts ...grpc.CallOption) (*GetFolloweesInfoResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFolloweesInfoResp)
+	err := c.cc.Invoke(ctx, Follow_GetFolloweesInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FollowServer is the server API for Follow service.
 // All implementations must embed UnimplementedFollowServer
 // for forward compatibility.
 type FollowServer interface {
 	FollowUser(context.Context, *FollowUserReq) (*FollowUserResp, error)
 	UnfollowUser(context.Context, *UnfollowUserReq) (*UnfollowUserResp, error)
+	GetFolloweesInfo(context.Context, *GetFolloweesInfoReq) (*GetFolloweesInfoResp, error)
 	mustEmbedUnimplementedFollowServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedFollowServer) FollowUser(context.Context, *FollowUserReq) (*F
 }
 func (UnimplementedFollowServer) UnfollowUser(context.Context, *UnfollowUserReq) (*UnfollowUserResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnfollowUser not implemented")
+}
+func (UnimplementedFollowServer) GetFolloweesInfo(context.Context, *GetFolloweesInfoReq) (*GetFolloweesInfoResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFolloweesInfo not implemented")
 }
 func (UnimplementedFollowServer) mustEmbedUnimplementedFollowServer() {}
 func (UnimplementedFollowServer) testEmbeddedByValue()                {}
@@ -138,6 +154,24 @@ func _Follow_UnfollowUser_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Follow_GetFolloweesInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFolloweesInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowServer).GetFolloweesInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Follow_GetFolloweesInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowServer).GetFolloweesInfo(ctx, req.(*GetFolloweesInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Follow_ServiceDesc is the grpc.ServiceDesc for Follow service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var Follow_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UnfollowUser",
 			Handler:    _Follow_UnfollowUser_Handler,
+		},
+		{
+			MethodName: "GetFolloweesInfo",
+			Handler:    _Follow_GetFolloweesInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
