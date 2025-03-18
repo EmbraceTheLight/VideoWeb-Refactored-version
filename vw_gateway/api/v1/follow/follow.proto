@@ -1,8 +1,10 @@
 syntax = "proto3";
 
-package vw_gateway.api.v1.follow;
+package gateway.api.v1.follow;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
 option go_package = "vw_gateway/api/v1/follow;followv1";
 
 service Follow {
@@ -17,6 +19,12 @@ service Follow {
         option (google.api.http) = {
             put: "/api/v1/{user_id}/follow",
             body: "*",
+        };
+    }
+
+    rpc GetFolloweeInfo(GetFolloweeInfoReq) returns (GetFolloweeInfoResp) {
+        option (google.api.http) = {
+            get: "/api/v1/{user_id}/followList",
         };
     }
 }
@@ -38,4 +46,24 @@ message UnfollowUserReq {
 message UnfollowUserResp {
     int32 status_code = 1;
     string message    = 2;
+}
+
+message GetFolloweeInfoReq {
+    int64 user_id        = 1;
+    int64 follow_list_id = 2;
+    int32 page_num       = 3;
+    int32 page_size      = 4;
+}
+message GetFolloweeInfoResp {
+    int32 status_code = 1;
+    string message    = 2;
+    message UserSummary {
+        string username                    = 1;
+        string avatar_path                 = 2;
+        int32 gender                       = 3;
+        string signature                   = 4;
+        string email                       = 5;
+        google.protobuf.Timestamp birthday = 6;
+    }
+    repeated UserSummary followee_info = 3;
 }

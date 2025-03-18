@@ -79,7 +79,7 @@ func (uis *UserinfoService) Userinfo(ctx context.Context, req *infov1.UserinfoRe
 		return nil, err
 	}
 	return &infov1.UserinfoResp{
-		UserInfo: &infov1.UserinfoResp_UserInfo{
+		UserInfo: &infov1.UserInfo{
 			UserName:   resp.Username,
 			Email:      resp.Email,
 			Signature:  resp.Signature,

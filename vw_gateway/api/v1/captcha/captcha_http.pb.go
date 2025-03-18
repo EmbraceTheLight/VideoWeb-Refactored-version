@@ -19,8 +19,8 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationCaptchaGetCodeCaptcha = "/gateway.v1.captcha.Captcha/GetCodeCaptcha"
-const OperationCaptchaGetImageCaptcha = "/gateway.v1.captcha.Captcha/GetImageCaptcha"
+const OperationCaptchaGetCodeCaptcha = "/gateway.api.v1.captcha.Captcha/GetCodeCaptcha"
+const OperationCaptchaGetImageCaptcha = "/gateway.api.v1.captcha.Captcha/GetImageCaptcha"
 
 type CaptchaHTTPServer interface {
 	GetCodeCaptcha(context.Context, *GetCodeCaptchaReq) (*GetCodeCaptchaResp, error)

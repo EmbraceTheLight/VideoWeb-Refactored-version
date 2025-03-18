@@ -20,7 +20,7 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationFileServiceUploadAvatar = "/gateway.v1.file.FileService/UploadAvatar"
+const OperationFileServiceUploadAvatar = "/gateway.api.v1.file.FileService/UploadAvatar"
 
 type FileServiceHTTPServer interface {
 	UploadAvatar(context.Context, *emptypb.Empty) (*UploadAvatarResp, error)

@@ -19,12 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Userinfo_Userinfo_FullMethodName            = "/vw_gateway.api.v1.userinfo.Userinfo/Userinfo"
-	Userinfo_ModifyEmail_FullMethodName         = "/vw_gateway.api.v1.userinfo.Userinfo/ModifyEmail"
-	Userinfo_ModifyPassword_FullMethodName      = "/vw_gateway.api.v1.userinfo.Userinfo/ModifyPassword"
-	Userinfo_ModifyUserSignature_FullMethodName = "/vw_gateway.api.v1.userinfo.Userinfo/ModifyUserSignature"
-	Userinfo_ForgetPassword_FullMethodName      = "/vw_gateway.api.v1.userinfo.Userinfo/ForgetPassword"
-	Userinfo_ModifyUsername_FullMethodName      = "/vw_gateway.api.v1.userinfo.Userinfo/ModifyUsername"
+	Userinfo_Userinfo_FullMethodName            = "/gateway.api.v1.userinfo.Userinfo/Userinfo"
+	Userinfo_ModifyEmail_FullMethodName         = "/gateway.api.v1.userinfo.Userinfo/ModifyEmail"
+	Userinfo_ModifyPassword_FullMethodName      = "/gateway.api.v1.userinfo.Userinfo/ModifyPassword"
+	Userinfo_ModifyUserSignature_FullMethodName = "/gateway.api.v1.userinfo.Userinfo/ModifyUserSignature"
+	Userinfo_ForgetPassword_FullMethodName      = "/gateway.api.v1.userinfo.Userinfo/ForgetPassword"
+	Userinfo_ModifyUsername_FullMethodName      = "/gateway.api.v1.userinfo.Userinfo/ModifyUsername"
 )
 
 // UserinfoClient is the client API for Userinfo service.
@@ -278,7 +278,7 @@ func _Userinfo_ModifyUsername_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Userinfo_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "vw_gateway.api.v1.userinfo.Userinfo",
+	ServiceName: "gateway.api.v1.userinfo.Userinfo",
 	HandlerType: (*UserinfoServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -31,12 +31,12 @@ func NewWhitelistMatcher() selector.MatchFunc {
 	operation 是 HTTP 及 gRPC 统一的 gRPC path。
 	gRPC path 的拼接规则为 /包名.服务名/方法名(/package.Service/Method)。
 	*/
-	whiteList["/gateway.v1.id.Identity/Register"] = struct{}{}
-	whiteList["/gateway.v1.id.Identity/Login"] = struct{}{}
-	whiteList["/gateway.v1.id.Identity/Logout"] = struct{}{}
-	whiteList["/gateway.v1.captcha.Captcha/GetImageCaptcha"] = struct{}{}
-	whiteList["/gateway.v1.captcha.Captcha/GetCodeCaptcha"] = struct{}{}
-	whiteList["/gateway.v1.file.FileService/UploadAvatar"] = struct{}{}
+	whiteList["/gateway.api.v1.id.Identity/Register"] = struct{}{}
+	whiteList["/gateway.api.v1.id.Identity/Login"] = struct{}{}
+	whiteList["/gateway.api.v1.id.Identity/Logout"] = struct{}{}
+	whiteList["/gateway.api.v1.captcha.Captcha/GetImageCaptcha"] = struct{}{}
+	whiteList["/gateway.api.v1.captcha.Captcha/GetCodeCaptcha"] = struct{}{}
+	whiteList["/gateway.api.v1.file.FileService/UploadAvatar"] = struct{}{}
 	return func(ctx context.Context, operation string) bool {
 		if _, ok := whiteList[operation]; ok {
 			return false

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package vw_user.api.v1.userinfo;
+package user.v1.userinfo;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
@@ -20,22 +20,23 @@ service Userinfo {
     rpc ModifyUsername(modifyUsernameReq) returns (modifyUsernameResp) {}
 }
 
+message UserInfo {
+    string user_name                   = 1;
+    string email                       = 2;
+    string signature                   = 3;
+    int32 shells                       = 4;
+    int32 cnt_fans                     = 5;
+    int32 cnt_follows                  = 6;
+    int32 cnt_videos                   = 7;
+    string avatar_path                 = 8;
+    int32 gender                       = 9;
+    google.protobuf.Timestamp birthday = 10;
+}
+
 message userinfoReq {
     int64 user_id = 1;
 }
 message userinfoResp {
-    message UserInfo {
-        string user_name                   = 1;
-        string email                       = 2;
-        string signature                   = 3;
-        int32 shells                       = 4;
-        int32 cnt_fans                     = 5;
-        int32 cnt_follows                  = 6;
-        int32 cnt_videos                   = 7;
-        string avatar_path                 = 8;
-        int32 gender                       = 9;
-        google.protobuf.Timestamp birthday = 10;
-    }
     UserInfo user_info = 1;
 }
 

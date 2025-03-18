@@ -22,7 +22,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.v1.captcha.GetCodeCaptchaResp'
+                                $ref: '#/components/schemas/gateway.api.v1.captcha.GetCodeCaptchaResp'
     /api/v1/captcha/graphicCaptcha:
         get:
             tags:
@@ -34,7 +34,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.v1.captcha.GetImageCaptchaResp'
+                                $ref: '#/components/schemas/gateway.api.v1.captcha.GetImageCaptchaResp'
     /api/v1/favorites:
         post:
             tags:
@@ -103,7 +103,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.v1.id.LoginRequest'
+                            $ref: '#/components/schemas/gateway.api.v1.id.LoginRequest'
                 required: true
             responses:
                 "200":
@@ -111,7 +111,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.v1.id.LoginResp'
+                                $ref: '#/components/schemas/gateway.api.v1.id.LoginResp'
     /api/v1/user/register:
         post:
             tags:
@@ -121,7 +121,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.v1.id.RegisterRequest'
+                            $ref: '#/components/schemas/gateway.api.v1.id.RegisterRequest'
                 required: true
             responses:
                 "200":
@@ -129,7 +129,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.v1.id.RegisterResp'
+                                $ref: '#/components/schemas/gateway.api.v1.id.RegisterResp'
     /api/v1/user/{userId}/logout:
         post:
             tags:
@@ -145,7 +145,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.v1.id.LogoutRequest'
+                            $ref: '#/components/schemas/gateway.api.v1.id.LogoutRequest'
                 required: true
             responses:
                 "200":
@@ -153,7 +153,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.v1.id.LogoutResp'
+                                $ref: '#/components/schemas/gateway.api.v1.id.LogoutResp'
     /api/v1/userinfo/{userId}:
         get:
             tags:
@@ -171,7 +171,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.UserinfoResp'
+                                $ref: '#/components/schemas/gateway.api.v1.userinfo.UserinfoResp'
     /api/v1/userinfo/{userId}/forgetPassword:
         post:
             tags:
@@ -187,7 +187,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ForgetPasswordReq'
+                            $ref: '#/components/schemas/gateway.api.v1.userinfo.ForgetPasswordReq'
                 required: true
             responses:
                 "200":
@@ -195,7 +195,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ForgetPasswordResp'
+                                $ref: '#/components/schemas/gateway.api.v1.userinfo.ForgetPasswordResp'
     /api/v1/userinfo/{userId}/modifyEmail:
         post:
             tags:
@@ -211,7 +211,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyEmailReq'
+                            $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifyEmailReq'
                 required: true
             responses:
                 "200":
@@ -219,7 +219,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyEmailResp'
+                                $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifyEmailResp'
     /api/v1/userinfo/{userId}/modifyPassword:
         post:
             tags:
@@ -235,7 +235,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyPasswordReq'
+                            $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifyPasswordReq'
                 required: true
             responses:
                 "200":
@@ -243,7 +243,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyPasswordResp'
+                                $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifyPasswordResp'
     /api/v1/userinfo/{userId}/modifySignature:
         post:
             tags:
@@ -259,7 +259,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifySignatureReq'
+                            $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifySignatureReq'
                 required: true
             responses:
                 "200":
@@ -267,7 +267,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifySignatureResp'
+                                $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifySignatureResp'
     /api/v1/userinfo/{userId}/modifyUsername:
         post:
             tags:
@@ -283,7 +283,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyUsernameReq'
+                            $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifyUsernameReq'
                 required: true
             responses:
                 "200":
@@ -291,7 +291,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.ModifyUsernameResp'
+                                $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifyUsernameResp'
     /api/v1/{userId}/follow:
         put:
             tags:
@@ -307,7 +307,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/vw_gateway.api.v1.follow.UnfollowUserReq'
+                            $ref: '#/components/schemas/gateway.api.v1.follow.UnfollowUserReq'
                 required: true
             responses:
                 "200":
@@ -315,7 +315,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/vw_gateway.api.v1.follow.UnfollowUserResp'
+                                $ref: '#/components/schemas/gateway.api.v1.follow.UnfollowUserResp'
         post:
             tags:
                 - Follow
@@ -330,7 +330,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/vw_gateway.api.v1.follow.FollowUserReq'
+                            $ref: '#/components/schemas/gateway.api.v1.follow.FollowUserReq'
                 required: true
             responses:
                 "200":
@@ -338,7 +338,39 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/vw_gateway.api.v1.follow.FollowUserResp'
+                                $ref: '#/components/schemas/gateway.api.v1.follow.FollowUserResp'
+    /api/v1/{userId}/followList:
+        get:
+            tags:
+                - Follow
+            operationId: Follow_GetFolloweeInfo
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: followListId
+                  in: query
+                  schema:
+                    type: string
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.follow.GetFolloweeInfoResp'
     /v1/userfile/file/upload:
         post:
             tags:
@@ -354,10 +386,10 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.v1.file.UploadAvatarResp'
+                                $ref: '#/components/schemas/gateway.api.v1.file.UploadAvatarResp'
 components:
     schemas:
-        gateway.v1.captcha.GetCodeCaptchaResp:
+        gateway.api.v1.captcha.GetCodeCaptchaResp:
             type: object
             properties:
                 statusCode:
@@ -367,7 +399,7 @@ components:
                     type: string
                 code:
                     type: string
-        gateway.v1.captcha.GetImageCaptchaResp:
+        gateway.api.v1.captcha.GetImageCaptchaResp:
             type: object
             properties:
                 statusCode:
@@ -376,8 +408,8 @@ components:
                 msg:
                     type: string
                 captchaResult:
-                    $ref: '#/components/schemas/gateway.v1.captcha.GetImageCaptchaResp_CaptchaResult'
-        gateway.v1.captcha.GetImageCaptchaResp_CaptchaResult:
+                    $ref: '#/components/schemas/gateway.api.v1.captcha.GetImageCaptchaResp_CaptchaResult'
+        gateway.api.v1.captcha.GetImageCaptchaResp_CaptchaResult:
             type: object
             properties:
                 id:
@@ -386,12 +418,73 @@ components:
                     type: string
                 answer:
                     type: string
-        gateway.v1.file.UploadAvatarResp:
+        gateway.api.v1.file.UploadAvatarResp:
             type: object
             properties:
                 filePath:
                     type: string
-        gateway.v1.id.LoginRequest:
+        gateway.api.v1.follow.FollowUserReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                followerUserId:
+                    type: string
+                followListId:
+                    type: string
+        gateway.api.v1.follow.FollowUserResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        gateway.api.v1.follow.GetFolloweeInfoResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+                followeeInfo:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/gateway.api.v1.follow.GetFolloweeInfoResp_UserSummary'
+        gateway.api.v1.follow.GetFolloweeInfoResp_UserSummary:
+            type: object
+            properties:
+                username:
+                    type: string
+                avatarPath:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                signature:
+                    type: string
+                email:
+                    type: string
+                birthday:
+                    type: string
+                    format: date-time
+        gateway.api.v1.follow.UnfollowUserReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                followedUserId:
+                    type: string
+        gateway.api.v1.follow.UnfollowUserResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        gateway.api.v1.id.LoginRequest:
             type: object
             properties:
                 username:
@@ -399,7 +492,7 @@ components:
                 password:
                     type: string
             description: 用户登录所需请求、响应
-        gateway.v1.id.LoginResp:
+        gateway.api.v1.id.LoginResp:
             type: object
             properties:
                 statusCode:
@@ -410,8 +503,8 @@ components:
                     type: string
                     description: app response message,The same below
                 data:
-                    $ref: '#/components/schemas/gateway.v1.id.LoginResp_Data'
-        gateway.v1.id.LoginResp_Data:
+                    $ref: '#/components/schemas/gateway.api.v1.id.LoginResp_Data'
+        gateway.api.v1.id.LoginResp_Data:
             type: object
             properties:
                 accessToken:
@@ -419,13 +512,13 @@ components:
                 refreshToken:
                     type: string
             description: when users login successfully, return two tokens to them
-        gateway.v1.id.LogoutRequest:
+        gateway.api.v1.id.LogoutRequest:
             type: object
             properties:
                 userId:
                     type: string
             description: 用户注销所需请求、响应
-        gateway.v1.id.LogoutResp:
+        gateway.api.v1.id.LogoutResp:
             type: object
             properties:
                 statusCode:
@@ -433,7 +526,7 @@ components:
                     format: int32
                 msg:
                     type: string
-        gateway.v1.id.RegisterRequest:
+        gateway.api.v1.id.RegisterRequest:
             type: object
             properties:
                 username:
@@ -454,7 +547,7 @@ components:
                 inputCode:
                     type: string
             description: 用户注册所需请求、响应
-        gateway.v1.id.RegisterResp:
+        gateway.api.v1.id.RegisterResp:
             type: object
             properties:
                 statusCode:
@@ -463,14 +556,131 @@ components:
                 msg:
                     type: string
                 data:
-                    $ref: '#/components/schemas/gateway.v1.id.RegisterResp_Data'
-        gateway.v1.id.RegisterResp_Data:
+                    $ref: '#/components/schemas/gateway.api.v1.id.RegisterResp_Data'
+        gateway.api.v1.id.RegisterResp_Data:
             type: object
             properties:
                 accessToken:
                     type: string
                 refreshToken:
                     type: string
+        gateway.api.v1.userinfo.CommonResp:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        gateway.api.v1.userinfo.ForgetPasswordReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                email:
+                    type: string
+                newPassword:
+                    type: string
+                inputCode:
+                    type: string
+        gateway.api.v1.userinfo.ForgetPasswordResp:
+            type: object
+            properties:
+                common:
+                    $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
+        gateway.api.v1.userinfo.ModifyEmailReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                email:
+                    type: string
+                inputCode:
+                    type: string
+        gateway.api.v1.userinfo.ModifyEmailResp:
+            type: object
+            properties:
+                email:
+                    type: string
+                common:
+                    $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
+        gateway.api.v1.userinfo.ModifyPasswordReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                oldPassword:
+                    type: string
+                newPassword:
+                    type: string
+        gateway.api.v1.userinfo.ModifyPasswordResp:
+            type: object
+            properties:
+                common:
+                    $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
+        gateway.api.v1.userinfo.ModifySignatureReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                signature:
+                    type: string
+        gateway.api.v1.userinfo.ModifySignatureResp:
+            type: object
+            properties:
+                newSignature:
+                    type: string
+                common:
+                    $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
+        gateway.api.v1.userinfo.ModifyUsernameReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                newUsername:
+                    type: string
+        gateway.api.v1.userinfo.ModifyUsernameResp:
+            type: object
+            properties:
+                newUsername:
+                    type: string
+                common:
+                    $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
+        gateway.api.v1.userinfo.UserInfo:
+            type: object
+            properties:
+                userName:
+                    type: string
+                email:
+                    type: string
+                signature:
+                    type: string
+                shells:
+                    type: integer
+                    format: int32
+                cntFans:
+                    type: integer
+                    format: int32
+                cntFollows:
+                    type: integer
+                    format: int32
+                cntVideos:
+                    type: integer
+                    format: int32
+                avatarPath:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                birthday:
+                    type: string
+        gateway.api.v1.userinfo.UserinfoResp:
+            type: object
+            properties:
+                userInfo:
+                    $ref: '#/components/schemas/gateway.api.v1.userinfo.UserInfo'
+                common:
+                    $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
         vw_gateway.api.v1.favorites.CreateFavoritesReq:
             type: object
             properties:
@@ -518,155 +728,6 @@ components:
                     type: integer
                     format: int32
                 msg:
-                    type: string
-        vw_gateway.api.v1.follow.FollowUserReq:
-            type: object
-            properties:
-                userId:
-                    type: string
-                followerUserId:
-                    type: string
-                followListId:
-                    type: string
-        vw_gateway.api.v1.follow.FollowUserResp:
-            type: object
-            properties:
-                statusCode:
-                    type: integer
-                    format: int32
-                message:
-                    type: string
-        vw_gateway.api.v1.follow.UnfollowUserReq:
-            type: object
-            properties:
-                userId:
-                    type: string
-                followedUserId:
-                    type: string
-        vw_gateway.api.v1.follow.UnfollowUserResp:
-            type: object
-            properties:
-                statusCode:
-                    type: integer
-                    format: int32
-                message:
-                    type: string
-        vw_gateway.api.v1.userinfo.CommonResp:
-            type: object
-            properties:
-                status:
-                    type: integer
-                    format: int32
-                message:
-                    type: string
-        vw_gateway.api.v1.userinfo.ForgetPasswordReq:
-            type: object
-            properties:
-                userId:
-                    type: string
-                email:
-                    type: string
-                newPassword:
-                    type: string
-                inputCode:
-                    type: string
-        vw_gateway.api.v1.userinfo.ForgetPasswordResp:
-            type: object
-            properties:
-                common:
-                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.CommonResp'
-        vw_gateway.api.v1.userinfo.ModifyEmailReq:
-            type: object
-            properties:
-                userId:
-                    type: string
-                email:
-                    type: string
-                inputCode:
-                    type: string
-        vw_gateway.api.v1.userinfo.ModifyEmailResp:
-            type: object
-            properties:
-                email:
-                    type: string
-                common:
-                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.CommonResp'
-        vw_gateway.api.v1.userinfo.ModifyPasswordReq:
-            type: object
-            properties:
-                userId:
-                    type: string
-                oldPassword:
-                    type: string
-                newPassword:
-                    type: string
-        vw_gateway.api.v1.userinfo.ModifyPasswordResp:
-            type: object
-            properties:
-                common:
-                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.CommonResp'
-        vw_gateway.api.v1.userinfo.ModifySignatureReq:
-            type: object
-            properties:
-                userId:
-                    type: string
-                signature:
-                    type: string
-        vw_gateway.api.v1.userinfo.ModifySignatureResp:
-            type: object
-            properties:
-                newSignature:
-                    type: string
-                common:
-                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.CommonResp'
-        vw_gateway.api.v1.userinfo.ModifyUsernameReq:
-            type: object
-            properties:
-                userId:
-                    type: string
-                newUsername:
-                    type: string
-        vw_gateway.api.v1.userinfo.ModifyUsernameResp:
-            type: object
-            properties:
-                newUsername:
-                    type: string
-                common:
-                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.CommonResp'
-        vw_gateway.api.v1.userinfo.UserinfoResp:
-            type: object
-            properties:
-                userInfo:
-                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.UserinfoResp_UserInfo'
-                common:
-                    $ref: '#/components/schemas/vw_gateway.api.v1.userinfo.CommonResp'
-        vw_gateway.api.v1.userinfo.UserinfoResp_UserInfo:
-            type: object
-            properties:
-                userName:
-                    type: string
-                email:
-                    type: string
-                signature:
-                    type: string
-                shells:
-                    type: integer
-                    format: int32
-                cntFans:
-                    type: integer
-                    format: int32
-                cntFollows:
-                    type: integer
-                    format: int32
-                cntVideos:
-                    type: integer
-                    format: int32
-                avatarPath:
-                    type: string
-                gender:
-                    type: integer
-                    format: int32
-                birthday:
                     type: string
 tags:
     - name: Captcha

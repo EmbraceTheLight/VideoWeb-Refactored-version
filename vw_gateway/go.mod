@@ -96,4 +96,5 @@ replace (
 	util => ../util
 	vw_user => ../vw_user
 	vw_video => ../vw_video
+	common => ../util/common_proto
 )
