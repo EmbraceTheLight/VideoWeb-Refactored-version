@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Identity_Login_FullMethodName    = "/gateway.v1.id.Identity/Login"
-	Identity_Register_FullMethodName = "/gateway.v1.id.Identity/Register"
-	Identity_Logout_FullMethodName   = "/gateway.v1.id.Identity/Logout"
+	Identity_Login_FullMethodName    = "/gateway.api.v1.id.Identity/Login"
+	Identity_Register_FullMethodName = "/gateway.api.v1.id.Identity/Register"
+	Identity_Logout_FullMethodName   = "/gateway.api.v1.id.Identity/Logout"
 )
 
 // IdentityClient is the client API for Identity service.
@@ -180,7 +180,7 @@ func _Identity_Logout_Handler(srv interface{}, ctx context.Context, dec func(int
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Identity_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "gateway.v1.id.Identity",
+	ServiceName: "gateway.api.v1.id.Identity",
 	HandlerType: (*IdentityServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -19,12 +19,12 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationUserinfoForgetPassword = "/vw_gateway.api.v1.userinfo.Userinfo/ForgetPassword"
-const OperationUserinfoModifyEmail = "/vw_gateway.api.v1.userinfo.Userinfo/ModifyEmail"
-const OperationUserinfoModifyPassword = "/vw_gateway.api.v1.userinfo.Userinfo/ModifyPassword"
-const OperationUserinfoModifyUserSignature = "/vw_gateway.api.v1.userinfo.Userinfo/ModifyUserSignature"
-const OperationUserinfoModifyUsername = "/vw_gateway.api.v1.userinfo.Userinfo/ModifyUsername"
-const OperationUserinfoUserinfo = "/vw_gateway.api.v1.userinfo.Userinfo/Userinfo"
+const OperationUserinfoForgetPassword = "/gateway.api.v1.userinfo.Userinfo/ForgetPassword"
+const OperationUserinfoModifyEmail = "/gateway.api.v1.userinfo.Userinfo/ModifyEmail"
+const OperationUserinfoModifyPassword = "/gateway.api.v1.userinfo.Userinfo/ModifyPassword"
+const OperationUserinfoModifyUserSignature = "/gateway.api.v1.userinfo.Userinfo/ModifyUserSignature"
+const OperationUserinfoModifyUsername = "/gateway.api.v1.userinfo.Userinfo/ModifyUsername"
+const OperationUserinfoUserinfo = "/gateway.api.v1.userinfo.Userinfo/Userinfo"
 
 type UserinfoHTTPServer interface {
 	ForgetPassword(context.Context, *ForgetPasswordReq) (*ForgetPasswordResp, error)

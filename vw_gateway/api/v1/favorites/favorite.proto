@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package vw_gateway.api.v1.favorites;
+package gateway.api.v1.favorites;
 
 import "google/api/annotations.proto";
 

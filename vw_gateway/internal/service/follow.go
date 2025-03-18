@@ -42,3 +42,28 @@ func (fs *FollowService) UnfollowUser(ctx context.Context, req *followv1.Unfollo
 		Message:    "取消关注用户成功",
 	}, nil
 }
+
+func (fs *FollowService) GetFolloweeInfo(ctx context.Context, req *followv1.GetFolloweeInfoReq) (*followv1.GetFolloweeInfoResp, error) {
+	tmp, err := fs.followUsecase.GetFolloweeInfo(ctx, req.UserId, req.FollowListId, req.PageNum, req.PageSize)
+	if err != nil {
+		return nil, err
+	}
+
+	followeesInfo := make([]*followv1.GetFolloweeInfoResp_UserSummary, len(tmp))
+	for i, v := range tmp {
+		followeesInfo[i] = &followv1.GetFolloweeInfoResp_UserSummary{
+			Username:   v.Username,
+			Signature:  v.Signature,
+			Email:      v.Email,
+			Gender:     v.Gender,
+			AvatarPath: v.AvatarPath,
+			Birthday:   v.Birthday,
+		}
+	}
+
+	return &followv1.GetFolloweeInfoResp{
+		StatusCode:   http.StatusOK,
+		Message:      "获取关注的用户信息成功",
+		FolloweeInfo: followeesInfo,
+	}, nil
+}

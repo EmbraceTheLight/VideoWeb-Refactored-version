@@ -19,9 +19,9 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationIdentityLogin = "/gateway.v1.id.Identity/Login"
-const OperationIdentityLogout = "/gateway.v1.id.Identity/Logout"
-const OperationIdentityRegister = "/gateway.v1.id.Identity/Register"
+const OperationIdentityLogin = "/gateway.api.v1.id.Identity/Login"
+const OperationIdentityLogout = "/gateway.api.v1.id.Identity/Logout"
+const OperationIdentityRegister = "/gateway.api.v1.id.Identity/Register"
 
 type IdentityHTTPServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResp, error)

@@ -19,11 +19,13 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationFollowFollowUser = "/vw_gateway.api.v1.follow.Follow/FollowUser"
-const OperationFollowUnfollowUser = "/vw_gateway.api.v1.follow.Follow/UnfollowUser"
+const OperationFollowFollowUser = "/gateway.api.v1.follow.Follow/FollowUser"
+const OperationFollowGetFolloweeInfo = "/gateway.api.v1.follow.Follow/GetFolloweeInfo"
+const OperationFollowUnfollowUser = "/gateway.api.v1.follow.Follow/UnfollowUser"
 
 type FollowHTTPServer interface {
 	FollowUser(context.Context, *FollowUserReq) (*FollowUserResp, error)
+	GetFolloweeInfo(context.Context, *GetFolloweeInfoReq) (*GetFolloweeInfoResp, error)
 	UnfollowUser(context.Context, *UnfollowUserReq) (*UnfollowUserResp, error)
 }
 
@@ -31,6 +33,7 @@ func RegisterFollowHTTPServer(s *http.Server, srv FollowHTTPServer) {
 	r := s.Route("/")
 	r.POST("/api/v1/{user_id}/follow", _Follow_FollowUser0_HTTP_Handler(srv))
 	r.PUT("/api/v1/{user_id}/follow", _Follow_UnfollowUser0_HTTP_Handler(srv))
+	r.GET("/api/v1/{user_id}/followList", _Follow_GetFolloweeInfo0_HTTP_Handler(srv))
 }
 
 func _Follow_FollowUser0_HTTP_Handler(srv FollowHTTPServer) func(ctx http.Context) error {
@@ -83,8 +86,31 @@ func _Follow_UnfollowUser0_HTTP_Handler(srv FollowHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Follow_GetFolloweeInfo0_HTTP_Handler(srv FollowHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetFolloweeInfoReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationFollowGetFolloweeInfo)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetFolloweeInfo(ctx, req.(*GetFolloweeInfoReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetFolloweeInfoResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type FollowHTTPClient interface {
 	FollowUser(ctx context.Context, req *FollowUserReq, opts ...http.CallOption) (rsp *FollowUserResp, err error)
+	GetFolloweeInfo(ctx context.Context, req *GetFolloweeInfoReq, opts ...http.CallOption) (rsp *GetFolloweeInfoResp, err error)
 	UnfollowUser(ctx context.Context, req *UnfollowUserReq, opts ...http.CallOption) (rsp *UnfollowUserResp, err error)
 }
 
@@ -103,6 +129,19 @@ func (c *FollowHTTPClientImpl) FollowUser(ctx context.Context, in *FollowUserReq
 	opts = append(opts, http.Operation(OperationFollowFollowUser))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *FollowHTTPClientImpl) GetFolloweeInfo(ctx context.Context, in *GetFolloweeInfoReq, opts ...http.CallOption) (*GetFolloweeInfoResp, error) {
+	var out GetFolloweeInfoResp
+	pattern := "/api/v1/{user_id}/followList"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationFollowGetFolloweeInfo))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

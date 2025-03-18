@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package gateway.v1.file;
+package gateway.api.v1.file;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";

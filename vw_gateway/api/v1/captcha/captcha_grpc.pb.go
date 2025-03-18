@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Captcha_GetImageCaptcha_FullMethodName = "/gateway.v1.captcha.Captcha/GetImageCaptcha"
-	Captcha_GetCodeCaptcha_FullMethodName  = "/gateway.v1.captcha.Captcha/GetCodeCaptcha"
+	Captcha_GetImageCaptcha_FullMethodName = "/gateway.api.v1.captcha.Captcha/GetImageCaptcha"
+	Captcha_GetCodeCaptcha_FullMethodName  = "/gateway.api.v1.captcha.Captcha/GetCodeCaptcha"
 )
 
 // CaptchaClient is the client API for Captcha service.
@@ -142,7 +142,7 @@ func _Captcha_GetCodeCaptcha_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Captcha_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "gateway.v1.captcha.Captcha",
+	ServiceName: "gateway.api.v1.captcha.Captcha",
 	HandlerType: (*CaptchaServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	FileService_UploadAvatar_FullMethodName = "/gateway.v1.file.FileService/UploadAvatar"
+	FileService_UploadAvatar_FullMethodName = "/gateway.api.v1.file.FileService/UploadAvatar"
 )
 
 // FileServiceClient is the client API for FileService service.
@@ -109,7 +109,7 @@ func _FileService_UploadAvatar_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var FileService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "gateway.v1.file.FileService",
+	ServiceName: "gateway.api.v1.file.FileService",
 	HandlerType: (*FileServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

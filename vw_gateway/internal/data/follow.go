@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"vw_gateway/internal/biz"
+	"vw_gateway/internal/domain"
 	followv1 "vw_user/api/v1/follow"
 )
 
@@ -34,4 +35,29 @@ func (r *followRepo) UnfollowOtherUser(ctx context.Context, followerId, followed
 		FolloweeUserId: followedId,
 	})
 	return err
+}
+
+func (r *followRepo) GetFolloweeInfo(ctx context.Context, userId int64, followListId int64, pageNum int32, pageSize int32) ([]*domain.UserSummary, error) {
+	followeesList, err := r.data.followClient.GetFolloweesInfo(ctx, &followv1.GetFolloweesInfoReq{
+		UserId:       userId,
+		FollowListId: followListId,
+		PageNum:      pageNum,
+		PageSize:     pageSize,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	infoList := make([]*domain.UserSummary, len(followeesList.FolloweesInfo))
+	for i, followee := range followeesList.FolloweesInfo {
+		infoList[i] = &domain.UserSummary{
+			Username:   followee.Username,
+			Email:      followee.Email,
+			Signature:  followee.Signature,
+			AvatarPath: followee.AvatarPath,
+			Gender:     followee.Gender,
+			Birthday:   followee.Birthday,
+		}
+	}
+	return infoList, err
 }
