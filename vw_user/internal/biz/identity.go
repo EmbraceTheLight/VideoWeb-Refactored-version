@@ -13,6 +13,7 @@ import (
 	"time"
 	"unicode/utf8"
 	"util/helper"
+	"util/helper/file"
 	"util/snowflake"
 	idv1 "vw_user/api/v1/identity"
 	"vw_user/internal/data/dal/model"
@@ -67,7 +68,7 @@ func (uc *UserIdentityUsecase) Register(ctx context.Context, registerInfo *Regis
 	var avatarFilePath string
 	if registerInfo.AvatarFilePath == nil {
 		userDir := filepath.Join(resourcePath, strconv.FormatInt(*registerInfo.UserID, 10))
-		err = helper.CreateDir(userDir, os.ModePerm)
+		err = file.CreateDir(userDir, os.ModePerm)
 		if err != nil {
 			return 0, false, helper.HandleError(errdef.ErrCreateUserDirFailed, err)
 		}
@@ -81,7 +82,7 @@ func (uc *UserIdentityUsecase) Register(ctx context.Context, registerInfo *Regis
 		}()
 
 		avatarFilePath = filepath.Join(userDir, defaultAvatarName)
-		err = helper.WriteToNewFile(avatarFilePath, defaultAvatarPath)
+		err = file.WriteToNewFile(avatarFilePath, defaultAvatarPath)
 		if err != nil {
 			return 0, false, helper.HandleError(errdef.ErrCreateUserDirFailed, err)
 		}

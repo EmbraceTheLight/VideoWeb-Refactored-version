@@ -1,8 +1,8 @@
 package data
 
 import (
+	"context"
 	"github.com/go-kratos/kratos/v2/log"
-	"os"
 	"vw_user/internal/biz"
 )
 
@@ -18,8 +18,14 @@ func NewFileRepo(data *Data, logger log.Logger) biz.FileRepo {
 	}
 }
 
-func (f *fileRepo) Upload(file *os.File, filename string, path string) error {
-
-	//TODO implement me
-	panic("implement me")
+func (r *fileRepo) UpdateAvatarPath(ctx context.Context, userID int64, filePath string) error {
+	user := getQuery(ctx).User
+	userDo := user.WithContext(ctx)
+	u, err := userDo.Where(user.UserID.Eq(userID)).First()
+	if err != nil {
+		return err
+	}
+	userDo.ReplaceDB(userDo.UnderlyingDB().Model(u))
+	_, err = userDo.Where(user.UserID.Eq(userID)).Update(user.AvatarPath, filePath)
+	return err
 }
