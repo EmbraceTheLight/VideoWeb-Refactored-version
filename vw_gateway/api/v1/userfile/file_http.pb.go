@@ -20,15 +20,18 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationFileServiceUpdateAvatar = "/gateway.api.v1.file.FileService/UpdateAvatar"
 const OperationFileServiceUploadAvatar = "/gateway.api.v1.file.FileService/UploadAvatar"
 
 type FileServiceHTTPServer interface {
+	UpdateAvatar(context.Context, *UpdateAvatarReq) (*UpdateAvatarResp, error)
 	UploadAvatar(context.Context, *emptypb.Empty) (*UploadAvatarResp, error)
 }
 
 func RegisterFileServiceHTTPServer(s *http.Server, srv FileServiceHTTPServer) {
 	r := s.Route("/")
-	r.POST("/v1/userfile/file/upload", _FileService_UploadAvatar0_HTTP_Handler(srv))
+	r.POST("/api/v1/user/profile/avatar", _FileService_UploadAvatar0_HTTP_Handler(srv))
+	r.PUT("/api/v1/{user_id}/profile/avatar", _FileService_UpdateAvatar0_HTTP_Handler(srv))
 }
 
 func _FileService_UploadAvatar0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx http.Context) error {
@@ -53,7 +56,33 @@ func _FileService_UploadAvatar0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx
 	}
 }
 
+func _FileService_UpdateAvatar0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UpdateAvatarReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationFileServiceUpdateAvatar)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdateAvatar(ctx, req.(*UpdateAvatarReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*UpdateAvatarResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type FileServiceHTTPClient interface {
+	UpdateAvatar(ctx context.Context, req *UpdateAvatarReq, opts ...http.CallOption) (rsp *UpdateAvatarResp, err error)
 	UploadAvatar(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *UploadAvatarResp, err error)
 }
 
@@ -65,9 +94,22 @@ func NewFileServiceHTTPClient(client *http.Client) FileServiceHTTPClient {
 	return &FileServiceHTTPClientImpl{client}
 }
 
+func (c *FileServiceHTTPClientImpl) UpdateAvatar(ctx context.Context, in *UpdateAvatarReq, opts ...http.CallOption) (*UpdateAvatarResp, error) {
+	var out UpdateAvatarResp
+	pattern := "/api/v1/{user_id}/profile/avatar"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationFileServiceUpdateAvatar))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *FileServiceHTTPClientImpl) UploadAvatar(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*UploadAvatarResp, error) {
 	var out UploadAvatarResp
-	pattern := "/v1/userfile/file/upload"
+	pattern := "/api/v1/user/profile/avatar"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationFileServiceUploadAvatar))
 	opts = append(opts, http.PathTemplate(pattern))

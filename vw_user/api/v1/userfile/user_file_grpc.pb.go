@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	FileService_UploadAvatar_FullMethodName = "/user.v1.file.FileService/UploadAvatar"
+	FileService_UpdateAvatar_FullMethodName = "/user.v1.file.FileService/UpdateAvatar"
 )
 
 // FileServiceClient is the client API for FileService service.
@@ -27,6 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FileServiceClient interface {
 	UploadAvatar(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadAvatarReq, UploadAvatarResp], error)
+	UpdateAvatar(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UpdateAvatarReq, emptypb.Empty], error)
 }
 
 type fileServiceClient struct {
@@ -50,11 +53,25 @@ func (c *fileServiceClient) UploadAvatar(ctx context.Context, opts ...grpc.CallO
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type FileService_UploadAvatarClient = grpc.ClientStreamingClient[UploadAvatarReq, UploadAvatarResp]
 
+func (c *fileServiceClient) UpdateAvatar(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UpdateAvatarReq, emptypb.Empty], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &FileService_ServiceDesc.Streams[1], FileService_UpdateAvatar_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[UpdateAvatarReq, emptypb.Empty]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type FileService_UpdateAvatarClient = grpc.ClientStreamingClient[UpdateAvatarReq, emptypb.Empty]
+
 // FileServiceServer is the server API for FileService service.
 // All implementations must embed UnimplementedFileServiceServer
 // for forward compatibility.
 type FileServiceServer interface {
 	UploadAvatar(grpc.ClientStreamingServer[UploadAvatarReq, UploadAvatarResp]) error
+	UpdateAvatar(grpc.ClientStreamingServer[UpdateAvatarReq, emptypb.Empty]) error
 	mustEmbedUnimplementedFileServiceServer()
 }
 
@@ -67,6 +84,9 @@ type UnimplementedFileServiceServer struct{}
 
 func (UnimplementedFileServiceServer) UploadAvatar(grpc.ClientStreamingServer[UploadAvatarReq, UploadAvatarResp]) error {
 	return status.Errorf(codes.Unimplemented, "method UploadAvatar not implemented")
+}
+func (UnimplementedFileServiceServer) UpdateAvatar(grpc.ClientStreamingServer[UpdateAvatarReq, emptypb.Empty]) error {
+	return status.Errorf(codes.Unimplemented, "method UpdateAvatar not implemented")
 }
 func (UnimplementedFileServiceServer) mustEmbedUnimplementedFileServiceServer() {}
 func (UnimplementedFileServiceServer) testEmbeddedByValue()                     {}
@@ -96,6 +116,13 @@ func _FileService_UploadAvatar_Handler(srv interface{}, stream grpc.ServerStream
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type FileService_UploadAvatarServer = grpc.ClientStreamingServer[UploadAvatarReq, UploadAvatarResp]
 
+func _FileService_UpdateAvatar_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(FileServiceServer).UpdateAvatar(&grpc.GenericServerStream[UpdateAvatarReq, emptypb.Empty]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type FileService_UpdateAvatarServer = grpc.ClientStreamingServer[UpdateAvatarReq, emptypb.Empty]
+
 // FileService_ServiceDesc is the grpc.ServiceDesc for FileService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -107,6 +134,11 @@ var FileService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "UploadAvatar",
 			Handler:       _FileService_UploadAvatar_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "UpdateAvatar",
+			Handler:       _FileService_UpdateAvatar_Handler,
 			ClientStreams: true,
 		},
 	},

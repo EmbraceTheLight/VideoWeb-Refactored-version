@@ -44,7 +44,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/vw_gateway.api.v1.favorites.CreateFavoritesReq'
+                            $ref: '#/components/schemas/gateway.api.v1.favorites.CreateFavoritesReq'
                 required: true
             responses:
                 "200":
@@ -52,7 +52,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/vw_gateway.api.v1.favorites.CreateFavoritesResp'
+                                $ref: '#/components/schemas/gateway.api.v1.favorites.CreateFavoritesResp'
     /api/v1/favorites/{favoritesId}:
         delete:
             tags:
@@ -70,7 +70,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/vw_gateway.api.v1.favorites.DeleteFavoritesResp'
+                                $ref: '#/components/schemas/gateway.api.v1.favorites.DeleteFavoritesResp'
         patch:
             tags:
                 - Favorite
@@ -85,7 +85,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/vw_gateway.api.v1.favorites.ModifyFavoritesReq'
+                            $ref: '#/components/schemas/gateway.api.v1.favorites.ModifyFavoritesReq'
                 required: true
             responses:
                 "200":
@@ -93,7 +93,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/vw_gateway.api.v1.favorites.ModifyFavoritesResp'
+                                $ref: '#/components/schemas/gateway.api.v1.favorites.ModifyFavoritesResp'
     /api/v1/user/login:
         post:
             tags:
@@ -112,6 +112,22 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/gateway.api.v1.id.LoginResp'
+    /api/v1/user/profile/avatar:
+        post:
+            tags:
+                - FileService
+            operationId: FileService_UploadAvatar
+            requestBody:
+                content:
+                    application/json: {}
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.file.UploadAvatarResp'
     /api/v1/user/register:
         post:
             tags:
@@ -371,14 +387,22 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/gateway.api.v1.follow.GetFolloweeInfoResp'
-    /v1/userfile/file/upload:
-        post:
+    /api/v1/{userId}/profile/avatar:
+        put:
             tags:
                 - FileService
-            operationId: FileService_UploadAvatar
+            operationId: FileService_UpdateAvatar
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
             requestBody:
                 content:
-                    application/json: {}
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.api.v1.file.UpdateAvatarReq'
                 required: true
             responses:
                 "200":
@@ -386,7 +410,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.file.UploadAvatarResp'
+                                $ref: '#/components/schemas/gateway.api.v1.file.UpdateAvatarResp'
 components:
     schemas:
         gateway.api.v1.captcha.GetCodeCaptchaResp:
@@ -417,6 +441,67 @@ components:
                 b64log:
                     type: string
                 answer:
+                    type: string
+        gateway.api.v1.favorites.CreateFavoritesReq:
+            type: object
+            properties:
+                favoritesName:
+                    type: string
+                isPrivate:
+                    type: integer
+                    format: int32
+                description:
+                    type: string
+                userId:
+                    type: string
+        gateway.api.v1.favorites.CreateFavoritesResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+        gateway.api.v1.favorites.DeleteFavoritesResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+        gateway.api.v1.favorites.ModifyFavoritesReq:
+            type: object
+            properties:
+                favoritesId:
+                    type: string
+                favoritesName:
+                    type: string
+                isPrivate:
+                    type: integer
+                    format: int32
+                description:
+                    type: string
+        gateway.api.v1.favorites.ModifyFavoritesResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+        gateway.api.v1.file.UpdateAvatarReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+        gateway.api.v1.file.UpdateAvatarResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
                     type: string
         gateway.api.v1.file.UploadAvatarResp:
             type: object
@@ -681,54 +766,6 @@ components:
                     $ref: '#/components/schemas/gateway.api.v1.userinfo.UserInfo'
                 common:
                     $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
-        vw_gateway.api.v1.favorites.CreateFavoritesReq:
-            type: object
-            properties:
-                favoritesName:
-                    type: string
-                isPrivate:
-                    type: integer
-                    format: int32
-                description:
-                    type: string
-                userId:
-                    type: string
-        vw_gateway.api.v1.favorites.CreateFavoritesResp:
-            type: object
-            properties:
-                statusCode:
-                    type: integer
-                    format: int32
-                msg:
-                    type: string
-        vw_gateway.api.v1.favorites.DeleteFavoritesResp:
-            type: object
-            properties:
-                statusCode:
-                    type: integer
-                    format: int32
-                msg:
-                    type: string
-        vw_gateway.api.v1.favorites.ModifyFavoritesReq:
-            type: object
-            properties:
-                favoritesId:
-                    type: string
-                favoritesName:
-                    type: string
-                isPrivate:
-                    type: integer
-                    format: int32
-                description:
-                    type: string
-        vw_gateway.api.v1.favorites.ModifyFavoritesResp:
-            type: object
-            properties:
-                statusCode:
-                    type: integer
-                    format: int32
-                msg:
-                    type: string
 tags:
     - name: Captcha
     - name: Favorite

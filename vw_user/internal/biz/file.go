@@ -1,32 +1,36 @@
 package biz
 
 import (
+	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"io"
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
+	utilCtx "util/context"
 	"util/helper"
+	"util/helper/file"
 	"util/snowflake"
 	filev1 "vw_user/api/v1/userfile"
 	"vw_user/internal/pkg/ecode/errdef"
 )
 
 type FileRepo interface {
-	//Upload(file *os.File, filename string, path string) error
+	UpdateAvatarPath(ctx context.Context, userID int64, filePath string) error
 }
 
 type FileUsecase struct {
-	filev1.UnimplementedFileServiceServer
-	log *log.Helper
-	//repo FileRepo
+	log  *log.Helper
+	repo FileRepo
 }
 
-func NewFileUsecase(logger log.Logger) *FileUsecase {
+func NewFileUsecase(logger log.Logger, repo FileRepo) *FileUsecase {
 	return &FileUsecase{
-		log: log.NewHelper(logger),
-		//repo: repo,
+		log:  log.NewHelper(logger),
+		repo: repo,
 	}
 }
 
@@ -73,7 +77,7 @@ func (u *FileUsecase) UploadAvatar(stream grpc.ClientStreamingServer[filev1.Uplo
 			// 2. compute the new user's directory path, with the user id.
 			userDir = filepath.Join(resourcePath, strconv.FormatInt(userID, 10))
 
-			err = helper.CreateDir(userDir, os.ModePerm)
+			err = file.CreateDir(userDir, os.ModePerm)
 			if err != nil {
 				return helper.HandleError(errdef.ErrCreateUserDirFailed, err)
 			}
@@ -87,7 +91,7 @@ func (u *FileUsecase) UploadAvatar(stream grpc.ClientStreamingServer[filev1.Uplo
 
 		// * Get avatarFile content
 		case *filev1.UploadAvatarReq_FileContent:
-			// 1. 写入文件
+			// 1. Write data to the avatar file.
 			fileContent := data.FileContent
 			_, err = avatarFile.Write(fileContent)
 			if err != nil {
@@ -97,5 +101,90 @@ func (u *FileUsecase) UploadAvatar(stream grpc.ClientStreamingServer[filev1.Uplo
 	}
 
 	err = stream.SendAndClose(&filev1.UploadAvatarResp{FilePath: avatarFilePath})
+	return err
+}
+
+func (u *FileUsecase) UpdateAvatar(stream grpc.ClientStreamingServer[filev1.UpdateAvatarReq, emptypb.Empty]) error {
+	var (
+		avatarFilePath string
+		newFileName    string
+		avatarFile     *os.File
+		userID         int64
+		err            error
+	)
+
+	// Close the avatar file, if it is not closed normally.
+	// if it has been closed normally, discard the error.
+	defer func() {
+		_ = avatarFile.Close()
+	}()
+
+	for {
+		var req *filev1.UpdateAvatarReq
+		req, err = stream.Recv()
+		if err == io.EOF { // 传输完成
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		// Handle the data，there are two types of data：
+		// One is user id(int64);
+		// the other is avatarFile content([]byte).
+		switch data := req.Data.(type) {
+
+		// * Get avatarFile name, then create the avatarFile。
+		case *filev1.UpdateAvatarReq_MetaData:
+			// Delete user's old avatar
+			// 1. compute the new user's directory avatarFilePath, with the user id.
+			userID = data.MetaData.UserId
+			userDir := filepath.Join(resourcePath, strconv.FormatInt(userID, 10))
+
+			// 2. Find and prepare to the old avatar, by O_TRUNC and O_WRONLY flags.
+			avatarFilePath, err = file.NewFileSearcher().Find(userDir, avatar)
+			if err != nil {
+				return helper.HandleError(errdef.ErrUpdateAvatarFailed, err)
+			}
+
+			// 3. Open the old avatar avatarFile by the given avatarFile name.
+			avatarFile, err = os.OpenFile(avatarFilePath, os.O_WRONLY|os.O_TRUNC, 0666)
+
+			// 4. Get the new avatar avatarFile name. Because the avatar file's extension may be changed.
+			newFileName = avatar + data.MetaData.FileExtension
+
+		// * Get avatarFile content
+		case *filev1.UpdateAvatarReq_FileContent:
+			// Write data to the truncated avatar avatarFile.
+			fileContent := data.FileContent
+			_, err = avatarFile.Write(fileContent)
+			if err != nil {
+				return helper.HandleError(errdef.ErrUpdateAvatarFailed, err)
+			}
+		}
+	}
+
+	// Close the avatar file, so that it can be renamed.
+	err = avatarFile.Close()
+	if err != nil {
+		return helper.HandleError(errdef.ErrUpdateAvatarFailed, err)
+	}
+
+	// rename the old avatar avatarFile to the new avatar avatarFile name.
+	baseDir := filepath.Dir(avatarFilePath)
+	err = os.Rename(avatarFilePath, filepath.Join(baseDir, newFileName))
+	if err != nil {
+		return helper.HandleError(errdef.ErrUpdateAvatarFailed, err)
+	}
+
+	// Update the user's avatar path in the database.
+	ctx, cancel := utilCtx.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	err = u.repo.UpdateAvatarPath(ctx, userID, filepath.Join(baseDir, newFileName))
+	if err != nil {
+		return helper.HandleError(errdef.ErrUpdateAvatarFailed, err)
+	}
+
+	err = stream.SendAndClose(nil)
 	return err
 }

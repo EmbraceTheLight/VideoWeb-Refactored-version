@@ -10,7 +10,13 @@ option go_package = "vw_gateway/api/v1/userfile;filev1";
 service FileService {
     rpc UploadAvatar(google.protobuf.Empty) returns (UploadAvatarResp) {
         option (google.api.http) = {
-            post: "/v1/userfile/file/upload"
+            post: "/api/v1/user/profile/avatar"
+            body: "*"
+        };
+    }
+    rpc UpdateAvatar(UpdateAvatarReq) returns (UpdateAvatarResp) {
+        option (google.api.http) = {
+            put: "/api/v1/{user_id}/profile/avatar"
             body: "*"
         };
     }
@@ -18,4 +24,12 @@ service FileService {
 
 message UploadAvatarResp {
     string file_path = 1;
+}
+
+message UpdateAvatarReq {
+    int64 user_id = 1;
+}
+message UpdateAvatarResp {
+    int32 status_code = 1;
+    string message    = 2;
 }

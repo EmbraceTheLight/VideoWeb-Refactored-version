@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package user.v1.follow;
 
-import "v1/userinfo/info.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "vw_user/api/v1/follow;followv1";

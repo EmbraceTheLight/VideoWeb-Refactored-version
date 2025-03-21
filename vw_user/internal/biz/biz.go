@@ -16,12 +16,14 @@ var ProviderSet = wire.NewSet(
 	NewFollowUseCase,
 )
 
+const avatar = "avatar"
+
 var (
 	// resourcePath is the root path of the service: /vw_user.
 	rootPath          string
 	resourcePath      string
 	defaultAvatarPath string
-	defaultAvatarName string = "avatar.jpg"
+	defaultAvatarName string = avatar + ".jpg"
 )
 
 func init() {
@@ -30,15 +32,15 @@ func init() {
 func initPath() {
 	_, filename, _, _ := runtime.Caller(1)
 
-	// tmp = /biz
-	tmp := filepath.Dir(filename)
+	// tmp = internal/
+	tmp := filepath.Dir(filepath.Dir(filename))
 
-	// rootPath = /vw_user
+	// rootPath = video_web/
 	rootPath = filepath.Dir(filepath.Dir(tmp))
 
-	// resourcePath = /vw_user/resources
+	// resourcePath = video_web/resources
 	resourcePath = filepath.Join(rootPath, "resources")
 
-	// defaultAvatarPath = /vw_user/resources/default/avatar.png
+	// defaultAvatarPath = video_web/resources/default/avatar.png
 	defaultAvatarPath = filepath.Join(resourcePath, "default", defaultAvatarName)
 }

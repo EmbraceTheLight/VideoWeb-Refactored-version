@@ -19,9 +19,9 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationFavoriteCreateFavorites = "/vw_gateway.api.v1.favorites.Favorite/CreateFavorites"
-const OperationFavoriteDeleteFavorites = "/vw_gateway.api.v1.favorites.Favorite/DeleteFavorites"
-const OperationFavoriteModifyFavorites = "/vw_gateway.api.v1.favorites.Favorite/ModifyFavorites"
+const OperationFavoriteCreateFavorites = "/gateway.api.v1.favorites.Favorite/CreateFavorites"
+const OperationFavoriteDeleteFavorites = "/gateway.api.v1.favorites.Favorite/DeleteFavorites"
+const OperationFavoriteModifyFavorites = "/gateway.api.v1.favorites.Favorite/ModifyFavorites"
 
 type FavoriteHTTPServer interface {
 	CreateFavorites(context.Context, *CreateFavoritesReq) (*CreateFavoritesResp, error)

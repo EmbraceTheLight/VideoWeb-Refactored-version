@@ -52,6 +52,10 @@ const (
 	// follow errors
 	FOLLOW_FollowOtherUserFailed
 	FOLLOW_UnfollowOtherUserFailed
+
+	// file errors
+	FILE_UploadAvatarFailed
+	FILE_UpdateAvatarFailed
 )
 
 var ()

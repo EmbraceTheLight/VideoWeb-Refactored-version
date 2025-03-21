@@ -2,10 +2,13 @@ syntax = "proto3";
 
 package user.v1.file;
 
+import "google/protobuf/empty.proto";
+
 option go_package = "vw_user/api/v1/userfile;filev1";
 
 service FileService {
     rpc UploadAvatar(stream UploadAvatarReq) returns (UploadAvatarResp) {}
+    rpc UpdateAvatar(stream UpdateAvatarReq) returns (google.protobuf.Empty) {}
 }
 
 message UploadAvatarReq {
@@ -14,7 +17,17 @@ message UploadAvatarReq {
         bytes file_content = 2;
     }
 }
-
 message UploadAvatarResp {
     string file_path = 1;
+}
+
+message UpdateAvatarReq {
+    message FileMetadata {
+        int64 user_id         = 1;
+        string file_extension = 2;
+    }
+    oneof data {
+        FileMetadata meta_data = 1;
+        bytes file_content     = 2;
+    }
 }
