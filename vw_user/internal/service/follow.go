@@ -61,7 +61,7 @@ func (s *FollowService) GetFolloweesInfo(ctx context.Context, req *followv1.GetF
 			Birthday:   timestamppb.New(u.Birthday),
 		}
 	}
-	
+
 	return &followv1.GetFolloweesInfoResp{
 		StatusCode:    int32(codes.OK),
 		Message:       "获取关注列表成功",

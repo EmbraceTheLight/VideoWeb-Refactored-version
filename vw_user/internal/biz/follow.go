@@ -34,7 +34,7 @@ func NewFollowUseCase(repo FollowRepo, infoRepo UserInfoRepo, tx util.Transactio
 	}
 }
 
-// Follow follows a user
+// Follow follows a userbiz
 func (uc *FollowUsecase) Follow(ctx context.Context, followerID, followeeID, followListId int64) error {
 	err := uc.tx.WithTx(ctx, func(context.Context) error {
 		/* Follow logic */
@@ -101,7 +101,7 @@ func (uc *FollowUsecase) Unfollow(ctx context.Context, followerID, followeeID in
 	return nil
 }
 
-// GetFolloweesInfo Gets followees' summary info by user id and follow list id.
+// GetFolloweesInfo Gets followees' summary info by userbiz id and follow list id.
 func (uc *FollowUsecase) GetFolloweesInfo(ctx context.Context, userId int64, followListId int64, pageNum int32, pageSize int32) ([]*domain.UserSummary, error) {
 	return uc.infoRepo.GetUserFolloweesByUserIDFollowListID(ctx, userId, followListId, pageNum, pageSize)
 }

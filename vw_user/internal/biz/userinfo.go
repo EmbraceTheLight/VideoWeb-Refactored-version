@@ -13,40 +13,40 @@ import (
 )
 
 type UserInfoRepo interface {
-	// GetUserInfoByUserId get user summary info by user id
+	// GetUserInfoByUserId get userbiz summary info by userbiz id
 	GetUserInfoByUserId(ctx context.Context, userId int64) (*domain.UserInfo, error)
 
-	// GetUserInfoByUsername get user summary info by username
+	// GetUserInfoByUsername get userbiz summary info by username
 	GetUserInfoByUsername(ctx context.Context, username string) (*domain.UserInfo, error)
 
-	// GetUserLevelById get user level by user id
+	// GetUserLevelById get userbiz level by userbiz id
 	GetUserLevelById(ctx context.Context, userId int64) (*model.UserLevel, error)
 
-	// GetUserFansByUserID get user fans by user id
+	// GetUserFansByUserID get userbiz fans by userbiz id
 	GetUserFansByUserID(ctx context.Context, userId int64) ([]*domain.UserInfo, error)
 
-	// GetUserFollowersByUserIDFollowListID GetUserFollowersByUserID get user followers by user id and followList id
+	// GetUserFollowersByUserIDFollowListID GetUserFollowersByUserID get userbiz followers by userbiz id and followList id
 	GetUserFolloweesByUserIDFollowListID(ctx context.Context, userId, followListID int64, pageNum, pageSize int32) ([]*domain.UserSummary, error)
 
-	// UpdateEmail update user email
+	// UpdateEmail update userbiz email
 	UpdateEmail(ctx context.Context, userId int64, newEmail string) error
 
-	// UpdatePassword update user password. Front-end should check if the password is valid
+	// UpdatePassword update userbiz password. Front-end should check if the password is valid
 	UpdatePassword(ctx context.Context, userId int64, newPassword string) error
 
-	// UpdateUserSignature update user signature
+	// UpdateUserSignature update userbiz signature
 	UpdateUserSignature(ctx context.Context, userId int64, signature string) error
 
 	// CheckUsernameConflict check if the new username is conflict with existing username
 	CheckUsernameConflict(ctx context.Context, newUsername string) (ok bool, err error)
 
-	// UpdateUsername update user username
+	// UpdateUsername update userbiz username
 	UpdateUsername(ctx context.Context, userId int64, newUsername string) error
 
-	// UpdateCntFollows update user fans count
+	// UpdateCntFollows update userbiz fans count
 	UpdateCntFollows(ctx context.Context, userId int64, change int64) error
 
-	// UpdateCntFans update user fans count
+	// UpdateCntFans update userbiz fans count
 	UpdateCntFans(ctx context.Context, userId int64, change int64) error
 }
 
@@ -106,7 +106,7 @@ func (uic *UserInfoUsecase) ModifyPassword(ctx context.Context, userId int64, ol
 
 	err = bcrypt.CompareHashAndPassword([]byte(info.Password), []byte(oldPassword))
 	if err != nil {
-		return helper.HandleError(errdef.ErrUserPasswordError, nil)
+		return helper.HandleError(errdef.ErrUserPasswordError)
 	}
 
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)

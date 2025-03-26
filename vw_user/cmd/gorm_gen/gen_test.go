@@ -58,7 +58,7 @@ func TestGen(t *testing.T) {
 	// 统一数字类型为int64,兼容protobuf
 	g.WithDataTypeMap(dataMap)
 
-	user := g.GenerateModel("user", gen.FieldType("version", "optimisticlock.Version"))
+	user := g.GenerateModel("userbiz", gen.FieldType("version", "optimisticlock.Version"))
 	g.ApplyBasic(user)
 
 	g.Execute()
@@ -147,7 +147,7 @@ func updateShellsUseGen(id int64, value int64, sleep int) (info gen.ResultInfo, 
 	if err != nil {
 		return info, err
 	}
-	//fmt.Println("====================>", user.Shells)
+	//fmt.Println("====================>", userbiz.Shells)
 
 	//模拟并发更新，事务存在延迟的情况
 	if sleep > 0 {
@@ -186,7 +186,7 @@ func updateShellsUseCommonGorm(id int64, value int64, sleep int) (info gen.Resul
 	if sleep > 0 {
 		time.Sleep(time.Duration(sleep) * time.Millisecond)
 	}
-	//result := tx.Model(&user).Debug().Update("shells", user.Shells+value) //使用乐观锁的关键！它指定了具体的某条user记录
+	//result := tx.Model(&userbiz).Debug().Update("shells", userbiz.Shells+value) //使用乐观锁的关键！它指定了具体的某条user记录
 	result := tx.Model(&user).Update("shells", user.Shells+value) //使用乐观锁的关键！它指定了具体的某条user记录
 	info.RowsAffected = result.RowsAffected
 	info.Error = result.Error

@@ -38,14 +38,17 @@ message Data {
         int32 max_open  = 7;
         int32 log_level = 8;
     }
-    message Redis {
+    message RedisCluster {
         string host                            = 1;
-        string port                            = 2;
+        repeated string port                   = 2;
         string password                        = 3;
-        int32 db                               = 4;
-        google.protobuf.Duration dial_timeout  = 5;
-        google.protobuf.Duration read_timeout  = 6;
-        google.protobuf.Duration write_timeout = 7;
+        google.protobuf.Duration dial_timeout  = 4;
+        google.protobuf.Duration read_timeout  = 5;
+        google.protobuf.Duration write_timeout = 6;
+        google.protobuf.Duration pool_timeout  = 7;
+        int32 pool_size                        = 8;
+        int32 max_retries                      = 9;
+        int32 min_idle_conns                   = 10;
     }
     message Mongo {
         string host                           = 1;
@@ -55,9 +58,9 @@ message Data {
         int32 max_open                        = 5;
         google.protobuf.Duration conn_timeout = 6;
     }
-    Mysql mysql = 1;
-    Redis redis = 2;
-    Mongo mongo = 3;
+    Mysql mysql                = 1;
+    RedisCluster redis_cluster = 2;
+    Mongo mongo                = 3;
 }
 
 message Registry {

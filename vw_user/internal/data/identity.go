@@ -8,8 +8,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
 	"time"
+	"util/getid"
 	"util/helper"
-	"util/snowflake"
 	"vw_user/internal/biz"
 	"vw_user/internal/data/dal/model"
 	"vw_user/internal/data/dal/query"
@@ -50,7 +50,7 @@ func (u *userIdentityRepo) AddExpForLogin(ctx context.Context, userId int64) err
 	}
 	loginKey := strconv.FormatInt(userId, 10) + login
 
-	// check if user has logged in today
+	// check if userbiz has logged in today
 	_, err = u.data.redis.Get(ctx, loginKey).Result()
 
 	if err != nil {
@@ -102,7 +102,7 @@ func (u *userIdentityRepo) CreatRecordsForRegister(ctx context.Context, newUser 
 		UserID: newUser.UserID,
 	}
 	defaultFollowList := &model.FollowList{
-		ListID:   snowflake.GetID(),
+		ListID:   getid.GetID(),
 		UserID:   newUser.UserID,
 		ListName: "默认关注列表",
 	}

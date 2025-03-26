@@ -20,9 +20,9 @@ import (
 // go build -ldflags "-X main.Version=x.y.z"
 var (
 	// Name is the name of the compiled software.
-	Name string = "videoweb.user.service"
+	Name string = "videoweb.userbiz.service"
 	// Version is the version of the compiled software.
-	Version string = "videoweb.user.service.v1"
+	Version string = "videoweb.userbiz.service.v1"
 	// flagconf is the config flag.
 	flagconf string
 

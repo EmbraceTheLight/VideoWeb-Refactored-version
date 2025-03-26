@@ -437,7 +437,7 @@ type Data_Mysql struct {
 
 	Host     string `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"`
 	Port     string `protobuf:"bytes,2,opt,name=port,proto3" json:"port,omitempty"`
-	User     string `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty"`
+	User     string `protobuf:"bytes,3,opt,name=userbiz,proto3" json:"userbiz,omitempty"`
 	Password string `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
 	Database string `protobuf:"bytes,5,opt,name=database,proto3" json:"database,omitempty"`
 	MaxIdle  int32  `protobuf:"varint,6,opt,name=max_idle,json=maxIdle,proto3" json:"max_idle,omitempty"`

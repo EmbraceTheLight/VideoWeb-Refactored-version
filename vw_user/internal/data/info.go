@@ -7,7 +7,6 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
 	"vw_user/internal/biz"
-
 	"vw_user/internal/data/dal/model"
 	"vw_user/internal/data/dal/query"
 	"vw_user/internal/domain"
@@ -44,11 +43,11 @@ func (u *userInfoRepo) GetUserInfoByUsername(ctx context.Context, username strin
 }
 
 func (u *userInfoRepo) GetUserInfoByUserId(ctx context.Context, userid int64) (*domain.UserInfo, error) {
-	user := getQuery(ctx).User
-	userdo := user.WithContext(ctx)
-	userInfo, err := userdo.Where(user.UserID.Eq(userid)).
-		Select(user.UserID, user.Username, user.IsAdmin, user.Email, user.Password,
-			user.Gender, user.AvatarPath, user.Birthday, user.Signature).First()
+	queryUser := getQuery(ctx).User
+	userDo := queryUser.WithContext(ctx)
+	userInfo, err := userDo.Where(queryUser.UserID.Eq(userid)).
+		Select(queryUser.UserID, queryUser.Username, queryUser.IsAdmin, queryUser.Email, queryUser.Password,
+			queryUser.Gender, queryUser.AvatarPath, queryUser.Birthday, queryUser.Signature).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errdef.ErrUserNotFound
@@ -112,18 +111,18 @@ func (u *userInfoRepo) GetUserFolloweesByUserIDFollowListID(ctx context.Context,
 	userFollow := getQuery(ctx).UserFollow
 	userFollowDo := userFollow.WithContext(ctx)
 
-	// Get user followees' ids
+	// Get userbiz followees' ids
 	tmpIds, _, err := userFollowDo.Select(userFollow.FollowUserID).
 		Where(userFollow.UserID.Eq(userId), userFollow.FollowlistID.Eq(followListId)).
 		FindByPage(int((pageNum-1)*pageSize), int(pageSize))
 
-	// Get user followees' info by ids
+	// Get userbiz followees' info by ids
 	userIds := make([]int64, len(tmpIds))
 	for i, v := range tmpIds {
 		userIds[i] = v.FollowUserID
 	}
 
-	// Transform user ids to user summaries
+	// Transform userbiz ids to userbiz summaries
 	users, err := getUsersInfoByIDs(ctx, userIds)
 	if err != nil {
 		return nil, err
@@ -134,8 +133,15 @@ func (u *userInfoRepo) GetUserFolloweesByUserIDFollowListID(ctx context.Context,
 
 func (u *userInfoRepo) UpdateEmail(ctx context.Context, userId int64, newEmail string) error {
 	user := query.User
-	userDo := user.WithContext(ctx)
-	_, err := userDo.Where(user.UserID.Eq(userId)).Update(user.Email, newEmail)
+	userDo, _, err := addUserModel(ctx, userId)
+	if err != nil {
+		return err
+	}
+
+	_, err = userDo.
+		Where(user.UserID.Eq(userId)).
+		Debug().
+		Updates(&model.User{Email: newEmail})
 	if err != nil {
 		return err
 	}
@@ -144,8 +150,16 @@ func (u *userInfoRepo) UpdateEmail(ctx context.Context, userId int64, newEmail s
 
 func (u *userInfoRepo) UpdatePassword(ctx context.Context, userId int64, encryptedPassword string) error {
 	user := query.User
-	userDo := user.WithContext(ctx)
-	_, err := userDo.Where(user.UserID.Eq(userId)).Update(user.Password, encryptedPassword)
+	//userDo, _, err := addUserModel(ctx, userId)
+	//if err != nil {
+	//	return err
+	//}
+	userDo := getQuery(ctx).User.WithContext(ctx)
+
+	_, err := userDo.
+		Where(user.UserID.Eq(userId)).
+		Debug().
+		Updates(&model.User{Password: encryptedPassword})
 	if err != nil {
 		return err
 	}
@@ -153,9 +167,13 @@ func (u *userInfoRepo) UpdatePassword(ctx context.Context, userId int64, encrypt
 }
 
 func (u *userInfoRepo) UpdateUserSignature(ctx context.Context, userId int64, signature string) error {
-	user := getQuery(ctx).User
-	userDo := user.WithContext(ctx)
-	_, err := userDo.Where(user.UserID.Eq(userId)).Update(user.Signature, signature)
+	user := query.User
+	userDo, _, err := addUserModel(ctx, userId)
+	if err != nil {
+		return err
+	}
+
+	_, err = userDo.Where(user.UserID.Eq(userId)).Update(user.Signature, signature)
 	if err != nil {
 		return err
 	}
@@ -178,23 +196,28 @@ func (u *userInfoRepo) CheckUsernameConflict(ctx context.Context, newUsername st
 	return true, nil
 }
 
-// UpdateUsername update user username
+// UpdateUsername update userbiz username
 func (u *userInfoRepo) UpdateUsername(ctx context.Context, userId int64, newUsername string) error {
-	user := getQuery(ctx).User
-	userDo := user.WithContext(ctx)
-	_, err := userDo.Where(user.UserID.Eq(userId)).Update(user.Username, newUsername)
+	user := query.User
+	userDo, _, err := addUserModel(ctx, userId)
+	if err != nil {
+		return err
+	}
+	_, err = userDo.
+		Where(user.UserID.Eq(userId)).
+		Debug().
+		Updates(&model.User{Username: newUsername})
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// UpdateCntFollows update user fans count
+// UpdateCntFollows update userbiz fans count
 func (u *userInfoRepo) UpdateCntFollows(ctx context.Context, userId int64, change int64) error {
 	// 1. Check if the change is valid
-	user := getQuery(ctx).User
-	userDo := user.WithContext(ctx)
-	tmpUser, err := userDo.Where(user.UserID.Eq(userId)).First()
+	user := query.User
+	userDo, tmpUser, err := addUserModel(ctx, userId)
 	if err != nil {
 		return err
 	}
@@ -203,19 +226,20 @@ func (u *userInfoRepo) UpdateCntFollows(ctx context.Context, userId int64, chang
 	}
 
 	// 2. Update cnt_follows
-	_, err = userDo.Where(user.UserID.Eq(userId)).Update(user.CntFollows, user.CntFollows.Add(change))
+	_, err = userDo.
+		Where(user.UserID.Eq(userId)).
+		Updates(&model.User{CntFollows: tmpUser.CntFollows + change})
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// UpdateCntFans update user fans count
+// UpdateCntFans update userbiz fans count
 func (u *userInfoRepo) UpdateCntFans(ctx context.Context, userId int64, change int64) error {
 	// 1. Check if the change is valid
-	user := getQuery(ctx).User
-	userDo := user.WithContext(ctx)
-	tmpUser, err := userDo.Where(user.UserID.Eq(userId)).First()
+	user := query.User
+	userDo, tmpUser, err := addUserModel(ctx, userId)
 	if err != nil {
 		return err
 	}
@@ -224,7 +248,9 @@ func (u *userInfoRepo) UpdateCntFans(ctx context.Context, userId int64, change i
 	}
 
 	// 2. Update cnt_fans
-	_, err = userDo.Where(user.UserID.Eq(userId)).Update(user.CntFans, user.CntFans.Add(change))
+	_, err = userDo.
+		Where(user.UserID.Eq(userId)).
+		Updates(&model.User{CntFans: tmpUser.CntFans + change})
 	if err != nil {
 		return err
 	}

@@ -40,7 +40,7 @@ func (s *UserIdentityService) Register(ctx context.Context, req *idv1.RegisterRe
 	}
 	return &idv1.RegisterResp{
 		StatusCode: 200,
-		Msg:        "user: " + req.Username + " register successfully.",
+		Msg:        "userbiz: " + req.Username + " register successfully.",
 		UserID:     userID,
 		IsAdmin:    isAdmin,
 	}, nil

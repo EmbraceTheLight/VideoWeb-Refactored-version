@@ -345,18 +345,18 @@ func file_v1_userfile_user_file_proto_rawDescGZIP() []byte {
 
 var file_v1_userfile_user_file_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_v1_userfile_user_file_proto_goTypes = []any{
-	(*UploadAvatarReq)(nil),              // 0: user.v1.file.UploadAvatarReq
-	(*UploadAvatarResp)(nil),             // 1: user.v1.file.UploadAvatarResp
-	(*UpdateAvatarReq)(nil),              // 2: user.v1.file.UpdateAvatarReq
-	(*UpdateAvatarReq_FileMetadata)(nil), // 3: user.v1.file.UpdateAvatarReq.FileMetadata
+	(*UploadAvatarReq)(nil),              // 0: userbiz.v1.file.UploadAvatarReq
+	(*UploadAvatarResp)(nil),             // 1: userbiz.v1.file.UploadAvatarResp
+	(*UpdateAvatarReq)(nil),              // 2: userbiz.v1.file.UpdateAvatarReq
+	(*UpdateAvatarReq_FileMetadata)(nil), // 3: userbiz.v1.file.UpdateAvatarReq.FileMetadata
 	(*emptypb.Empty)(nil),                // 4: google.protobuf.Empty
 }
 var file_v1_userfile_user_file_proto_depIdxs = []int32{
-	3, // 0: user.v1.file.UpdateAvatarReq.meta_data:type_name -> user.v1.file.UpdateAvatarReq.FileMetadata
-	0, // 1: user.v1.file.FileService.UploadAvatar:input_type -> user.v1.file.UploadAvatarReq
-	2, // 2: user.v1.file.FileService.UpdateAvatar:input_type -> user.v1.file.UpdateAvatarReq
-	1, // 3: user.v1.file.FileService.UploadAvatar:output_type -> user.v1.file.UploadAvatarResp
-	4, // 4: user.v1.file.FileService.UpdateAvatar:output_type -> google.protobuf.Empty
+	3, // 0: userbiz.v1.file.UpdateAvatarReq.meta_data:type_name -> userbiz.v1.file.UpdateAvatarReq.FileMetadata
+	0, // 1: userbiz.v1.file.FileService.UploadAvatar:input_type -> userbiz.v1.file.UploadAvatarReq
+	2, // 2: userbiz.v1.file.FileService.UpdateAvatar:input_type -> userbiz.v1.file.UpdateAvatarReq
+	1, // 3: userbiz.v1.file.FileService.UploadAvatar:output_type -> userbiz.v1.file.UploadAvatarResp
+	4, // 4: userbiz.v1.file.FileService.UpdateAvatar:output_type -> google.protobuf.Empty
 	3, // [3:5] is the sub-list for method output_type
 	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Follow_FollowUser_FullMethodName       = "/user.v1.follow.Follow/FollowUser"
-	Follow_UnfollowUser_FullMethodName     = "/user.v1.follow.Follow/UnfollowUser"
-	Follow_GetFolloweesInfo_FullMethodName = "/user.v1.follow.Follow/GetFolloweesInfo"
+	Follow_FollowUser_FullMethodName       = "/userbiz.v1.follow.Follow/FollowUser"
+	Follow_UnfollowUser_FullMethodName     = "/userbiz.v1.follow.Follow/UnfollowUser"
+	Follow_GetFolloweesInfo_FullMethodName = "/userbiz.v1.follow.Follow/GetFolloweesInfo"
 )
 
 // FollowClient is the client API for Follow service.
@@ -176,7 +176,7 @@ func _Follow_GetFolloweesInfo_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Follow_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "user.v1.follow.Follow",
+	ServiceName: "userbiz.v1.follow.Follow",
 	HandlerType: (*FollowServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

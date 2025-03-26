@@ -9,13 +9,13 @@ package main
 import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
-	"vw_gateway/internal/biz"
+	"vw_gateway/internal/biz/userbiz"
 	"vw_gateway/internal/conf"
-	"vw_gateway/internal/data"
+	"vw_gateway/internal/data/userdata"
 	"vw_gateway/internal/pkg/captcha"
 	"vw_gateway/internal/pkg/middlewares/auth"
 	"vw_gateway/internal/server"
-	"vw_gateway/internal/service"
+	"vw_gateway/internal/service/user_service"
 )
 
 import (
@@ -25,42 +25,42 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Registry, jwt *conf.JWT, email *conf.Email, trace *conf.Trace, confService *conf.Service, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, data *conf.Data, registry *conf.Registry, jwt *conf.JWT, email *conf.Email, trace *conf.Trace, service *conf.Service, logger log.Logger) (*kratos.App, func(), error) {
 	grpcServer := server.NewGRPCServer(confServer, logger)
-	discovery := data.NewDiscovery(registry)
-	identityClient := data.NewUserIdentityClient(discovery, confService)
-	userinfoClient := data.NewUserinfoClient(discovery, confService)
-	captchaClient := data.NewCaptchaClient(discovery, confService)
-	fileServiceClient := data.NewFileClient(discovery, confService)
-	favoriteClient := data.NewFavoritesClient(discovery, confService)
-	followClient := data.NewFollowClient(discovery, confService)
-	clusterClient := data.NewRedisClusterClient(confData)
-	dataData, cleanup, err := data.NewData(logger, identityClient, userinfoClient, captchaClient, fileServiceClient, favoriteClient, followClient, clusterClient)
+	discovery := userdata.NewDiscovery(registry)
+	identityClient := userdata.NewUserIdentityClient(discovery, service)
+	userinfoClient := userdata.NewUserinfoClient(discovery, service)
+	captchaClient := userdata.NewCaptchaClient(discovery, service)
+	fileServiceClient := userdata.NewFileClient(discovery, service)
+	favoriteClient := userdata.NewFavoritesClient(discovery, service)
+	followClient := userdata.NewFollowClient(discovery, service)
+	clusterClient := userdata.NewRedisClusterClient(data)
+	userdataData, cleanup, err := userdata.NewData(logger, identityClient, userinfoClient, captchaClient, fileServiceClient, favoriteClient, followClient, clusterClient)
 	if err != nil {
 		return nil, nil, err
 	}
-	captchaRepo := data.NewCaptchaRepo(logger, dataData)
+	captchaRepo := userdata.NewCaptchaRepo(logger, userdataData)
 	captchaEmail := captcha.NewEmail(email, logger)
-	captchaUsecase := biz.NewCaptchaUsecase(logger, captchaRepo, captchaEmail)
-	captchaService := service.NewCaptchaService(logger, captchaUsecase)
-	userFileRepo := data.NewUserFileRepo(dataData, logger)
-	userFileUsecase := biz.NewUserFileUsecase(userFileRepo, logger)
-	userFileService := service.NewUserFileService(userFileUsecase, logger)
-	userIdentityRepo := data.NewUserIdentityRepo(dataData, logger)
+	captchaUsecase := userbiz.NewCaptchaUsecase(logger, captchaRepo, captchaEmail)
+	captchaService := user.NewCaptchaService(logger, captchaUsecase)
+	userFileRepo := userdata.NewUserFileRepo(userdataData, logger)
+	userFileUsecase := userbiz.NewUserFileUsecase(userFileRepo, logger)
+	userFileService := user.NewUserFileService(userFileUsecase, logger)
+	userIdentityRepo := userdata.NewUserIdentityRepo(userdataData, logger)
 	jwtAuth := auth.NewJWTAuth(jwt)
-	userIdentityUsecase := biz.NewUserIdentityUsecase(userIdentityRepo, jwtAuth, logger)
-	userIdentityService := service.NewUserIdentityService(userIdentityUsecase, logger)
-	followRepo := data.NewFollowRepo(dataData, logger)
-	followUsecase := biz.NewFollowUsecase(followRepo, logger)
-	followService := service.NewFollowService(logger, followUsecase)
-	userinfoRepo := data.NewUserInfoRepo(dataData, logger)
-	userinfoUsecase := biz.NewUserinfoUsecase(userinfoRepo, logger)
-	userinfoService := service.NewUserinfoService(userinfoUsecase, logger)
-	favoritesRepo := data.NewFavoritesRepo(dataData, favoriteClient, logger)
-	favoritesUsecase := biz.NewFavoritesUsecase(favoritesRepo, logger)
-	favoritesService := service.NewFavoritesService(favoritesUsecase, logger)
+	userIdentityUsecase := userbiz.NewUserIdentityUsecase(userIdentityRepo, jwtAuth, logger)
+	userIdentityService := user.NewUserIdentityService(userIdentityUsecase, logger)
+	followRepo := userdata.NewFollowRepo(userdataData, logger)
+	followUsecase := userbiz.NewFollowUsecase(followRepo, logger)
+	followService := user.NewFollowService(logger, followUsecase)
+	userinfoRepo := userdata.NewUserInfoRepo(userdataData, logger)
+	userinfoUsecase := userbiz.NewUserinfoUsecase(userinfoRepo, logger)
+	userinfoService := user.NewUserinfoService(userinfoUsecase, logger)
+	favoritesRepo := userdata.NewFavoritesRepo(userdataData, favoriteClient, logger)
+	favoritesUsecase := userbiz.NewFavoritesUsecase(favoritesRepo, logger)
+	favoritesService := user.NewFavoritesService(favoritesUsecase, logger)
 	httpServer := server.NewHTTPServer(confServer, jwt, captchaService, userFileService, userIdentityService, followService, clusterClient, userinfoService, favoritesService, logger)
-	registrar := data.NewRegistrar(registry)
+	registrar := userdata.NewRegistrar(registry)
 	app := newApp(logger, grpcServer, httpServer, registrar)
 	return app, func() {
 		cleanup()

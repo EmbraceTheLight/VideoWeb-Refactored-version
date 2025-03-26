@@ -12,7 +12,7 @@ func TestHandleError(t *testing.T) {
 	kerror := kerr.New(1000, "test error reason", "test error message")
 
 	// Test case 1: additional err is nil
-	spew.Dump(helper.HandleError(kerror, nil))
+	spew.Dump(helper.HandleError(kerror))
 
 	// Test case 2: additional err is standard library error
 	spew.Dump(helper.HandleError(kerror, errors.New("I'm a standard library error")))

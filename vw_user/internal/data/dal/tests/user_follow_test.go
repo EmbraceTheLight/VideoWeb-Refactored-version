@@ -9,9 +9,9 @@ import (
 	"gorm.io/gorm"
 	"testing"
 	"vw_user/internal/conf"
-	"vw_user/internal/data"
 	"vw_user/internal/data/dal/model"
 	"vw_user/internal/data/dal/query"
+	"vw_user/internal/data/userdata"
 )
 
 /*
