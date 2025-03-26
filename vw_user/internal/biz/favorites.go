@@ -4,16 +4,16 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"util"
+	"util/getid"
 	"util/helper"
-	"util/snowflake"
 	"vw_user/internal/data/dal/model"
 	"vw_user/internal/domain"
 	"vw_user/internal/pkg/ecode/errdef"
 )
 
 type FavoritesRepo interface {
-	// CheckFavoritesName Check if the user has already created a favorites with the same name
-	// Return FALSE if the user has already created a favorites with the same name, otherwise return TRUE
+	// CheckFavoritesName Check if the userbiz has already created a favorites with the same name
+	// Return FALSE if the userbiz has already created a favorites with the same name, otherwise return TRUE
 	CheckFavoritesName(ctx context.Context, userId int64, favoritesName string) (bool, error)
 	CreateFavorites(ctx context.Context, favorite *model.Favorite) error
 
@@ -52,7 +52,7 @@ func (uc *FavoritesUsecase) CreateFavorites(ctx context.Context, info *domain.Fa
 	}
 
 	err = uc.repo.CreateFavorites(ctx, &model.Favorite{
-		FavoritesID:   snowflake.GetID(),
+		FavoritesID:   getid.GetID(),
 		UserID:        info.UserId,
 		FavoritesName: *info.FavoritesName,
 		Description:   *info.Description,

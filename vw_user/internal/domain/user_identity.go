@@ -45,7 +45,7 @@ type UserSummary struct {
 	Birthday   time.Time
 }
 
-// padding pads the user summary info with user model
+// padding pads the userbiz summary info with userbiz model
 func (u *UserSummary) padding(user *model.User) {
 	u.Username = user.Username
 	u.Email = user.Email

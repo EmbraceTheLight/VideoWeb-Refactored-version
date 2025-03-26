@@ -22,7 +22,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.captcha.GetCodeCaptchaResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.captcha.GetCodeCaptchaResp'
     /api/v1/captcha/graphicCaptcha:
         get:
             tags:
@@ -34,7 +34,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.captcha.GetImageCaptchaResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.captcha.GetImageCaptchaResp'
     /api/v1/favorites:
         post:
             tags:
@@ -44,7 +44,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.favorites.CreateFavoritesReq'
+                            $ref: '#/components/schemas/gateway.api.v1.user.favorites.CreateFavoritesReq'
                 required: true
             responses:
                 "200":
@@ -52,7 +52,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.favorites.CreateFavoritesResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.favorites.CreateFavoritesResp'
     /api/v1/favorites/{favoritesId}:
         delete:
             tags:
@@ -70,7 +70,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.favorites.DeleteFavoritesResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.favorites.DeleteFavoritesResp'
         patch:
             tags:
                 - Favorite
@@ -85,7 +85,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.favorites.ModifyFavoritesReq'
+                            $ref: '#/components/schemas/gateway.api.v1.user.favorites.ModifyFavoritesReq'
                 required: true
             responses:
                 "200":
@@ -93,7 +93,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.favorites.ModifyFavoritesResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.favorites.ModifyFavoritesResp'
     /api/v1/user/login:
         post:
             tags:
@@ -103,7 +103,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.id.LoginRequest'
+                            $ref: '#/components/schemas/gateway.api.v1.user.id.LoginRequest'
                 required: true
             responses:
                 "200":
@@ -111,7 +111,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.id.LoginResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.id.LoginResp'
     /api/v1/user/profile/avatar:
         post:
             tags:
@@ -127,7 +127,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.file.UploadAvatarResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.file.UploadAvatarResp'
     /api/v1/user/register:
         post:
             tags:
@@ -137,7 +137,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.id.RegisterRequest'
+                            $ref: '#/components/schemas/gateway.api.v1.user.id.RegisterRequest'
                 required: true
             responses:
                 "200":
@@ -145,7 +145,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.id.RegisterResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.id.RegisterResp'
     /api/v1/user/{userId}/logout:
         post:
             tags:
@@ -161,7 +161,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.id.LogoutRequest'
+                            $ref: '#/components/schemas/gateway.api.v1.user.id.LogoutRequest'
                 required: true
             responses:
                 "200":
@@ -169,7 +169,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.id.LogoutResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.id.LogoutResp'
     /api/v1/userinfo/{userId}:
         get:
             tags:
@@ -187,7 +187,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.userinfo.UserinfoResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.userinfo.UserinfoResp'
     /api/v1/userinfo/{userId}/forgetPassword:
         post:
             tags:
@@ -203,7 +203,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.userinfo.ForgetPasswordReq'
+                            $ref: '#/components/schemas/gateway.api.v1.user.userinfo.ForgetPasswordReq'
                 required: true
             responses:
                 "200":
@@ -211,7 +211,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.userinfo.ForgetPasswordResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.userinfo.ForgetPasswordResp'
     /api/v1/userinfo/{userId}/modifyEmail:
         post:
             tags:
@@ -227,7 +227,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifyEmailReq'
+                            $ref: '#/components/schemas/gateway.api.v1.user.userinfo.ModifyEmailReq'
                 required: true
             responses:
                 "200":
@@ -235,7 +235,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifyEmailResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.userinfo.ModifyEmailResp'
     /api/v1/userinfo/{userId}/modifyPassword:
         post:
             tags:
@@ -251,7 +251,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifyPasswordReq'
+                            $ref: '#/components/schemas/gateway.api.v1.user.userinfo.ModifyPasswordReq'
                 required: true
             responses:
                 "200":
@@ -259,7 +259,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifyPasswordResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.userinfo.ModifyPasswordResp'
     /api/v1/userinfo/{userId}/modifySignature:
         post:
             tags:
@@ -275,7 +275,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifySignatureReq'
+                            $ref: '#/components/schemas/gateway.api.v1.user.userinfo.ModifySignatureReq'
                 required: true
             responses:
                 "200":
@@ -283,7 +283,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifySignatureResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.userinfo.ModifySignatureResp'
     /api/v1/userinfo/{userId}/modifyUsername:
         post:
             tags:
@@ -299,7 +299,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifyUsernameReq'
+                            $ref: '#/components/schemas/gateway.api.v1.user.userinfo.ModifyUsernameReq'
                 required: true
             responses:
                 "200":
@@ -307,7 +307,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.userinfo.ModifyUsernameResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.userinfo.ModifyUsernameResp'
     /api/v1/{userId}/follow:
         put:
             tags:
@@ -323,7 +323,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.follow.UnfollowUserReq'
+                            $ref: '#/components/schemas/gateway.api.v1.user.follow.UnfollowUserReq'
                 required: true
             responses:
                 "200":
@@ -331,7 +331,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.follow.UnfollowUserResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.follow.UnfollowUserResp'
         post:
             tags:
                 - Follow
@@ -346,7 +346,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.follow.FollowUserReq'
+                            $ref: '#/components/schemas/gateway.api.v1.user.follow.FollowUserReq'
                 required: true
             responses:
                 "200":
@@ -354,7 +354,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.follow.FollowUserResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.follow.FollowUserResp'
     /api/v1/{userId}/followList:
         get:
             tags:
@@ -386,7 +386,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.follow.GetFolloweeInfoResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.follow.GetFolloweeInfoResp'
     /api/v1/{userId}/profile/avatar:
         put:
             tags:
@@ -402,7 +402,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/gateway.api.v1.file.UpdateAvatarReq'
+                            $ref: '#/components/schemas/gateway.api.v1.user.file.UpdateAvatarReq'
                 required: true
             responses:
                 "200":
@@ -410,10 +410,106 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.file.UpdateAvatarResp'
+                                $ref: '#/components/schemas/gateway.api.v1.user.file.UpdateAvatarResp'
+    /video/list:
+        get:
+            tags:
+                - VideoInfo
+            operationId: VideoInfo_GetVideoList
+            parameters:
+                - name: class
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.GetVideoListResp'
+    /video/{videoId}/cover:
+        get:
+            tags:
+                - VideoInfo
+            operationId: VideoInfo_GetVideoCover
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.GetVideoCoverResp'
+    /video/{videoId}/info:
+        get:
+            tags:
+                - VideoInfo
+            operationId: VideoInfo_GetVideoInfo
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.GetVideoInfoResp'
+    /video/{videoId}/mpd:
+        get:
+            tags:
+                - VideoInfo
+            operationId: VideoInfo_GetMpd
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.ProvideMpdResp'
+    /video/{videoId}/segments:
+        get:
+            tags:
+                - VideoInfo
+            operationId: VideoInfo_GetSegments
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: segmentPath
+                  in: query
+                  description: segment_path is the path of the segment file(.m4s)
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.ProvideSegmentsResp'
 components:
     schemas:
-        gateway.api.v1.captcha.GetCodeCaptchaResp:
+        gateway.api.v1.user.captcha.GetCodeCaptchaResp:
             type: object
             properties:
                 statusCode:
@@ -423,7 +519,7 @@ components:
                     type: string
                 code:
                     type: string
-        gateway.api.v1.captcha.GetImageCaptchaResp:
+        gateway.api.v1.user.captcha.GetImageCaptchaResp:
             type: object
             properties:
                 statusCode:
@@ -432,8 +528,8 @@ components:
                 msg:
                     type: string
                 captchaResult:
-                    $ref: '#/components/schemas/gateway.api.v1.captcha.GetImageCaptchaResp_CaptchaResult'
-        gateway.api.v1.captcha.GetImageCaptchaResp_CaptchaResult:
+                    $ref: '#/components/schemas/gateway.api.v1.user.captcha.GetImageCaptchaResp_CaptchaResult'
+        gateway.api.v1.user.captcha.GetImageCaptchaResp_CaptchaResult:
             type: object
             properties:
                 id:
@@ -442,7 +538,7 @@ components:
                     type: string
                 answer:
                     type: string
-        gateway.api.v1.favorites.CreateFavoritesReq:
+        gateway.api.v1.user.favorites.CreateFavoritesReq:
             type: object
             properties:
                 favoritesName:
@@ -454,7 +550,7 @@ components:
                     type: string
                 userId:
                     type: string
-        gateway.api.v1.favorites.CreateFavoritesResp:
+        gateway.api.v1.user.favorites.CreateFavoritesResp:
             type: object
             properties:
                 statusCode:
@@ -462,7 +558,7 @@ components:
                     format: int32
                 msg:
                     type: string
-        gateway.api.v1.favorites.DeleteFavoritesResp:
+        gateway.api.v1.user.favorites.DeleteFavoritesResp:
             type: object
             properties:
                 statusCode:
@@ -470,7 +566,7 @@ components:
                     format: int32
                 msg:
                     type: string
-        gateway.api.v1.favorites.ModifyFavoritesReq:
+        gateway.api.v1.user.favorites.ModifyFavoritesReq:
             type: object
             properties:
                 favoritesId:
@@ -482,7 +578,7 @@ components:
                     format: int32
                 description:
                     type: string
-        gateway.api.v1.favorites.ModifyFavoritesResp:
+        gateway.api.v1.user.favorites.ModifyFavoritesResp:
             type: object
             properties:
                 statusCode:
@@ -490,12 +586,12 @@ components:
                     format: int32
                 msg:
                     type: string
-        gateway.api.v1.file.UpdateAvatarReq:
+        gateway.api.v1.user.file.UpdateAvatarReq:
             type: object
             properties:
                 userId:
                     type: string
-        gateway.api.v1.file.UpdateAvatarResp:
+        gateway.api.v1.user.file.UpdateAvatarResp:
             type: object
             properties:
                 statusCode:
@@ -503,12 +599,12 @@ components:
                     format: int32
                 message:
                     type: string
-        gateway.api.v1.file.UploadAvatarResp:
+        gateway.api.v1.user.file.UploadAvatarResp:
             type: object
             properties:
                 filePath:
                     type: string
-        gateway.api.v1.follow.FollowUserReq:
+        gateway.api.v1.user.follow.FollowUserReq:
             type: object
             properties:
                 userId:
@@ -517,7 +613,7 @@ components:
                     type: string
                 followListId:
                     type: string
-        gateway.api.v1.follow.FollowUserResp:
+        gateway.api.v1.user.follow.FollowUserResp:
             type: object
             properties:
                 statusCode:
@@ -525,7 +621,7 @@ components:
                     format: int32
                 message:
                     type: string
-        gateway.api.v1.follow.GetFolloweeInfoResp:
+        gateway.api.v1.user.follow.GetFolloweeInfoResp:
             type: object
             properties:
                 statusCode:
@@ -536,8 +632,8 @@ components:
                 followeeInfo:
                     type: array
                     items:
-                        $ref: '#/components/schemas/gateway.api.v1.follow.GetFolloweeInfoResp_UserSummary'
-        gateway.api.v1.follow.GetFolloweeInfoResp_UserSummary:
+                        $ref: '#/components/schemas/gateway.api.v1.user.follow.GetFolloweeInfoResp_UserSummary'
+        gateway.api.v1.user.follow.GetFolloweeInfoResp_UserSummary:
             type: object
             properties:
                 username:
@@ -554,14 +650,14 @@ components:
                 birthday:
                     type: string
                     format: date-time
-        gateway.api.v1.follow.UnfollowUserReq:
+        gateway.api.v1.user.follow.UnfollowUserReq:
             type: object
             properties:
                 userId:
                     type: string
                 followedUserId:
                     type: string
-        gateway.api.v1.follow.UnfollowUserResp:
+        gateway.api.v1.user.follow.UnfollowUserResp:
             type: object
             properties:
                 statusCode:
@@ -569,7 +665,7 @@ components:
                     format: int32
                 message:
                     type: string
-        gateway.api.v1.id.LoginRequest:
+        gateway.api.v1.user.id.LoginRequest:
             type: object
             properties:
                 username:
@@ -577,7 +673,7 @@ components:
                 password:
                     type: string
             description: 用户登录所需请求、响应
-        gateway.api.v1.id.LoginResp:
+        gateway.api.v1.user.id.LoginResp:
             type: object
             properties:
                 statusCode:
@@ -588,8 +684,8 @@ components:
                     type: string
                     description: app response message,The same below
                 data:
-                    $ref: '#/components/schemas/gateway.api.v1.id.LoginResp_Data'
-        gateway.api.v1.id.LoginResp_Data:
+                    $ref: '#/components/schemas/gateway.api.v1.user.id.LoginResp_Data'
+        gateway.api.v1.user.id.LoginResp_Data:
             type: object
             properties:
                 accessToken:
@@ -597,13 +693,13 @@ components:
                 refreshToken:
                     type: string
             description: when users login successfully, return two tokens to them
-        gateway.api.v1.id.LogoutRequest:
+        gateway.api.v1.user.id.LogoutRequest:
             type: object
             properties:
                 userId:
                     type: string
             description: 用户注销所需请求、响应
-        gateway.api.v1.id.LogoutResp:
+        gateway.api.v1.user.id.LogoutResp:
             type: object
             properties:
                 statusCode:
@@ -611,7 +707,7 @@ components:
                     format: int32
                 msg:
                     type: string
-        gateway.api.v1.id.RegisterRequest:
+        gateway.api.v1.user.id.RegisterRequest:
             type: object
             properties:
                 username:
@@ -632,7 +728,7 @@ components:
                 inputCode:
                     type: string
             description: 用户注册所需请求、响应
-        gateway.api.v1.id.RegisterResp:
+        gateway.api.v1.user.id.RegisterResp:
             type: object
             properties:
                 statusCode:
@@ -641,15 +737,15 @@ components:
                 msg:
                     type: string
                 data:
-                    $ref: '#/components/schemas/gateway.api.v1.id.RegisterResp_Data'
-        gateway.api.v1.id.RegisterResp_Data:
+                    $ref: '#/components/schemas/gateway.api.v1.user.id.RegisterResp_Data'
+        gateway.api.v1.user.id.RegisterResp_Data:
             type: object
             properties:
                 accessToken:
                     type: string
                 refreshToken:
                     type: string
-        gateway.api.v1.userinfo.CommonResp:
+        gateway.api.v1.user.userinfo.CommonResp:
             type: object
             properties:
                 status:
@@ -657,7 +753,7 @@ components:
                     format: int32
                 message:
                     type: string
-        gateway.api.v1.userinfo.ForgetPasswordReq:
+        gateway.api.v1.user.userinfo.ForgetPasswordReq:
             type: object
             properties:
                 userId:
@@ -668,12 +764,12 @@ components:
                     type: string
                 inputCode:
                     type: string
-        gateway.api.v1.userinfo.ForgetPasswordResp:
+        gateway.api.v1.user.userinfo.ForgetPasswordResp:
             type: object
             properties:
                 common:
-                    $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
-        gateway.api.v1.userinfo.ModifyEmailReq:
+                    $ref: '#/components/schemas/gateway.api.v1.user.userinfo.CommonResp'
+        gateway.api.v1.user.userinfo.ModifyEmailReq:
             type: object
             properties:
                 userId:
@@ -682,14 +778,14 @@ components:
                     type: string
                 inputCode:
                     type: string
-        gateway.api.v1.userinfo.ModifyEmailResp:
+        gateway.api.v1.user.userinfo.ModifyEmailResp:
             type: object
             properties:
                 email:
                     type: string
                 common:
-                    $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
-        gateway.api.v1.userinfo.ModifyPasswordReq:
+                    $ref: '#/components/schemas/gateway.api.v1.user.userinfo.CommonResp'
+        gateway.api.v1.user.userinfo.ModifyPasswordReq:
             type: object
             properties:
                 userId:
@@ -698,40 +794,40 @@ components:
                     type: string
                 newPassword:
                     type: string
-        gateway.api.v1.userinfo.ModifyPasswordResp:
+        gateway.api.v1.user.userinfo.ModifyPasswordResp:
             type: object
             properties:
                 common:
-                    $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
-        gateway.api.v1.userinfo.ModifySignatureReq:
+                    $ref: '#/components/schemas/gateway.api.v1.user.userinfo.CommonResp'
+        gateway.api.v1.user.userinfo.ModifySignatureReq:
             type: object
             properties:
                 userId:
                     type: string
                 signature:
                     type: string
-        gateway.api.v1.userinfo.ModifySignatureResp:
+        gateway.api.v1.user.userinfo.ModifySignatureResp:
             type: object
             properties:
                 newSignature:
                     type: string
                 common:
-                    $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
-        gateway.api.v1.userinfo.ModifyUsernameReq:
+                    $ref: '#/components/schemas/gateway.api.v1.user.userinfo.CommonResp'
+        gateway.api.v1.user.userinfo.ModifyUsernameReq:
             type: object
             properties:
                 userId:
                     type: string
                 newUsername:
                     type: string
-        gateway.api.v1.userinfo.ModifyUsernameResp:
+        gateway.api.v1.user.userinfo.ModifyUsernameResp:
             type: object
             properties:
                 newUsername:
                     type: string
                 common:
-                    $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
-        gateway.api.v1.userinfo.UserInfo:
+                    $ref: '#/components/schemas/gateway.api.v1.user.userinfo.CommonResp'
+        gateway.api.v1.user.userinfo.UserInfo:
             type: object
             properties:
                 userName:
@@ -759,13 +855,86 @@ components:
                     format: int32
                 birthday:
                     type: string
-        gateway.api.v1.userinfo.UserinfoResp:
+        gateway.api.v1.user.userinfo.UserinfoResp:
             type: object
             properties:
                 userInfo:
-                    $ref: '#/components/schemas/gateway.api.v1.userinfo.UserInfo'
+                    $ref: '#/components/schemas/gateway.api.v1.user.userinfo.UserInfo'
                 common:
-                    $ref: '#/components/schemas/gateway.api.v1.userinfo.CommonResp'
+                    $ref: '#/components/schemas/gateway.api.v1.user.userinfo.CommonResp'
+        gateway.api.v1.video.videoinfo.GetVideoCoverResp:
+            type: object
+            properties:
+                coverData:
+                    type: string
+                    format: bytes
+        gateway.api.v1.video.videoinfo.GetVideoInfoResp:
+            type: object
+            properties:
+                title:
+                    type: string
+        gateway.api.v1.video.videoinfo.GetVideoListResp:
+            type: object
+            properties:
+                req:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.VideoMetaInfo'
+        gateway.api.v1.video.videoinfo.ProvideMpdResp:
+            type: object
+            properties:
+                mpdData:
+                    type: string
+                    format: bytes
+        gateway.api.v1.video.videoinfo.ProvideSegmentsResp:
+            type: object
+            properties:
+                segmentData:
+                    type: string
+                    format: bytes
+        gateway.api.v1.video.videoinfo.VideoMetaInfo:
+            type: object
+            properties:
+                videoId:
+                    type: string
+                authorId:
+                    type: string
+                authorName:
+                    type: string
+                title:
+                    type: string
+                path:
+                    type: string
+                className:
+                    type: string
+                tags:
+                    type: string
+                hot:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                records:
+                    $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.VideoMetaInfo_Records'
+                durations:
+                    type: string
+                coverPath:
+                    type: string
+        gateway.api.v1.video.videoinfo.VideoMetaInfo_Records:
+            type: object
+            properties:
+                cntBarrages:
+                    type: integer
+                    format: uint32
+                cntShares:
+                    type: integer
+                    format: uint32
+                cntViewed:
+                    type: integer
+                    format: uint32
+                cntFavorites:
+                    type: integer
+                    format: uint32
 tags:
     - name: Captcha
     - name: Favorite
@@ -774,3 +943,4 @@ tags:
     - name: Identity
       description: 用户身份相关服务
     - name: Userinfo
+    - name: VideoInfo

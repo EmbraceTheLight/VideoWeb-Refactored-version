@@ -1,8 +1,11 @@
 package server
 
 import (
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
+	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
+	"github.com/go-kratos/kratos/v2/transport/grpc"
 	captv1 "vw_user/api/v1/captcha"
 	favorv1 "vw_user/api/v1/favorites"
 	followv1 "vw_user/api/v1/follow"
@@ -11,10 +14,6 @@ import (
 	infov1 "vw_user/api/v1/userinfo"
 	"vw_user/internal/conf"
 	"vw_user/internal/service"
-
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/middleware/recovery"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
 )
 
 // NewGRPCServer new a gRPC server.

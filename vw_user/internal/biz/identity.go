@@ -12,9 +12,9 @@ import (
 	"strconv"
 	"time"
 	"unicode/utf8"
+	"util/getid"
 	"util/helper"
 	"util/helper/file"
-	"util/snowflake"
 	idv1 "vw_user/api/v1/identity"
 	"vw_user/internal/data/dal/model"
 	"vw_user/internal/data/dal/query"
@@ -64,7 +64,7 @@ func (uc *UserIdentityUsecase) Register(ctx context.Context, registerInfo *Regis
 		return 0, false, err
 	}
 
-	// * set default avatar for user, if he/she don't upload avatar.
+	// * set default avatar for userbiz, if he/she don't upload avatar.
 	var avatarFilePath string
 	if registerInfo.AvatarFilePath == nil {
 		userDir := filepath.Join(resourcePath, strconv.FormatInt(*registerInfo.UserID, 10))
@@ -74,7 +74,7 @@ func (uc *UserIdentityUsecase) Register(ctx context.Context, registerInfo *Regis
 		}
 
 		defer func() {
-			/* this defer is used to remove the user dir
+			/* this defer is used to remove the userbiz dir
 			if there is any error Behind this logic*/
 			if err != nil {
 				_ = os.RemoveAll(userDir)
@@ -89,7 +89,7 @@ func (uc *UserIdentityUsecase) Register(ctx context.Context, registerInfo *Regis
 		newUser.AvatarPath = avatarFilePath
 	}
 
-	// create new user's records
+	// create new userbiz's records
 	err = uc.identityRepo.CreatRecordsForRegister(ctx, newUser)
 	if err != nil {
 		return 0, false, helper.HandleError(errdef.ErrCreateUserRecordsFailed, err)
@@ -119,8 +119,8 @@ func (uc *UserIdentityUsecase) Logout(ctx context.Context, userId string) error 
 }
 
 // handleRegisterInfo check the register information
-// create a new user model and fill its dynamic fields (such as encrypted password, e.g.)
-// and return the user model, if there is no error.
+// create a new userbiz model and fill its dynamic fields (such as encrypted password, e.g.)
+// and return the userbiz model, if there is no error.
 func (uc *UserIdentityUsecase) handleRegisterInfo(ctx context.Context, registerInfo *RegisterInfo) (*model.User, error) {
 	// check register info
 	userdo := query.User
@@ -134,7 +134,7 @@ func (uc *UserIdentityUsecase) handleRegisterInfo(ctx context.Context, registerI
 	verifyCode, err := uc.captcha.GetCodeFromCache(ctx, registerInfo.Email)
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
-			return nil, helper.HandleError(errdef.ErrVerifyCodeExpired, nil)
+			return nil, helper.HandleError(errdef.ErrVerifyCodeExpired)
 		} else {
 			return nil, helper.HandleError(errdef.INTERNAL_ERROR, err)
 		}
@@ -159,11 +159,11 @@ func (uc *UserIdentityUsecase) handleRegisterInfo(ctx context.Context, registerI
 		return nil, errdef.ErrEncryptPasswordFailed
 	}
 
-	// create new user model
-	// -> this `if` block checks if the user upload avatar file while registering.
-	// -> if the user upload avatar file, the UserID will be set by the client.
+	// create new userbiz model
+	// -> this `if` block checks if the userbiz upload avatar file while registering.
+	// -> if the userbiz upload avatar file, the UserID will be set by the client.
 	if *registerInfo.UserID <= 0 {
-		*registerInfo.UserID = snowflake.GetID()
+		*registerInfo.UserID = getid.GetID()
 	}
 	newUser := &model.User{
 		UserID:    *registerInfo.UserID,

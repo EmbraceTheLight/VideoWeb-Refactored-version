@@ -184,7 +184,7 @@ func JwtAuth(secret string, accessTokenExpireTime time.Duration, redisCluster *r
 							redisCluster.Set(ctx, strconv.FormatInt(aclaims.UserID, 10), accessToken, rclaims.ExpiresAt.Time.Sub(time.Now()))
 							return nil, helper.HandleError(errdef.ErrAccessTokenExpired.WithMetadata(map[string]string{
 								"access_token": accessToken,
-							}), nil)
+							}))
 						}
 					} else {
 						return nil, errdef.ErrTokenInvalid

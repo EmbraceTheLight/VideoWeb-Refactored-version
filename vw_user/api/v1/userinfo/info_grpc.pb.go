@@ -20,12 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Userinfo_GetUserinfo_FullMethodName         = "/user.v1.info.Userinfo/GetUserinfo"
-	Userinfo_ModifyEmail_FullMethodName         = "/user.v1.info.Userinfo/ModifyEmail"
-	Userinfo_ModifyPassword_FullMethodName      = "/user.v1.info.Userinfo/ModifyPassword"
-	Userinfo_ModifyUserSignature_FullMethodName = "/user.v1.info.Userinfo/ModifyUserSignature"
-	Userinfo_ForgetPassword_FullMethodName      = "/user.v1.info.Userinfo/ForgetPassword"
-	Userinfo_ModifyUsername_FullMethodName      = "/user.v1.info.Userinfo/ModifyUsername"
+	Userinfo_GetUserinfo_FullMethodName         = "/userbiz.v1.info.Userinfo/GetUserinfo"
+	Userinfo_ModifyEmail_FullMethodName         = "/userbiz.v1.info.Userinfo/ModifyEmail"
+	Userinfo_ModifyPassword_FullMethodName      = "/userbiz.v1.info.Userinfo/ModifyPassword"
+	Userinfo_ModifyUserSignature_FullMethodName = "/userbiz.v1.info.Userinfo/ModifyUserSignature"
+	Userinfo_ForgetPassword_FullMethodName      = "/userbiz.v1.info.Userinfo/ForgetPassword"
+	Userinfo_ModifyUsername_FullMethodName      = "/userbiz.v1.info.Userinfo/ModifyUsername"
 )
 
 // UserinfoClient is the client API for Userinfo service.
@@ -279,7 +279,7 @@ func _Userinfo_ModifyUsername_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Userinfo_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "user.v1.info.Userinfo",
+	ServiceName: "userbiz.v1.info.Userinfo",
 	HandlerType: (*UserinfoServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

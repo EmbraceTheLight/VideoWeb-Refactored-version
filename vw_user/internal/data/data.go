@@ -14,6 +14,7 @@ import (
 	"util"
 	utilCtx "util/context"
 	"vw_user/internal/conf"
+	"vw_user/internal/data/dal/model"
 	"vw_user/internal/data/dal/query"
 )
 
@@ -190,4 +191,19 @@ func getQuery(ctx context.Context) *query.Query {
 		return tx.(*query.QueryTx).Query
 	}
 	return query.Q
+}
+
+// addUserModel is a helper function.
+// It adds a userbiz model, so that gorm-gen can use optimistic lock.
+// Use the function when need to UPDATE a userbiz model.
+// See https://github.com/go-gorm/optimisticlock/issues/36 for more details.
+func addUserModel(ctx context.Context, userId int64) (query.IUserDo, *model.User, error) {
+	user := getQuery(ctx).User
+	userDo := user.WithContext(ctx)
+	userModel, err := userDo.Where(user.UserID.Eq(userId)).First()
+	if err != nil {
+		return userDo, nil, err
+	}
+	userDo.ReplaceDB(userDo.UnderlyingDB().Model(userModel))
+	return userDo, userModel, nil
 }

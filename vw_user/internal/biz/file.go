@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"time"
 	utilCtx "util/context"
+	"util/getid"
 	"util/helper"
 	"util/helper/file"
-	"util/snowflake"
 	filev1 "vw_user/api/v1/userfile"
 	"vw_user/internal/pkg/ecode/errdef"
 )
@@ -43,7 +43,7 @@ func (u *FileUsecase) UploadAvatar(stream grpc.ClientStreamingServer[filev1.Uplo
 	)
 
 	defer func() {
-		/* this defer is used to remove the user dir
+		/* this defer is used to remove the userbiz dir
 		if there is any error Behind this logic*/
 		if avatarFile != nil {
 			avatarFile.Close()
@@ -72,9 +72,9 @@ func (u *FileUsecase) UploadAvatar(stream grpc.ClientStreamingServer[filev1.Uplo
 		case *filev1.UploadAvatarReq_FileName:
 			// Create User Dir
 			// 1. Generate UserID by Snowflake algorithm.
-			userID := snowflake.GetID()
+			userID := getid.GetID()
 
-			// 2. compute the new user's directory path, with the user id.
+			// 2. compute the new userbiz's directory path, with the userbiz id.
 			userDir = filepath.Join(resourcePath, strconv.FormatInt(userID, 10))
 
 			err = file.CreateDir(userDir, os.ModePerm)
@@ -130,14 +130,14 @@ func (u *FileUsecase) UpdateAvatar(stream grpc.ClientStreamingServer[filev1.Upda
 		}
 
 		// Handle the data，there are two types of data：
-		// One is user id(int64);
+		// One is userbiz id(int64);
 		// the other is avatarFile content([]byte).
 		switch data := req.Data.(type) {
 
 		// * Get avatarFile name, then create the avatarFile。
 		case *filev1.UpdateAvatarReq_MetaData:
-			// Delete user's old avatar
-			// 1. compute the new user's directory avatarFilePath, with the user id.
+			// Delete userbiz's old avatar
+			// 1. compute the new userbiz's directory avatarFilePath, with the userbiz id.
 			userID = data.MetaData.UserId
 			userDir := filepath.Join(resourcePath, strconv.FormatInt(userID, 10))
 
@@ -177,7 +177,7 @@ func (u *FileUsecase) UpdateAvatar(stream grpc.ClientStreamingServer[filev1.Upda
 		return helper.HandleError(errdef.ErrUpdateAvatarFailed, err)
 	}
 
-	// Update the user's avatar path in the database.
+	// Update the userbiz's avatar path in the database.
 	ctx, cancel := utilCtx.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	err = u.repo.UpdateAvatarPath(ctx, userID, filepath.Join(baseDir, newFileName))

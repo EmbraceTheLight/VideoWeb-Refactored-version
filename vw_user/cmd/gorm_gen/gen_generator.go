@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 	"vw_user/cmd/gorm_gen/methods"
 	"vw_user/internal/conf"
-	"vw_user/internal/data"
+	"vw_user/internal/data/userdata"
 )
 
 //go:generate go run gen_generator.go
@@ -56,7 +56,7 @@ func main() {
 	g.WithDataTypeMap(dataMap)
 
 	// 生成model
-	user := g.GenerateModel("user",
+	user := g.GenerateModel("userbiz",
 		gen.FieldType("version", "optimisticlock.Version"),
 		gen.FieldType("is_admin", "bool"),
 		gen.FieldType("gender", "int"))

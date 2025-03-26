@@ -92,12 +92,12 @@ type RegisterReq struct {
 
 	Username       string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	Password       string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	RepeatPassword string `protobuf:"bytes,3,opt,name=repeatPassword,proto3" json:"repeatPassword,omitempty"` //user needs repeat the password they first input.
+	RepeatPassword string `protobuf:"bytes,3,opt,name=repeatPassword,proto3" json:"repeatPassword,omitempty"` //userbiz needs repeat the password they first input.
 	Gender         int32  `protobuf:"varint,4,opt,name=gender,proto3" json:"gender,omitempty"`
 	Email          string `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
 	Birthday       string `protobuf:"bytes,6,opt,name=birthday,proto3" json:"birthday,omitempty"`
 	Signature      string `protobuf:"bytes,7,opt,name=signature,proto3" json:"signature,omitempty"`
-	InputCode      string `protobuf:"bytes,8,opt,name=input_code,json=inputCode,proto3" json:"input_code,omitempty"` // The code of user's input.
+	InputCode      string `protobuf:"bytes,8,opt,name=input_code,json=inputCode,proto3" json:"input_code,omitempty"` // The code of userbiz's input.
 }
 
 func (x *RegisterReq) Reset() {
@@ -532,25 +532,25 @@ func file_v1_identity_user_identity_proto_rawDescGZIP() []byte {
 
 var file_v1_identity_user_identity_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_v1_identity_user_identity_proto_goTypes = []any{
-	(*CacheAccessTokenReq)(nil), // 0: user.v1.id.CacheAccessTokenReq
-	(*RegisterReq)(nil),         // 1: user.v1.id.RegisterReq
-	(*RegisterResp)(nil),        // 2: user.v1.id.RegisterResp
-	(*LoginReq)(nil),            // 3: user.v1.id.LoginReq
-	(*LoginResp)(nil),           // 4: user.v1.id.LoginResp
-	(*LogoutReq)(nil),           // 5: user.v1.id.LogoutReq
+	(*CacheAccessTokenReq)(nil), // 0: userbiz.v1.id.CacheAccessTokenReq
+	(*RegisterReq)(nil),         // 1: userbiz.v1.id.RegisterReq
+	(*RegisterResp)(nil),        // 2: userbiz.v1.id.RegisterResp
+	(*LoginReq)(nil),            // 3: userbiz.v1.id.LoginReq
+	(*LoginResp)(nil),           // 4: userbiz.v1.id.LoginResp
+	(*LogoutReq)(nil),           // 5: userbiz.v1.id.LogoutReq
 	(*durationpb.Duration)(nil), // 6: google.protobuf.Duration
 	(*emptypb.Empty)(nil),       // 7: google.protobuf.Empty
 }
 var file_v1_identity_user_identity_proto_depIdxs = []int32{
-	6, // 0: user.v1.id.CacheAccessTokenReq.expiration:type_name -> google.protobuf.Duration
-	0, // 1: user.v1.id.Identity.CacheAccessToken:input_type -> user.v1.id.CacheAccessTokenReq
-	1, // 2: user.v1.id.Identity.Register:input_type -> user.v1.id.RegisterReq
-	3, // 3: user.v1.id.Identity.Login:input_type -> user.v1.id.LoginReq
-	5, // 4: user.v1.id.Identity.Logout:input_type -> user.v1.id.LogoutReq
-	7, // 5: user.v1.id.Identity.CacheAccessToken:output_type -> google.protobuf.Empty
-	2, // 6: user.v1.id.Identity.Register:output_type -> user.v1.id.RegisterResp
-	4, // 7: user.v1.id.Identity.Login:output_type -> user.v1.id.LoginResp
-	7, // 8: user.v1.id.Identity.Logout:output_type -> google.protobuf.Empty
+	6, // 0: userbiz.v1.id.CacheAccessTokenReq.expiration:type_name -> google.protobuf.Duration
+	0, // 1: userbiz.v1.id.Identity.CacheAccessToken:input_type -> userbiz.v1.id.CacheAccessTokenReq
+	1, // 2: userbiz.v1.id.Identity.Register:input_type -> userbiz.v1.id.RegisterReq
+	3, // 3: userbiz.v1.id.Identity.Login:input_type -> userbiz.v1.id.LoginReq
+	5, // 4: userbiz.v1.id.Identity.Logout:input_type -> userbiz.v1.id.LogoutReq
+	7, // 5: userbiz.v1.id.Identity.CacheAccessToken:output_type -> google.protobuf.Empty
+	2, // 6: userbiz.v1.id.Identity.Register:output_type -> userbiz.v1.id.RegisterResp
+	4, // 7: userbiz.v1.id.Identity.Login:output_type -> userbiz.v1.id.LoginResp
+	7, // 8: userbiz.v1.id.Identity.Logout:output_type -> google.protobuf.Empty
 	5, // [5:9] is the sub-list for method output_type
 	1, // [1:5] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

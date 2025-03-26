@@ -37,7 +37,7 @@ func (info *UserInfoService) GetUserinfo(ctx context.Context, req *infov1.Userin
 			CntFollows: user.CntFollows,
 			Gender:     user.Gender,
 			//TODO: cntVideos 暂时为空，等待vw_video部分编写完成，其中会提供<根据用户id获取用户视频数量这一功能>
-			//CntVideos:  int32(user.CntVideos),
+			//CntVideos:  int32(userbiz.CntVideos),
 			AvatarPath: user.AvatarPath,
 			Birthday:   timestamppb.New(user.Birthday),
 		},

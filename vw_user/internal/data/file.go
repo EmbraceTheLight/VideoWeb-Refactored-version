@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"vw_user/internal/biz"
+	"vw_user/internal/data/dal/model"
 )
 
 type fileRepo struct {
@@ -19,13 +20,17 @@ func NewFileRepo(data *Data, logger log.Logger) biz.FileRepo {
 }
 
 func (r *fileRepo) UpdateAvatarPath(ctx context.Context, userID int64, filePath string) error {
-	user := getQuery(ctx).User
-	userDo := user.WithContext(ctx)
-	u, err := userDo.Where(user.UserID.Eq(userID)).First()
+	u := getQuery(ctx).User
+	userDo := u.WithContext(ctx)
+	findUser, err := userDo.Where(u.UserID.Eq(userID)).First()
 	if err != nil {
 		return err
 	}
-	userDo.ReplaceDB(userDo.UnderlyingDB().Model(u))
-	_, err = userDo.Where(user.UserID.Eq(userID)).Update(user.AvatarPath, filePath)
+	userDo.ReplaceDB(userDo.UnderlyingDB().Model(findUser))
+	_, err = userDo.
+		Where(u.UserID.Eq(userID)).
+		Updates(&model.User{
+			AvatarPath: filePath,
+		})
 	return err
 }

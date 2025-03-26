@@ -11,16 +11,16 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/redis/go-redis/v9"
 	"time"
-	captv1 "vw_gateway/api/v1/captcha"
-	favorv1 "vw_gateway/api/v1/favorites"
-	followv1 "vw_gateway/api/v1/follow"
-	idv1 "vw_gateway/api/v1/identity"
-	filev1 "vw_gateway/api/v1/userfile"
-	infov1 "vw_gateway/api/v1/userinfo"
+	"vw_gateway/api/v1/user/captcha"
+	"vw_gateway/api/v1/user/favorites"
+	"vw_gateway/api/v1/user/follow"
+	"vw_gateway/api/v1/user/identity"
+	"vw_gateway/api/v1/user/userfile"
+	"vw_gateway/api/v1/user/userinfo"
 	"vw_gateway/internal/conf"
 	"vw_gateway/internal/pkg/codecs"
 	"vw_gateway/internal/pkg/middlewares/auth"
-	"vw_gateway/internal/service"
+	"vw_gateway/internal/service/user_service"
 )
 
 func NewWhitelistMatcher() selector.MatchFunc {
@@ -49,13 +49,13 @@ func NewWhitelistMatcher() selector.MatchFunc {
 func NewHTTPServer(
 	c *conf.Server,
 	jwt *conf.JWT,
-	captcha *service.CaptchaService,
-	file *service.UserFileService,
-	identity *service.UserIdentityService,
-	follow *service.FollowService,
+	captcha *user.CaptchaService,
+	file *user.UserFileService,
+	identity *user.UserIdentityService,
+	follow *user.FollowService,
 	redis *redis.ClusterClient,
-	info *service.UserinfoService,
-	favorites *service.FavoritesService,
+	info *user.UserinfoService,
+	favorites *user.FavoritesService,
 	logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
