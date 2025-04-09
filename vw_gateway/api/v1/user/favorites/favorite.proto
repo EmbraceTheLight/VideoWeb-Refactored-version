@@ -4,7 +4,7 @@ package gateway.api.v1.user.favorites;
 
 import "google/api/annotations.proto";
 
-option go_package = "vw_gateway/api/v1/userbiz/favorites;favorv1";
+option go_package = "vw_gateway/api/v1/user/favorites;favorv1";
 
 service Favorite {
     rpc CreateFavorites(CreateFavoritesReq) returns (CreateFavoritesResp) {

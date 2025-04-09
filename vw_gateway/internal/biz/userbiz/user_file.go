@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"util/helper"
 	"util/helper/file"
-	"vw_gateway/internal/pkg/ecode/errdef"
+	"vw_gateway/internal/pkg/ecode/errdef/uerr"
 )
 
 type UserFileRepo interface {
@@ -39,12 +39,12 @@ func (ufu *UserFileUsecase) UploadAvatar(ctx context.Context) (filePath string, 
 	}
 	fh, err := file.FormFile(httpReq, "avatar")
 	if err != nil {
-		return "", helper.HandleError(errdef.ErrFormFileFiled, err)
+		return "", helper.HandleError(uerr.ErrFormFileFiled, err)
 	}
 
-	err = file.CheckPictureValid(fh)
+	err = file.CheckIfPictureValid(fh)
 	if err != nil {
-		return "", helper.HandleError(errdef.ErrUploadAvatarFailed, err)
+		return "", helper.HandleError(uerr.ErrUploadAvatarFailed, err)
 	}
 
 	return ufu.repo.UploadAvatar(ctx, fh.Filename, fh)
@@ -60,12 +60,12 @@ func (ufu *UserFileUsecase) UpdateAvatar(ctx context.Context, userId int64) erro
 	}
 	fh, err := file.FormFile(httpReq, "avatar")
 	if err != nil {
-		return helper.HandleError(errdef.ErrFormFileFiled, err)
+		return helper.HandleError(uerr.ErrFormFileFiled, err)
 	}
 
-	err = file.CheckPictureValid(fh)
+	err = file.CheckIfPictureValid(fh)
 	if err != nil {
-		return helper.HandleError(errdef.ErrUpdateFileFailed, err)
+		return helper.HandleError(uerr.ErrUpdateAvatarFailed, err)
 	}
 
 	return ufu.repo.UpdateAvatar(ctx, userId, fh)

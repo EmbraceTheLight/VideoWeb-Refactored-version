@@ -1,4 +1,4 @@
-package errdef
+package uerr
 
 import (
 	kerr "github.com/go-kratos/kratos/v2/errors"

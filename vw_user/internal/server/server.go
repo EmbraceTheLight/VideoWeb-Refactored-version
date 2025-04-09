@@ -6,11 +6,10 @@ import (
 	"github.com/google/wire"
 	consulAPI "github.com/hashicorp/consul/api"
 	"vw_user/internal/conf"
-	"vw_user/internal/server/useGin"
 )
 
 // ProviderSet is server providers.
-var ProviderSet = wire.NewSet(NewGRPCServer, NewRegistrar, useGin.NewGinEngine)
+var ProviderSet = wire.NewSet(NewGRPCServer, NewRegistrar)
 
 // NewRegistrar  引入consul注册中心
 func NewRegistrar(conf *conf.Registry) registry.Registrar {

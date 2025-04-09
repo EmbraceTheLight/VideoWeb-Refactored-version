@@ -28,6 +28,9 @@ func WithTimeout(parent context.Context, timeout time.Duration) (context.Context
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
+	if parent == nil {
+		return context.WithTimeout(context.Background(), timeout)
+	}
 	return context.WithTimeout(parent, timeout)
 }
 

@@ -7,19 +7,19 @@ import (
 	"vw_gateway/internal/biz/userbiz"
 )
 
-type UserinfoService struct {
+type InfoService struct {
 	infov1.UnimplementedUserinfoServer
 	info   *userbiz.UserinfoUsecase
 	logger *log.Helper
 }
 
-func NewUserinfoService(info *userbiz.UserinfoUsecase, logger log.Logger) *UserinfoService {
-	return &UserinfoService{
+func NewUserinfoService(info *userbiz.UserinfoUsecase, logger log.Logger) *InfoService {
+	return &InfoService{
 		info:   info,
 		logger: log.NewHelper(logger),
 	}
 }
-func (uis *UserinfoService) ForgetPassword(ctx context.Context, req *infov1.ForgetPasswordReq) (*infov1.ForgetPasswordResp, error) {
+func (uis *InfoService) ForgetPassword(ctx context.Context, req *infov1.ForgetPasswordReq) (*infov1.ForgetPasswordResp, error) {
 	err := uis.info.ForgetPassword(ctx, req.UserId, req.Email, req.InputCode, req.NewPassword)
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func (uis *UserinfoService) ForgetPassword(ctx context.Context, req *infov1.Forg
 	}, nil
 }
 
-func (uis *UserinfoService) ModifyEmail(ctx context.Context, req *infov1.ModifyEmailReq) (*infov1.ModifyEmailResp, error) {
+func (uis *InfoService) ModifyEmail(ctx context.Context, req *infov1.ModifyEmailReq) (*infov1.ModifyEmailResp, error) {
 	newEmail, err := uis.info.ModifyEmail(ctx, req.UserId, req.Email, req.InputCode)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (uis *UserinfoService) ModifyEmail(ctx context.Context, req *infov1.ModifyE
 	}, nil
 }
 
-func (uis *UserinfoService) ModifyPassword(ctx context.Context, req *infov1.ModifyPasswordReq) (*infov1.ModifyPasswordResp, error) {
+func (uis *InfoService) ModifyPassword(ctx context.Context, req *infov1.ModifyPasswordReq) (*infov1.ModifyPasswordResp, error) {
 	err := uis.info.ModifyPassword(ctx, req.UserId, req.OldPassword, req.NewPassword)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (uis *UserinfoService) ModifyPassword(ctx context.Context, req *infov1.Modi
 	}, nil
 }
 
-func (uis *UserinfoService) ModifyUserSignature(ctx context.Context, req *infov1.ModifySignatureReq) (*infov1.ModifySignatureResp, error) {
+func (uis *InfoService) ModifyUserSignature(ctx context.Context, req *infov1.ModifySignatureReq) (*infov1.ModifySignatureResp, error) {
 	newSignature, err := uis.info.ModifyUserSignature(ctx, req.UserId, req.Signature)
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (uis *UserinfoService) ModifyUserSignature(ctx context.Context, req *infov1
 	}, nil
 }
 
-func (uis *UserinfoService) Userinfo(ctx context.Context, req *infov1.UserinfoReq) (*infov1.UserinfoResp, error) {
+func (uis *InfoService) Userinfo(ctx context.Context, req *infov1.UserinfoReq) (*infov1.UserinfoResp, error) {
 	resp, err := uis.info.Userinfo(ctx, req.UserId)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (uis *UserinfoService) Userinfo(ctx context.Context, req *infov1.UserinfoRe
 	}, nil
 }
 
-func (uis *UserinfoService) ModifyUsername(ctx context.Context, req *infov1.ModifyUsernameReq) (*infov1.ModifyUsernameResp, error) {
+func (uis *InfoService) ModifyUsername(ctx context.Context, req *infov1.ModifyUsernameReq) (*infov1.ModifyUsernameResp, error) {
 	newUsername, err := uis.info.ModifyUsername(ctx, req.UserId, req.NewUsername)
 	if err != nil {
 		return nil, err

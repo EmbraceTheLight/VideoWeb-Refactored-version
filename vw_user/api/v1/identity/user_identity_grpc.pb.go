@@ -20,10 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Identity_CacheAccessToken_FullMethodName = "/userbiz.v1.id.Identity/CacheAccessToken"
-	Identity_Register_FullMethodName         = "/userbiz.v1.id.Identity/Register"
-	Identity_Login_FullMethodName            = "/userbiz.v1.id.Identity/Login"
-	Identity_Logout_FullMethodName           = "/userbiz.v1.id.Identity/Logout"
+	Identity_CacheAccessToken_FullMethodName = "/user.v1.id.Identity/CacheAccessToken"
+	Identity_Register_FullMethodName         = "/user.v1.id.Identity/Register"
+	Identity_Login_FullMethodName            = "/user.v1.id.Identity/Login"
+	Identity_Logout_FullMethodName           = "/user.v1.id.Identity/Logout"
 )
 
 // IdentityClient is the client API for Identity service.
@@ -211,7 +211,7 @@ func _Identity_Logout_Handler(srv interface{}, ctx context.Context, dec func(int
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Identity_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "userbiz.v1.id.Identity",
+	ServiceName: "user.v1.id.Identity",
 	HandlerType: (*IdentityServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -4,7 +4,7 @@ package gateway.api.v1.user.captcha;
 
 import "google/api/annotations.proto";
 
-option go_package = "vw_gateway/api/v1/userbiz/captcha;captv1";
+option go_package = "vw_gateway/api/v1/user/captcha;captv1";
 service Captcha {
     rpc GetImageCaptcha(GetImageCaptchaRequest) returns (GetImageCaptchaResp) {
         option (google.api.http) = {

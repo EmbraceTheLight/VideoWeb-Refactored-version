@@ -5,7 +5,6 @@ import (
 	"github.com/go-kratos/kratos/v2/registry"
 	"os"
 	"util/monitor"
-
 	"vw_video/internal/conf"
 
 	"github.com/go-kratos/kratos/v2"
@@ -22,7 +21,7 @@ var (
 	// Name is the name of the compiled software.
 	Name string = "videoweb.video.service"
 	// Version is the version of the compiled software.
-	Version string = "videoweb.video.service"
+	Version string = "videoweb.video.service.v1"
 	// flagconf is the config flag.
 	flagconf string
 

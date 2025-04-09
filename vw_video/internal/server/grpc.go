@@ -1,7 +1,11 @@
 package server
 
 import (
+	"github.com/go-kratos/kratos/v2/middleware/logging"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
+	videoinfov1 "vw_video/api/v1/videoinfo"
 	"vw_video/internal/conf"
+	"vw_video/internal/service"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -9,10 +13,15 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, logger log.Logger) *grpc.Server {
+func NewGRPCServer(
+	c *conf.Server,
+	NewVideoInfoServer *service.VideoInfoService,
+	logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
+			tracing.Server(),
+			logging.Server(logger),
 		),
 	}
 	if c.Grpc.Network != "" {
@@ -25,6 +34,8 @@ func NewGRPCServer(c *conf.Server, logger log.Logger) *grpc.Server {
 		opts = append(opts, grpc.Timeout(c.Grpc.Timeout.AsDuration()))
 	}
 	srv := grpc.NewServer(opts...)
+
+	videoinfov1.RegisterVideoInfoServer(srv, NewVideoInfoServer)
 
 	return srv
 }

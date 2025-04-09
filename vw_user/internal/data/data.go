@@ -33,6 +33,11 @@ var ProviderSet = wire.NewSet(
 	NewTransaction,
 )
 
+const (
+	kb = 1024
+	mb = 1024 * kb
+)
+
 // transactionKey is a context key for gorm transactionKey
 type transactionKey struct{}
 
@@ -194,8 +199,8 @@ func getQuery(ctx context.Context) *query.Query {
 }
 
 // addUserModel is a helper function.
-// It adds a userbiz model, so that gorm-gen can use optimistic lock.
-// Use the function when need to UPDATE a userbiz model.
+// It adds a user model, so that gorm-gen can use optimistic lock.
+// Use the function when need to UPDATE a user model.
 // See https://github.com/go-gorm/optimisticlock/issues/36 for more details.
 func addUserModel(ctx context.Context, userId int64) (query.IUserDo, *model.User, error) {
 	user := getQuery(ctx).User

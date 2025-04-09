@@ -59,6 +59,7 @@ func main() {
 		gen.FieldType("version", "optimisticlock.Version"),
 		gen.FieldType("is_admin", "bool"),
 		gen.FieldType("gender", "int"))
+	//gen.WithMethod(methods.Video{}))
 	favoriteVideo := g.GenerateModel("favorite_video")
 	barrages := g.GenerateModel("barrages")
 

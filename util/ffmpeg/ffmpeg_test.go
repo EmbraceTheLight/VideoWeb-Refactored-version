@@ -32,8 +32,8 @@ func TestGetVideoDuration(t *testing.T) {
 }
 
 func TestMakeDash(t *testing.T) {
-	inputFilePath := "./testfiles/output/E3Trailer.mp4"
+	inputFilePath := "./testfiles/input/MakingOfMusic.avi"
 	outputFilePath := "./testfiles/dash"
-	err := ffmpeg.MakeDASH(inputFilePath, outputFilePath, "")
+	err := ffmpeg.MakeDASH(inputFilePath, outputFilePath, "dash.mpd")
 	require.NoError(t, err)
 }

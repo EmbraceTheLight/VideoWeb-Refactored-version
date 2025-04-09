@@ -43,7 +43,7 @@ func (u *FileUsecase) UploadAvatar(stream grpc.ClientStreamingServer[filev1.Uplo
 	)
 
 	defer func() {
-		/* this defer is used to remove the userbiz dir
+		/* this defer is used to remove the user dir
 		if there is any error Behind this logic*/
 		if avatarFile != nil {
 			avatarFile.Close()
@@ -74,7 +74,7 @@ func (u *FileUsecase) UploadAvatar(stream grpc.ClientStreamingServer[filev1.Uplo
 			// 1. Generate UserID by Snowflake algorithm.
 			userID := getid.GetID()
 
-			// 2. compute the new userbiz's directory path, with the userbiz id.
+			// 2. compute the new user's directory path, with the user id.
 			userDir = filepath.Join(resourcePath, strconv.FormatInt(userID, 10))
 
 			err = file.CreateDir(userDir, os.ModePerm)
@@ -130,14 +130,14 @@ func (u *FileUsecase) UpdateAvatar(stream grpc.ClientStreamingServer[filev1.Upda
 		}
 
 		// Handle the data，there are two types of data：
-		// One is userbiz id(int64);
+		// One is user id(int64);
 		// the other is avatarFile content([]byte).
 		switch data := req.Data.(type) {
 
 		// * Get avatarFile name, then create the avatarFile。
 		case *filev1.UpdateAvatarReq_MetaData:
-			// Delete userbiz's old avatar
-			// 1. compute the new userbiz's directory avatarFilePath, with the userbiz id.
+			// Delete user's old avatar
+			// 1. compute the new user's directory avatarFilePath, with the user id.
 			userID = data.MetaData.UserId
 			userDir := filepath.Join(resourcePath, strconv.FormatInt(userID, 10))
 
@@ -177,7 +177,7 @@ func (u *FileUsecase) UpdateAvatar(stream grpc.ClientStreamingServer[filev1.Upda
 		return helper.HandleError(errdef.ErrUpdateAvatarFailed, err)
 	}
 
-	// Update the userbiz's avatar path in the database.
+	// Update the user's avatar path in the database.
 	ctx, cancel := utilCtx.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	err = u.repo.UpdateAvatarPath(ctx, userID, filepath.Join(baseDir, newFileName))

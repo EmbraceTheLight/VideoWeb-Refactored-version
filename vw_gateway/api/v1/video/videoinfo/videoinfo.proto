@@ -4,94 +4,165 @@ package gateway.api.v1.video.videoinfo;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-option go_package = "vw_gateway/api/v1/video/videoinfo";
+option go_package = "vw_gateway/api/v1/video/videoinfo;videoinfo";
 
 service VideoInfo {
-    rpc GetMpd(ProvideMpdReq) returns (stream ProvideMpdResp) {
+    rpc GetMpd(ProvideMpdReq) returns (FileResp) {
         option (google.api.http) = {
-            get: "/video/{video_id}/mpd"
+            get: "/api/v1/{user_id}/video/{video_id}/mpd"
         };
     }
 
-    rpc GetSegments(ProvideSegmentsReq) returns (stream ProvideSegmentsResp) {
+    rpc GetSegments(ProvideSegmentsReq) returns (FileResp) {
         option (google.api.http) = {
-            get: "/video/{video_id}/segments"
+            get: "/api/v1/{user_id}/video/{video_id}/segments"
         };
     }
 
-    rpc GetVideoCover(GetVideoCoverReq) returns (stream GetVideoCoverResp) {
+    rpc GetVideoCover(GetVideoCoverReq) returns (FileResp) {
         option (google.api.http) = {
-            get: "/video/{video_id}/cover"
+            get: "/api/v1/{user_id}/video/{video_id}/cover"
+        };
+    }
+
+    rpc DownloadVideo(DownloadVideoReq) returns (FileResp) {
+        option (google.api.http) = {
+            get: "/api/v1/{user_id}/video/{video_id}/file"
+        };
+    }
+    // Request Order: 1. UploadVideoInfo 2. UploadVideoFile 3. UploadVideoCover
+    // 1(UploadVideoInfo) Will Create a new directory for the video,
+    // 2(UploadVideoFile) and 3(UploadVideoCover) will upload the video file and cover file to the directory.
+    // The order of 2 and 3 is not important.
+    rpc UploadVideoInfo(UploadVideoInfoReq) returns (UploadVideoInfoResp) {
+        option (google.api.http) = {
+            post: "/api/v1/{user_id}/video/metaInfo"
+            body: "*"
+        };
+    }
+
+    rpc UploadVideoFile(UploadVideoFileReq) returns (UploadVideoFileResp) {
+        option (google.api.http) = {
+            post: "/api/v1/{user_id}/video/{video_id}/file"
+            body: "*"
+        };
+    }
+
+    rpc UploadVideoCover(UploadVideoCoverReq) returns (UploadVideoCoverResp) {
+        option (google.api.http) = {
+            post: "/api/v1/{user_id}/video/{video_id}/cover"
+            body: "*"
         };
     }
 
     rpc GetVideoInfo(GetVideoInfoReq) returns (GetVideoInfoResp) {
         option (google.api.http) = {
-            get: "/video/{video_id}/info"
+            get: "/api/v1/video/{video_id}/info"
         };
     }
 
     rpc GetVideoList(GetVideoListReq) returns (GetVideoListResp) {
         option (google.api.http) = {
-            get: "/video/list"
+            get: "/api/v1/video/list"
         };
     }
 }
 
-message ProvideMpdReq {
-    string video_id = 1;
+message CommonResp {
+    int32 status_code = 1;
+    string message    = 2;
 }
-message ProvideMpdResp {
-    bytes mpd_data = 1;
+
+message FileResp {
+    message HeaderValues {
+        repeated string value = 1;
+    }
+    string file_path                  = 1;
+    string filename                   = 2;
+    map<string, HeaderValues> headers = 3;
+}
+
+message ProvideMpdReq {
+    int64 user_id  = 1;
+    int64 video_id = 2;
 }
 
 message ProvideSegmentsReq {
-    string video_id = 1;
     // segment_path is the path of the segment file(.m4s)
-    string segment_path = 2;
-}
-message ProvideSegmentsResp {
-    bytes segment_data = 1;
+    // It is parsed by the front-end, using the mpd file
+    int64 user_id       = 1;
+    int64 video_id      = 2;
+    string segment_path = 3;
 }
 
 message GetVideoCoverReq {
-    string video_id = 1;
+    int64 user_id  = 1;
+    int64 video_id = 2;
 }
-message GetVideoCoverResp {
-    bytes cover_data = 1;
+
+message DownloadVideoReq {
+    int64 user_id  = 1;
+    int64 video_id = 2;
 }
 
 message VideoMetaInfo {
-    int64 video_id                       = 1;
-    int64 author_id                      = 2;
-    string author_name                   = 3;
-    string title                         = 4;
-    string path                          = 5;
-    string class_name                    = 6;
-    string tags                          = 7;
-    int64 hot                            = 8;
-    google.protobuf.Timestamp created_at = 9;
+    int64 video_id                         = 1;
+    int64 publisher_id                     = 2;
+    string publisher_name                  = 3;
+    string title                           = 4;
+    string description                     = 5;
+    string video_path                      = 6;
+    repeated string classes                = 7;
+    repeated string tags                   = 8;
+    int64 hot                              = 9;
+    google.protobuf.Timestamp created_time = 10;
     message Records {
         uint32 cnt_barrages  = 1;
         uint32 cnt_shares    = 2;
         uint32 cnt_viewed    = 3;
         uint32 cnt_favorites = 4;
     }
-    Records records   = 10;
-    string durations  = 11;
-    string cover_path = 12;
+    Records records   = 11;
+    string duration   = 12;
+    string cover_path = 13;
 }
 
 message GetVideoInfoReq {
-    string video_id = 1;
+    int64 video_id = 1;
 }
 message GetVideoInfoResp {
-    string title = 1;
+    VideoMetaInfo video_detail = 1;
 }
 
 message GetVideoListReq {
     repeated string class = 1;  // 视频所属类别
+    int32 page_num        = 2;
+    int32 page_size       = 3;
 }
 message GetVideoListResp {
-    repeated VideoMetaInfo req = 1;
+    repeated VideoMetaInfo video_details = 1;
+}
+
+message UploadVideoInfoReq {
+    int64 user_id            = 1;
+    VideoMetaInfo video_info = 2;
+}
+message UploadVideoInfoResp {
+    CommonResp resp = 1;
+}
+
+message UploadVideoFileReq {
+    int64 user_id  = 1;
+    int64 video_id = 2;
+}
+message UploadVideoFileResp {
+    CommonResp resp = 1;
+}
+
+message UploadVideoCoverReq {
+    int64 user_id  = 1;
+    int64 video_id = 2;
+}
+message UploadVideoCoverResp {
+    CommonResp resp = 1;
 }

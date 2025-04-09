@@ -5,7 +5,7 @@ package gateway.api.v1.user.follow;
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "vw_gateway/api/v1/userbiz/follow;followv1";
+option go_package = "vw_gateway/api/v1/user/follow;followv1";
 
 service Follow {
     rpc FollowUser(FollowUserReq) returns (FollowUserResp) {

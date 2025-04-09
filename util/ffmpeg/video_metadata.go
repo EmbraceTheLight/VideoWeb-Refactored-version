@@ -15,7 +15,6 @@ func GetVideoDuration(inputFilePath string) (int64, error) {
 		AddGlobalArgs("-v", "quiet").
 		ShowEntries(inputFilePath, "duration").
 		SetOutputFormat(inputFilePath, "csv=p=0").
-		ShowCommand().
 		RunCombinedOutput()
 	if err != nil {
 		return 0, err

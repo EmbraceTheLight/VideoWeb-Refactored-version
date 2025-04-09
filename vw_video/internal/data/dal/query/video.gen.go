@@ -37,7 +37,8 @@ func newVideo(db *gorm.DB, opts ...gen.DOOption) video {
 	_video.Tags = field.NewString(tableName, "tags")
 	_video.VideoPath = field.NewString(tableName, "video_path")
 	_video.VideoID = field.NewInt64(tableName, "video_id")
-	_video.UserID = field.NewInt64(tableName, "user_id")
+	_video.PublisherID = field.NewInt64(tableName, "publisher_id")
+	_video.PublisherName = field.NewString(tableName, "publisher_name")
 	_video.Likes = field.NewInt64(tableName, "likes")
 	_video.Shells = field.NewInt64(tableName, "shells")
 	_video.CntBarrages = field.NewInt64(tableName, "cnt_barrages")
@@ -56,27 +57,28 @@ func newVideo(db *gorm.DB, opts ...gen.DOOption) video {
 type video struct {
 	videoDo
 
-	ALL          field.Asterisk
-	CreatedAt    field.Time   // 创建时间
-	UpdatedAt    field.Time   // 更新时间
-	DeletedAt    field.Field  // 删除时间
-	Title        field.String //  视频标题
-	Description  field.String // 视频描述
-	Class        field.String // 视频所属类别（以英文逗号 , 分隔多个类别）
-	Hot          field.Int64  // 视频热度
-	Tags         field.String // 视频标签，以英文逗号分隔
-	VideoPath    field.String // 视频文件路径
-	VideoID      field.Int64  // 视频ID
-	UserID       field.Int64  // 上传者用户ID
-	Likes        field.Int64  // 视频点赞数
-	Shells       field.Int64  // 视频获得的贝壳数
-	CntBarrages  field.Int64  // 视频弹幕数
-	CntShares    field.Int64  // 视频分享数
-	CntFavorited field.Int64  // 视频收藏数
-	CntViewed    field.Int64  // 视频观看数（点开就算看）
-	Duration     field.String // 视频时长
-	Size         field.Int64  // 视频文件大小
-	CoverPath    field.String // 视频封面路径
+	ALL           field.Asterisk
+	CreatedAt     field.Time   // 创建时间
+	UpdatedAt     field.Time   // 更新时间
+	DeletedAt     field.Field  // 删除时间
+	Title         field.String //  视频标题
+	Description   field.String // 视频描述
+	Class         field.String // 视频所属类别（以英文逗号 , 分隔多个类别）
+	Hot           field.Int64  // 视频热度
+	Tags          field.String // 视频标签，以英文逗号分隔
+	VideoPath     field.String // 视频文件路径
+	VideoID       field.Int64  // 视频ID
+	PublisherID   field.Int64  // 上传者用户ID
+	PublisherName field.String // 上传者用户名
+	Likes         field.Int64  // 视频点赞数
+	Shells        field.Int64  // 视频获得的贝壳数
+	CntBarrages   field.Int64  // 视频弹幕数
+	CntShares     field.Int64  // 视频分享数
+	CntFavorited  field.Int64  // 视频收藏数
+	CntViewed     field.Int64  // 视频观看数（点开就算看）
+	Duration      field.String // 视频时长
+	Size          field.Int64  // 视频文件大小
+	CoverPath     field.String // 视频封面路径
 
 	fieldMap map[string]field.Expr
 }
@@ -103,7 +105,8 @@ func (v *video) updateTableName(table string) *video {
 	v.Tags = field.NewString(table, "tags")
 	v.VideoPath = field.NewString(table, "video_path")
 	v.VideoID = field.NewInt64(table, "video_id")
-	v.UserID = field.NewInt64(table, "user_id")
+	v.PublisherID = field.NewInt64(table, "publisher_id")
+	v.PublisherName = field.NewString(table, "publisher_name")
 	v.Likes = field.NewInt64(table, "likes")
 	v.Shells = field.NewInt64(table, "shells")
 	v.CntBarrages = field.NewInt64(table, "cnt_barrages")
@@ -129,7 +132,7 @@ func (v *video) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (v *video) fillFieldMap() {
-	v.fieldMap = make(map[string]field.Expr, 20)
+	v.fieldMap = make(map[string]field.Expr, 21)
 	v.fieldMap["created_at"] = v.CreatedAt
 	v.fieldMap["updated_at"] = v.UpdatedAt
 	v.fieldMap["deleted_at"] = v.DeletedAt
@@ -140,7 +143,8 @@ func (v *video) fillFieldMap() {
 	v.fieldMap["tags"] = v.Tags
 	v.fieldMap["video_path"] = v.VideoPath
 	v.fieldMap["video_id"] = v.VideoID
-	v.fieldMap["user_id"] = v.UserID
+	v.fieldMap["publisher_id"] = v.PublisherID
+	v.fieldMap["publisher_name"] = v.PublisherName
 	v.fieldMap["likes"] = v.Likes
 	v.fieldMap["shells"] = v.Shells
 	v.fieldMap["cnt_barrages"] = v.CntBarrages

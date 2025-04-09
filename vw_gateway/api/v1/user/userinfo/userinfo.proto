@@ -3,7 +3,7 @@ syntax = "proto3";
 package gateway.api.v1.user.userinfo;
 
 import "google/api/annotations.proto";
-option go_package = "vw_gateway/api/v1/userbiz/userinfo;infov1";
+option go_package = "vw_gateway/api/v1/user/userinfo;infov1";
 
 service Userinfo {
     rpc Userinfo(userinfoReq) returns (userinfoResp) {

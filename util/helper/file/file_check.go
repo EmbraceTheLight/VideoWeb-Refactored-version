@@ -3,6 +3,7 @@ package file
 import (
 	kerr "github.com/go-kratos/kratos/v2/errors"
 	"mime/multipart"
+	"os"
 	"path/filepath"
 )
 
@@ -41,8 +42,8 @@ func init() {
 	videoExtCheck[".3g2"] = struct{}{}
 }
 
-// CheckPictureValid checks if the picture is valid
-func CheckPictureValid(fh *multipart.FileHeader) error {
+// CheckIfPictureValid checks if the picture is valid
+func CheckIfPictureValid(fh *multipart.FileHeader) error {
 	ext := filepath.Ext(fh.Filename)
 	if !checkPicExt(ext) {
 		return errUploadFileType
@@ -53,8 +54,8 @@ func CheckPictureValid(fh *multipart.FileHeader) error {
 	return nil
 }
 
-// CheckVideosValid checks if the video is valid
-func CheckVideosValid(fh *multipart.FileHeader) error {
+// CheckIfVideoValid checks if the video is valid
+func CheckIfVideoValid(fh *multipart.FileHeader) error {
 	ext := filepath.Ext(fh.Filename)
 	if !checkVideoExt(ext) {
 		return errUploadFileType
@@ -70,4 +71,10 @@ func checkPicExt(ext string) bool {
 func checkVideoExt(ext string) bool {
 	_, ok := videoExtCheck[ext]
 	return ok
+}
+
+// CheckIfFileExist checks if the file path exists
+func CheckIfFileExist(filePath string) bool {
+	_, err := os.Stat(filePath)
+	return err == nil || os.IsExist(err)
 }

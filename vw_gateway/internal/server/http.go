@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -17,10 +18,15 @@ import (
 	"vw_gateway/api/v1/user/identity"
 	"vw_gateway/api/v1/user/userfile"
 	"vw_gateway/api/v1/user/userinfo"
+	videoinfov1 "vw_gateway/api/v1/video/videoinfo"
+	gsserver "vw_gateway/internal/service/ginservice/server"
+	"vw_gateway/internal/service/ginservice/service"
+
 	"vw_gateway/internal/conf"
 	"vw_gateway/internal/pkg/codecs"
 	"vw_gateway/internal/pkg/middlewares/auth"
 	"vw_gateway/internal/service/user_service"
+	"vw_gateway/internal/service/video_service"
 )
 
 func NewWhitelistMatcher() selector.MatchFunc {
@@ -31,12 +37,12 @@ func NewWhitelistMatcher() selector.MatchFunc {
 	operation 是 HTTP 及 gRPC 统一的 gRPC path。
 	gRPC path 的拼接规则为 /包名.服务名/方法名(/package.Service/Method)。
 	*/
-	whiteList["/gateway.api.v1.id.Identity/Register"] = struct{}{}
-	whiteList["/gateway.api.v1.id.Identity/Login"] = struct{}{}
-	whiteList["/gateway.api.v1.id.Identity/Logout"] = struct{}{}
-	whiteList["/gateway.api.v1.captcha.Captcha/GetImageCaptcha"] = struct{}{}
-	whiteList["/gateway.api.v1.captcha.Captcha/GetCodeCaptcha"] = struct{}{}
-	whiteList["/gateway.api.v1.file.FileService/UploadAvatar"] = struct{}{}
+	whiteList["/gateway.api.v1.user.id.Identity/Register"] = struct{}{}
+	whiteList["/gateway.api.v1.user.id.Identity/Login"] = struct{}{}
+	whiteList["/gateway.api.v1.user.id.Identity/Logout"] = struct{}{}
+	whiteList["/gateway.api.v1.user.captcha.Captcha/GetImageCaptcha"] = struct{}{}
+	whiteList["/gateway.api.v1.user.captcha.Captcha/GetCodeCaptcha"] = struct{}{}
+	whiteList["/gateway.api.v1.user.file.FileService/UploadAvatar"] = struct{}{}
 	return func(ctx context.Context, operation string) bool {
 		if _, ok := whiteList[operation]; ok {
 			return false
@@ -50,12 +56,15 @@ func NewHTTPServer(
 	c *conf.Server,
 	jwt *conf.JWT,
 	captcha *user.CaptchaService,
-	file *user.UserFileService,
-	identity *user.UserIdentityService,
+	file *user.FileService,
+	identity *user.IdentityService,
 	follow *user.FollowService,
 	redis *redis.ClusterClient,
-	info *user.UserinfoService,
+	info *user.InfoService,
 	favorites *user.FavoritesService,
+	videoInfo *video.InfoService,
+	videoFile *gs.VideoDownloadFileService,
+	ge *gin.Engine,
 	logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
@@ -78,6 +87,7 @@ func NewHTTPServer(
 		)),
 		http.RequestDecoder(codecs.RequestDecoder),
 		http.ErrorEncoder(codecs.ErrorEncoder),
+		http.ResponseEncoder(codecs.ResponseEncoder),
 	}
 	if c.Http.Network != "" {
 		opts = append(opts, http.Network(c.Http.Network))
@@ -95,5 +105,7 @@ func NewHTTPServer(
 	infov1.RegisterUserinfoHTTPServer(srv, info)
 	favorv1.RegisterFavoriteHTTPServer(srv, favorites)
 	followv1.RegisterFollowHTTPServer(srv, follow)
+	videoinfov1.RegisterVideoInfoHTTPServer(srv, videoInfo)
+	srv.HandlePrefix("/api/v1/video", gsserver.RegisterVideoFileDownloadHTTPServer(ge, videoFile))
 	return srv
 }
