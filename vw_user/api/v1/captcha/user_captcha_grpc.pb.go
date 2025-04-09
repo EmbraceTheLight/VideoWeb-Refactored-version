@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Captcha_DeleteCodeFromCache_FullMethodName = "/userbiz.v1.captcha.Captcha/DeleteCodeFromCache"
-	Captcha_SetCodeToCache_FullMethodName      = "/userbiz.v1.captcha.Captcha/SetCodeToCache"
+	Captcha_DeleteCodeFromCache_FullMethodName = "/user.v1.captcha.Captcha/DeleteCodeFromCache"
+	Captcha_SetCodeToCache_FullMethodName      = "/user.v1.captcha.Captcha/SetCodeToCache"
 )
 
 // CaptchaClient is the client API for Captcha service.
@@ -142,7 +142,7 @@ func _Captcha_SetCodeToCache_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Captcha_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "userbiz.v1.captcha.Captcha",
+	ServiceName: "user.v1.captcha.Captcha",
 	HandlerType: (*CaptchaServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

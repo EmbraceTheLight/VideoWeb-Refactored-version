@@ -54,9 +54,10 @@ message Data {
         string host                           = 1;
         string port                           = 2;
         string db                             = 3;
-        string password                       = 4;
-        int32 max_open                        = 5;
-        google.protobuf.Duration conn_timeout = 6;
+        string username                       = 4;
+        string password                       = 5;
+        int32 max_open                        = 6;
+        google.protobuf.Duration conn_timeout = 7;
     }
     Mysql mysql                = 1;
     RedisCluster redis_cluster = 2;

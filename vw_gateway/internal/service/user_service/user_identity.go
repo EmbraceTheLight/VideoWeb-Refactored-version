@@ -8,7 +8,7 @@ import (
 	"vw_gateway/internal/biz/userbiz"
 )
 
-type UserIdentityService struct {
+type IdentityService struct {
 	idv1.UnimplementedIdentityServer
 	logger   *log.Helper
 	identity *userbiz.UserIdentityUsecase
@@ -16,14 +16,14 @@ type UserIdentityService struct {
 	info     *userbiz.UserInfo
 }
 
-func NewUserIdentityService(identity *userbiz.UserIdentityUsecase, logger log.Logger) *UserIdentityService {
-	return &UserIdentityService{
+func NewUserIdentityService(identity *userbiz.UserIdentityUsecase, logger log.Logger) *IdentityService {
+	return &IdentityService{
 		logger:   log.NewHelper(logger),
 		identity: identity,
 	}
 }
 
-func (uid *UserIdentityService) Register(ctx context.Context, req *idv1.RegisterRequest) (*idv1.RegisterResp, error) {
+func (uid *IdentityService) Register(ctx context.Context, req *idv1.RegisterRequest) (*idv1.RegisterResp, error) {
 	birthday, err := time.Parse("2006-01-02", req.Birthday)
 
 	atoken, rtoken, err := uid.identity.Register(ctx, &userbiz.RegisterInfo{
@@ -50,7 +50,7 @@ func (uid *UserIdentityService) Register(ctx context.Context, req *idv1.Register
 	}, err
 }
 
-func (uid *UserIdentityService) Login(ctx context.Context, req *idv1.LoginRequest) (*idv1.LoginResp, error) {
+func (uid *IdentityService) Login(ctx context.Context, req *idv1.LoginRequest) (*idv1.LoginResp, error) {
 	atoken, rtoken, err := uid.identity.Login(ctx, req.Username, req.Password)
 	resp := &idv1.LoginResp{
 		StatusCode: 200,
@@ -69,7 +69,7 @@ func (uid *UserIdentityService) Login(ctx context.Context, req *idv1.LoginReques
 	return resp, nil
 }
 
-func (uid *UserIdentityService) Logout(ctx context.Context, req *idv1.LogoutRequest) (*idv1.LogoutResp, error) {
+func (uid *IdentityService) Logout(ctx context.Context, req *idv1.LogoutRequest) (*idv1.LogoutResp, error) {
 	err := uid.identity.Logout(ctx, req.UserId)
 	if err != nil {
 		return nil, err

@@ -2,13 +2,10 @@ package userdata
 
 import (
 	"context"
-	"fmt"
-	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/registry"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
-	consulAPI "github.com/hashicorp/consul/api"
 	"github.com/redis/go-redis/v9"
 	"vw_gateway/internal/conf"
 	captv1 "vw_user/api/v1/captcha"
@@ -19,27 +16,6 @@ import (
 	infov1 "vw_user/api/v1/userinfo"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/google/wire"
-)
-
-// ProviderSet is data providers.
-var ProviderSet = wire.NewSet(
-	NewData,
-	NewRegistrar,
-	NewDiscovery,
-	NewUserIdentityRepo,
-	NewCaptchaRepo,
-	NewUserFileRepo,
-	NewFollowRepo,
-	NewUserInfoRepo,
-	NewFavoritesRepo,
-	NewUserIdentityClient,
-	NewUserinfoClient,
-	NewCaptchaClient,
-	NewRedisClusterClient,
-	NewFileClient,
-	NewFavoritesClient,
-	NewFollowClient,
 )
 
 // Data .
@@ -80,56 +56,6 @@ func NewData(
 		followClient:       followClient,
 		redis:              redisCluster,
 	}, cleanup, nil
-}
-
-func NewDiscovery(conf *conf.Registry) registry.Discovery {
-	c := consulAPI.DefaultConfig()
-	c.Address = conf.Consul.Address
-	c.Scheme = conf.Consul.Scheme
-	cli, err := consulAPI.NewClient(c)
-	if err != nil {
-		panic(err)
-	}
-	r := consul.New(cli, consul.WithHealthCheck(false))
-	return r
-}
-
-func NewRegistrar(conf *conf.Registry) registry.Registrar {
-	c := consulAPI.DefaultConfig()
-	c.Address = conf.Consul.Address
-	c.Scheme = conf.Consul.Scheme
-	cli, err := consulAPI.NewClient(c)
-	if err != nil {
-		panic(err)
-	}
-	r := consul.New(cli, consul.WithHealthCheck(false))
-	return r
-}
-
-func NewRedisClusterClient(c *conf.Data) *redis.ClusterClient {
-	var address []string
-	ipAddress := c.RedisCluster.Host
-	for _, port := range c.RedisCluster.Port {
-		address = append(address, fmt.Sprintf("%s:%s", ipAddress, port))
-	}
-	redisCluster := redis.NewClusterClient(&redis.ClusterOptions{
-		Addrs:        address,
-		Password:     c.RedisCluster.Password,
-		PoolSize:     int(c.RedisCluster.PoolSize),
-		MinIdleConns: int(c.RedisCluster.MinIdleConns),
-		MaxRetries:   int(c.RedisCluster.MaxRetries),
-		DialTimeout:  c.RedisCluster.DialTimeout.AsDuration(),
-		ReadTimeout:  c.RedisCluster.ReadTimeout.AsDuration(),
-		WriteTimeout: c.RedisCluster.WriteTimeout.AsDuration(),
-		PoolTimeout:  c.RedisCluster.PoolTimeout.AsDuration(),
-	})
-	err := redisCluster.ForEachShard(context.Background(), func(ctx context.Context, shard *redis.Client) error {
-		return shard.Ping(ctx).Err()
-	})
-	if err != nil {
-		panic(err)
-	}
-	return redisCluster
 }
 
 func NewUserIdentityClient(r registry.Discovery, s *conf.Service) idv1.IdentityClient {

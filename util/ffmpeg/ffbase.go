@@ -113,9 +113,9 @@ func (f *ffBase) buildArguments() []string {
 	args = append(args, f.globalArgs...)
 
 	// add input arguments
-	for inputFile, arguments := range f.inputFileArgs {
+	for inputFilePath, arguments := range f.inputFileArgs {
 		args = append(args, arguments...)
-		args = append(args, "-i", inputFile)
+		args = append(args, "-i", inputFilePath)
 	}
 
 	// add output arguments

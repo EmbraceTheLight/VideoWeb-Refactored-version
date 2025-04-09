@@ -570,24 +570,24 @@ func file_v1_follow_user_follow_proto_rawDescGZIP() []byte {
 
 var file_v1_follow_user_follow_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_v1_follow_user_follow_proto_goTypes = []any{
-	(*FollowUserReq)(nil),                    // 0: userbiz.v1.follow.FollowUserReq
-	(*FollowUserResp)(nil),                   // 1: userbiz.v1.follow.FollowUserResp
-	(*UnfollowUserReq)(nil),                  // 2: userbiz.v1.follow.UnfollowUserReq
-	(*UnfollowUserResp)(nil),                 // 3: userbiz.v1.follow.UnfollowUserResp
-	(*GetFolloweesInfoReq)(nil),              // 4: userbiz.v1.follow.GetFolloweesInfoReq
-	(*GetFolloweesInfoResp)(nil),             // 5: userbiz.v1.follow.GetFolloweesInfoResp
-	(*GetFolloweesInfoResp_UserSummary)(nil), // 6: userbiz.v1.follow.GetFolloweesInfoResp.UserSummary
+	(*FollowUserReq)(nil),                    // 0: user.v1.follow.FollowUserReq
+	(*FollowUserResp)(nil),                   // 1: user.v1.follow.FollowUserResp
+	(*UnfollowUserReq)(nil),                  // 2: user.v1.follow.UnfollowUserReq
+	(*UnfollowUserResp)(nil),                 // 3: user.v1.follow.UnfollowUserResp
+	(*GetFolloweesInfoReq)(nil),              // 4: user.v1.follow.GetFolloweesInfoReq
+	(*GetFolloweesInfoResp)(nil),             // 5: user.v1.follow.GetFolloweesInfoResp
+	(*GetFolloweesInfoResp_UserSummary)(nil), // 6: user.v1.follow.GetFolloweesInfoResp.UserSummary
 	(*timestamppb.Timestamp)(nil),            // 7: google.protobuf.Timestamp
 }
 var file_v1_follow_user_follow_proto_depIdxs = []int32{
-	6, // 0: userbiz.v1.follow.GetFolloweesInfoResp.followees_info:type_name -> userbiz.v1.follow.GetFolloweesInfoResp.UserSummary
-	7, // 1: userbiz.v1.follow.GetFolloweesInfoResp.UserSummary.birthday:type_name -> google.protobuf.Timestamp
-	0, // 2: userbiz.v1.follow.Follow.FollowUser:input_type -> userbiz.v1.follow.FollowUserReq
-	2, // 3: userbiz.v1.follow.Follow.UnfollowUser:input_type -> userbiz.v1.follow.UnfollowUserReq
-	4, // 4: userbiz.v1.follow.Follow.GetFolloweesInfo:input_type -> userbiz.v1.follow.GetFolloweesInfoReq
-	1, // 5: userbiz.v1.follow.Follow.FollowUser:output_type -> userbiz.v1.follow.FollowUserResp
-	3, // 6: userbiz.v1.follow.Follow.UnfollowUser:output_type -> userbiz.v1.follow.UnfollowUserResp
-	5, // 7: userbiz.v1.follow.Follow.GetFolloweesInfo:output_type -> userbiz.v1.follow.GetFolloweesInfoResp
+	6, // 0: user.v1.follow.GetFolloweesInfoResp.followees_info:type_name -> user.v1.follow.GetFolloweesInfoResp.UserSummary
+	7, // 1: user.v1.follow.GetFolloweesInfoResp.UserSummary.birthday:type_name -> google.protobuf.Timestamp
+	0, // 2: user.v1.follow.Follow.FollowUser:input_type -> user.v1.follow.FollowUserReq
+	2, // 3: user.v1.follow.Follow.UnfollowUser:input_type -> user.v1.follow.UnfollowUserReq
+	4, // 4: user.v1.follow.Follow.GetFolloweesInfo:input_type -> user.v1.follow.GetFolloweesInfoReq
+	1, // 5: user.v1.follow.Follow.FollowUser:output_type -> user.v1.follow.FollowUserResp
+	3, // 6: user.v1.follow.Follow.UnfollowUser:output_type -> user.v1.follow.UnfollowUserResp
+	5, // 7: user.v1.follow.Follow.GetFolloweesInfo:output_type -> user.v1.follow.GetFolloweesInfoResp
 	5, // [5:8] is the sub-list for method output_type
 	2, // [2:5] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

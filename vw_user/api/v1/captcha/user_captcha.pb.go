@@ -301,18 +301,18 @@ func file_v1_captcha_user_captcha_proto_rawDescGZIP() []byte {
 
 var file_v1_captcha_user_captcha_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_v1_captcha_user_captcha_proto_goTypes = []any{
-	(*DeleteCodeFromCacheReq)(nil),  // 0: userbiz.v1.captcha.DeleteCodeFromCacheReq
-	(*DeleteCodeFromCacheResp)(nil), // 1: userbiz.v1.captcha.DeleteCodeFromCacheResp
-	(*SetCodeToCacheReq)(nil),       // 2: userbiz.v1.captcha.SetCodeToCacheReq
-	(*SetCodeToCacheResp)(nil),      // 3: userbiz.v1.captcha.SetCodeToCacheResp
+	(*DeleteCodeFromCacheReq)(nil),  // 0: user.v1.captcha.DeleteCodeFromCacheReq
+	(*DeleteCodeFromCacheResp)(nil), // 1: user.v1.captcha.DeleteCodeFromCacheResp
+	(*SetCodeToCacheReq)(nil),       // 2: user.v1.captcha.SetCodeToCacheReq
+	(*SetCodeToCacheResp)(nil),      // 3: user.v1.captcha.SetCodeToCacheResp
 	(*durationpb.Duration)(nil),     // 4: google.protobuf.Duration
 }
 var file_v1_captcha_user_captcha_proto_depIdxs = []int32{
-	4, // 0: userbiz.v1.captcha.SetCodeToCacheReq.expiration:type_name -> google.protobuf.Duration
-	0, // 1: userbiz.v1.captcha.Captcha.DeleteCodeFromCache:input_type -> userbiz.v1.captcha.DeleteCodeFromCacheReq
-	2, // 2: userbiz.v1.captcha.Captcha.SetCodeToCache:input_type -> userbiz.v1.captcha.SetCodeToCacheReq
-	1, // 3: userbiz.v1.captcha.Captcha.DeleteCodeFromCache:output_type -> userbiz.v1.captcha.DeleteCodeFromCacheResp
-	3, // 4: userbiz.v1.captcha.Captcha.SetCodeToCache:output_type -> userbiz.v1.captcha.SetCodeToCacheResp
+	4, // 0: user.v1.captcha.SetCodeToCacheReq.expiration:type_name -> google.protobuf.Duration
+	0, // 1: user.v1.captcha.Captcha.DeleteCodeFromCache:input_type -> user.v1.captcha.DeleteCodeFromCacheReq
+	2, // 2: user.v1.captcha.Captcha.SetCodeToCache:input_type -> user.v1.captcha.SetCodeToCacheReq
+	1, // 3: user.v1.captcha.Captcha.DeleteCodeFromCache:output_type -> user.v1.captcha.DeleteCodeFromCacheResp
+	3, // 4: user.v1.captcha.Captcha.SetCodeToCache:output_type -> user.v1.captcha.SetCodeToCacheResp
 	3, // [3:5] is the sub-list for method output_type
 	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

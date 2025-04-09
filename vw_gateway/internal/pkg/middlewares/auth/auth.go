@@ -13,6 +13,7 @@ import (
 	"util/helper"
 	"vw_gateway/internal/conf"
 	"vw_gateway/internal/pkg/ecode/errdef"
+	"vw_gateway/internal/pkg/ecode/errdef/uerr"
 )
 
 type JWTAuth struct {
@@ -71,7 +72,7 @@ func (t *AccessTokenClaims) getTokenString(secret string) (tokenString string, e
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, t)
 	tokenString, err = token.SignedString([]byte(secret))
 	if err != nil {
-		return "", errdef.ErrCreateTokenFailed
+		return "", uerr.ErrCreateTokenFailed
 	}
 	return
 }
@@ -99,7 +100,7 @@ func (t *RefreshTokenClaims) getTokenString(secret string) (tokenString string, 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, t)
 	tokenString, err = token.SignedString([]byte(secret))
 	if err != nil {
-		return "", helper.HandleError(errdef.ErrCreateTokenFailed, err)
+		return "", helper.HandleError(uerr.ErrCreateTokenFailed, err)
 	}
 	return
 }
@@ -111,7 +112,7 @@ func (jwtAuthorizer *JWTAuth) CreateToken(userID int64, username string, isAdmin
 	atokenClaims.padding(userID, username, isAdmin, jwtAuthorizer.AccessExpireTime)
 	accessToken, err = atokenClaims.getTokenString(jwtAuthorizer.Secret)
 	if err != nil {
-		return "", "", helper.HandleError(errdef.ErrCreateTokenFailed, err)
+		return "", "", helper.HandleError(uerr.ErrCreateTokenFailed, err)
 	}
 
 	// Create refresh token
@@ -119,7 +120,7 @@ func (jwtAuthorizer *JWTAuth) CreateToken(userID int64, username string, isAdmin
 	rtokenClaims.padding(jwtAuthorizer.RefreshExpireTime)
 	refreshToken, err = rtokenClaims.getTokenString(jwtAuthorizer.Secret)
 	if err != nil {
-		return "", "", helper.HandleError(errdef.ErrCreateTokenFailed, err)
+		return "", "", helper.HandleError(uerr.ErrCreateTokenFailed, err)
 	}
 	return
 }
@@ -147,7 +148,7 @@ func JwtAuth(secret string, accessTokenExpireTime time.Duration, redisCluster *r
 				rclaims, rtok := rtoken.Claims.(*RefreshTokenClaims)
 
 				if !atok || !rtok {
-					return nil, errdef.ErrTokenInvalid
+					return nil, uerr.ErrTokenInvalid
 				}
 
 				// Check if access token is existed in redis,
@@ -157,7 +158,7 @@ func JwtAuth(secret string, accessTokenExpireTime time.Duration, redisCluster *r
 				aTokenNotExist := errors.Is(err2, redis.Nil)
 				if err2 != nil { // Other error occurs
 					if aTokenNotExist {
-						return nil, errdef.ErrUserLoggedOut
+						return nil, uerr.ErrUserLoggedOut
 					}
 					return nil, helper.HandleError(errdef.INTERNAL_ERROR, err2)
 				}
@@ -167,7 +168,7 @@ func JwtAuth(secret string, accessTokenExpireTime time.Duration, redisCluster *r
 					// Check if access token is expired
 					if aclaims.isExpired() {
 						if rclaims.isExpired() { // refresh token expired，need login again
-							return nil, errdef.ErrRefreshTokenExpired
+							return nil, uerr.ErrRefreshTokenExpired
 						} else { // refresh token is not expired, need to refresh access token
 							// refresh access token
 							atokenClaims := NewAccessTokenClaims()
@@ -182,12 +183,12 @@ func JwtAuth(secret string, accessTokenExpireTime time.Duration, redisCluster *r
 							// ? If we set the access-token's expiration time of access token in redis, user has to log in manually and frequently,
 							// ? in this case, the refresh-token is meaningless.
 							redisCluster.Set(ctx, strconv.FormatInt(aclaims.UserID, 10), accessToken, rclaims.ExpiresAt.Time.Sub(time.Now()))
-							return nil, helper.HandleError(errdef.ErrAccessTokenExpired.WithMetadata(map[string]string{
+							return nil, helper.HandleError(uerr.ErrAccessTokenExpired.WithMetadata(map[string]string{
 								"access_token": accessToken,
 							}))
 						}
 					} else {
-						return nil, errdef.ErrTokenInvalid
+						return nil, uerr.ErrTokenInvalid
 					}
 				}
 			}
@@ -200,7 +201,7 @@ func getToken(tr transport.Transporter, secret, headerString string) (tokenClaim
 	tokenString := tr.RequestHeader().Get(headerString) //get token from header,which contains "Bearer "
 	auths := strings.SplitN(tokenString, " ", 2)        //get raw token
 	if len(auths) != 2 || !strings.EqualFold(auths[0], BearerTokenPrefix) {
-		return nil, errdef.ErrTokenMissing
+		return nil, uerr.ErrTokenMissing
 	}
 	if headerString == AccessTokenHeader {
 		atokenClaims := new(AccessTokenClaims)
@@ -214,7 +215,7 @@ func getToken(tr transport.Transporter, secret, headerString string) (tokenClaim
 			if strings.EqualFold("token has invalid claims: token is expired", err.Error()) {
 				return tokenClaims, nil
 			}
-			return nil, helper.HandleError(errdef.ErrParseTokenFailed, err)
+			return nil, helper.HandleError(uerr.ErrParseTokenFailed, err)
 		}
 
 	} else { //headerString == RefreshTokenHeader
@@ -227,7 +228,7 @@ func getToken(tr transport.Transporter, secret, headerString string) (tokenClaim
 			if strings.EqualFold("token has invalid claims: token is expired", err.Error()) {
 				return
 			}
-			return nil, helper.HandleError(errdef.ErrParseTokenFailed, err)
+			return nil, helper.HandleError(uerr.ErrParseTokenFailed, err)
 		}
 
 	}

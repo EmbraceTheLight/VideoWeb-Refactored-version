@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package vw_user.api.v1.favorites;
+package user.v1.favorites;
 
 option go_package = "vw_user/api/v1/favorites;favorv1";
 

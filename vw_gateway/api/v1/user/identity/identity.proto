@@ -4,27 +4,27 @@ package gateway.api.v1.user.id;
 
 import "google/api/annotations.proto";
 
-option go_package = "vw_gateway/api/v1/userbiz/identity;idv1";
+option go_package = "vw_gateway/api/v1/user/identity;idv1";
 
 // 用户身份相关服务
 service Identity {
     rpc Login(LoginRequest) returns (LoginResp) {
         option (google.api.http) = {
-            post: "/api/v1/userbiz/login",
+            post: "/api/v1/user/login",
             body: "*"
         };
     };
 
     rpc Register(RegisterRequest) returns (RegisterResp) {
         option (google.api.http) = {
-            post: "/api/v1/userbiz/register",
+            post: "/api/v1/user/register",
             body: "*"
         };
     };
 
     rpc Logout(LogoutRequest) returns (LogoutResp) {
         option (google.api.http) = {
-            post: "/api/v1/userbiz/{user_id}/logout",
+            post: "/api/v1/user/{user_id}/logout",
             body: "*"
         };
     };

@@ -19,20 +19,32 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	VideoInfo_GetMpd_FullMethodName        = "/gateway.api.v1.video.videoinfo.VideoInfo/GetMpd"
-	VideoInfo_GetSegments_FullMethodName   = "/gateway.api.v1.video.videoinfo.VideoInfo/GetSegments"
-	VideoInfo_GetVideoCover_FullMethodName = "/gateway.api.v1.video.videoinfo.VideoInfo/GetVideoCover"
-	VideoInfo_GetVideoInfo_FullMethodName  = "/gateway.api.v1.video.videoinfo.VideoInfo/GetVideoInfo"
-	VideoInfo_GetVideoList_FullMethodName  = "/gateway.api.v1.video.videoinfo.VideoInfo/GetVideoList"
+	VideoInfo_GetMpd_FullMethodName           = "/gateway.api.v1.video.videoinfo.VideoInfo/GetMpd"
+	VideoInfo_GetSegments_FullMethodName      = "/gateway.api.v1.video.videoinfo.VideoInfo/GetSegments"
+	VideoInfo_GetVideoCover_FullMethodName    = "/gateway.api.v1.video.videoinfo.VideoInfo/GetVideoCover"
+	VideoInfo_DownloadVideo_FullMethodName    = "/gateway.api.v1.video.videoinfo.VideoInfo/DownloadVideo"
+	VideoInfo_UploadVideoInfo_FullMethodName  = "/gateway.api.v1.video.videoinfo.VideoInfo/UploadVideoInfo"
+	VideoInfo_UploadVideoFile_FullMethodName  = "/gateway.api.v1.video.videoinfo.VideoInfo/UploadVideoFile"
+	VideoInfo_UploadVideoCover_FullMethodName = "/gateway.api.v1.video.videoinfo.VideoInfo/UploadVideoCover"
+	VideoInfo_GetVideoInfo_FullMethodName     = "/gateway.api.v1.video.videoinfo.VideoInfo/GetVideoInfo"
+	VideoInfo_GetVideoList_FullMethodName     = "/gateway.api.v1.video.videoinfo.VideoInfo/GetVideoList"
 )
 
 // VideoInfoClient is the client API for VideoInfo service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type VideoInfoClient interface {
-	GetMpd(ctx context.Context, in *ProvideMpdReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProvideMpdResp], error)
-	GetSegments(ctx context.Context, in *ProvideSegmentsReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProvideSegmentsResp], error)
-	GetVideoCover(ctx context.Context, in *GetVideoCoverReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GetVideoCoverResp], error)
+	GetMpd(ctx context.Context, in *ProvideMpdReq, opts ...grpc.CallOption) (*FileResp, error)
+	GetSegments(ctx context.Context, in *ProvideSegmentsReq, opts ...grpc.CallOption) (*FileResp, error)
+	GetVideoCover(ctx context.Context, in *GetVideoCoverReq, opts ...grpc.CallOption) (*FileResp, error)
+	DownloadVideo(ctx context.Context, in *DownloadVideoReq, opts ...grpc.CallOption) (*FileResp, error)
+	// Request Order: 1. UploadVideoInfo 2. UploadVideoFile 3. UploadVideoCover
+	// 1(UploadVideoInfo) Will Create a new directory for the video,
+	// 2(UploadVideoFile) and 3(UploadVideoCover) will upload the video file and cover file to the directory.
+	// The order of 2 and 3 is not important.
+	UploadVideoInfo(ctx context.Context, in *UploadVideoInfoReq, opts ...grpc.CallOption) (*UploadVideoInfoResp, error)
+	UploadVideoFile(ctx context.Context, in *UploadVideoFileReq, opts ...grpc.CallOption) (*UploadVideoFileResp, error)
+	UploadVideoCover(ctx context.Context, in *UploadVideoCoverReq, opts ...grpc.CallOption) (*UploadVideoCoverResp, error)
 	GetVideoInfo(ctx context.Context, in *GetVideoInfoReq, opts ...grpc.CallOption) (*GetVideoInfoResp, error)
 	GetVideoList(ctx context.Context, in *GetVideoListReq, opts ...grpc.CallOption) (*GetVideoListResp, error)
 }
@@ -45,62 +57,75 @@ func NewVideoInfoClient(cc grpc.ClientConnInterface) VideoInfoClient {
 	return &videoInfoClient{cc}
 }
 
-func (c *videoInfoClient) GetMpd(ctx context.Context, in *ProvideMpdReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProvideMpdResp], error) {
+func (c *videoInfoClient) GetMpd(ctx context.Context, in *ProvideMpdReq, opts ...grpc.CallOption) (*FileResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &VideoInfo_ServiceDesc.Streams[0], VideoInfo_GetMpd_FullMethodName, cOpts...)
+	out := new(FileResp)
+	err := c.cc.Invoke(ctx, VideoInfo_GetMpd_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[ProvideMpdReq, ProvideMpdResp]{ClientStream: stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
+	return out, nil
 }
 
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type VideoInfo_GetMpdClient = grpc.ServerStreamingClient[ProvideMpdResp]
-
-func (c *videoInfoClient) GetSegments(ctx context.Context, in *ProvideSegmentsReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProvideSegmentsResp], error) {
+func (c *videoInfoClient) GetSegments(ctx context.Context, in *ProvideSegmentsReq, opts ...grpc.CallOption) (*FileResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &VideoInfo_ServiceDesc.Streams[1], VideoInfo_GetSegments_FullMethodName, cOpts...)
+	out := new(FileResp)
+	err := c.cc.Invoke(ctx, VideoInfo_GetSegments_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[ProvideSegmentsReq, ProvideSegmentsResp]{ClientStream: stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
+	return out, nil
 }
 
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type VideoInfo_GetSegmentsClient = grpc.ServerStreamingClient[ProvideSegmentsResp]
-
-func (c *videoInfoClient) GetVideoCover(ctx context.Context, in *GetVideoCoverReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GetVideoCoverResp], error) {
+func (c *videoInfoClient) GetVideoCover(ctx context.Context, in *GetVideoCoverReq, opts ...grpc.CallOption) (*FileResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &VideoInfo_ServiceDesc.Streams[2], VideoInfo_GetVideoCover_FullMethodName, cOpts...)
+	out := new(FileResp)
+	err := c.cc.Invoke(ctx, VideoInfo_GetVideoCover_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[GetVideoCoverReq, GetVideoCoverResp]{ClientStream: stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
+	return out, nil
 }
 
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type VideoInfo_GetVideoCoverClient = grpc.ServerStreamingClient[GetVideoCoverResp]
+func (c *videoInfoClient) DownloadVideo(ctx context.Context, in *DownloadVideoReq, opts ...grpc.CallOption) (*FileResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FileResp)
+	err := c.cc.Invoke(ctx, VideoInfo_DownloadVideo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *videoInfoClient) UploadVideoInfo(ctx context.Context, in *UploadVideoInfoReq, opts ...grpc.CallOption) (*UploadVideoInfoResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UploadVideoInfoResp)
+	err := c.cc.Invoke(ctx, VideoInfo_UploadVideoInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *videoInfoClient) UploadVideoFile(ctx context.Context, in *UploadVideoFileReq, opts ...grpc.CallOption) (*UploadVideoFileResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UploadVideoFileResp)
+	err := c.cc.Invoke(ctx, VideoInfo_UploadVideoFile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *videoInfoClient) UploadVideoCover(ctx context.Context, in *UploadVideoCoverReq, opts ...grpc.CallOption) (*UploadVideoCoverResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UploadVideoCoverResp)
+	err := c.cc.Invoke(ctx, VideoInfo_UploadVideoCover_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
 
 func (c *videoInfoClient) GetVideoInfo(ctx context.Context, in *GetVideoInfoReq, opts ...grpc.CallOption) (*GetVideoInfoResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -126,9 +151,17 @@ func (c *videoInfoClient) GetVideoList(ctx context.Context, in *GetVideoListReq,
 // All implementations must embed UnimplementedVideoInfoServer
 // for forward compatibility.
 type VideoInfoServer interface {
-	GetMpd(*ProvideMpdReq, grpc.ServerStreamingServer[ProvideMpdResp]) error
-	GetSegments(*ProvideSegmentsReq, grpc.ServerStreamingServer[ProvideSegmentsResp]) error
-	GetVideoCover(*GetVideoCoverReq, grpc.ServerStreamingServer[GetVideoCoverResp]) error
+	GetMpd(context.Context, *ProvideMpdReq) (*FileResp, error)
+	GetSegments(context.Context, *ProvideSegmentsReq) (*FileResp, error)
+	GetVideoCover(context.Context, *GetVideoCoverReq) (*FileResp, error)
+	DownloadVideo(context.Context, *DownloadVideoReq) (*FileResp, error)
+	// Request Order: 1. UploadVideoInfo 2. UploadVideoFile 3. UploadVideoCover
+	// 1(UploadVideoInfo) Will Create a new directory for the video,
+	// 2(UploadVideoFile) and 3(UploadVideoCover) will upload the video file and cover file to the directory.
+	// The order of 2 and 3 is not important.
+	UploadVideoInfo(context.Context, *UploadVideoInfoReq) (*UploadVideoInfoResp, error)
+	UploadVideoFile(context.Context, *UploadVideoFileReq) (*UploadVideoFileResp, error)
+	UploadVideoCover(context.Context, *UploadVideoCoverReq) (*UploadVideoCoverResp, error)
 	GetVideoInfo(context.Context, *GetVideoInfoReq) (*GetVideoInfoResp, error)
 	GetVideoList(context.Context, *GetVideoListReq) (*GetVideoListResp, error)
 	mustEmbedUnimplementedVideoInfoServer()
@@ -141,14 +174,26 @@ type VideoInfoServer interface {
 // pointer dereference when methods are called.
 type UnimplementedVideoInfoServer struct{}
 
-func (UnimplementedVideoInfoServer) GetMpd(*ProvideMpdReq, grpc.ServerStreamingServer[ProvideMpdResp]) error {
-	return status.Errorf(codes.Unimplemented, "method GetMpd not implemented")
+func (UnimplementedVideoInfoServer) GetMpd(context.Context, *ProvideMpdReq) (*FileResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMpd not implemented")
 }
-func (UnimplementedVideoInfoServer) GetSegments(*ProvideSegmentsReq, grpc.ServerStreamingServer[ProvideSegmentsResp]) error {
-	return status.Errorf(codes.Unimplemented, "method GetSegments not implemented")
+func (UnimplementedVideoInfoServer) GetSegments(context.Context, *ProvideSegmentsReq) (*FileResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSegments not implemented")
 }
-func (UnimplementedVideoInfoServer) GetVideoCover(*GetVideoCoverReq, grpc.ServerStreamingServer[GetVideoCoverResp]) error {
-	return status.Errorf(codes.Unimplemented, "method GetVideoCover not implemented")
+func (UnimplementedVideoInfoServer) GetVideoCover(context.Context, *GetVideoCoverReq) (*FileResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetVideoCover not implemented")
+}
+func (UnimplementedVideoInfoServer) DownloadVideo(context.Context, *DownloadVideoReq) (*FileResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DownloadVideo not implemented")
+}
+func (UnimplementedVideoInfoServer) UploadVideoInfo(context.Context, *UploadVideoInfoReq) (*UploadVideoInfoResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UploadVideoInfo not implemented")
+}
+func (UnimplementedVideoInfoServer) UploadVideoFile(context.Context, *UploadVideoFileReq) (*UploadVideoFileResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UploadVideoFile not implemented")
+}
+func (UnimplementedVideoInfoServer) UploadVideoCover(context.Context, *UploadVideoCoverReq) (*UploadVideoCoverResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UploadVideoCover not implemented")
 }
 func (UnimplementedVideoInfoServer) GetVideoInfo(context.Context, *GetVideoInfoReq) (*GetVideoInfoResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetVideoInfo not implemented")
@@ -177,38 +222,131 @@ func RegisterVideoInfoServer(s grpc.ServiceRegistrar, srv VideoInfoServer) {
 	s.RegisterService(&VideoInfo_ServiceDesc, srv)
 }
 
-func _VideoInfo_GetMpd_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ProvideMpdReq)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _VideoInfo_GetMpd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProvideMpdReq)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(VideoInfoServer).GetMpd(m, &grpc.GenericServerStream[ProvideMpdReq, ProvideMpdResp]{ServerStream: stream})
+	if interceptor == nil {
+		return srv.(VideoInfoServer).GetMpd(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VideoInfo_GetMpd_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoInfoServer).GetMpd(ctx, req.(*ProvideMpdReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type VideoInfo_GetMpdServer = grpc.ServerStreamingServer[ProvideMpdResp]
-
-func _VideoInfo_GetSegments_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ProvideSegmentsReq)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _VideoInfo_GetSegments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProvideSegmentsReq)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(VideoInfoServer).GetSegments(m, &grpc.GenericServerStream[ProvideSegmentsReq, ProvideSegmentsResp]{ServerStream: stream})
+	if interceptor == nil {
+		return srv.(VideoInfoServer).GetSegments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VideoInfo_GetSegments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoInfoServer).GetSegments(ctx, req.(*ProvideSegmentsReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type VideoInfo_GetSegmentsServer = grpc.ServerStreamingServer[ProvideSegmentsResp]
-
-func _VideoInfo_GetVideoCover_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(GetVideoCoverReq)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _VideoInfo_GetVideoCover_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetVideoCoverReq)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(VideoInfoServer).GetVideoCover(m, &grpc.GenericServerStream[GetVideoCoverReq, GetVideoCoverResp]{ServerStream: stream})
+	if interceptor == nil {
+		return srv.(VideoInfoServer).GetVideoCover(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VideoInfo_GetVideoCover_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoInfoServer).GetVideoCover(ctx, req.(*GetVideoCoverReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type VideoInfo_GetVideoCoverServer = grpc.ServerStreamingServer[GetVideoCoverResp]
+func _VideoInfo_DownloadVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DownloadVideoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideoInfoServer).DownloadVideo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VideoInfo_DownloadVideo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoInfoServer).DownloadVideo(ctx, req.(*DownloadVideoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VideoInfo_UploadVideoInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UploadVideoInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideoInfoServer).UploadVideoInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VideoInfo_UploadVideoInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoInfoServer).UploadVideoInfo(ctx, req.(*UploadVideoInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VideoInfo_UploadVideoFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UploadVideoFileReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideoInfoServer).UploadVideoFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VideoInfo_UploadVideoFile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoInfoServer).UploadVideoFile(ctx, req.(*UploadVideoFileReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VideoInfo_UploadVideoCover_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UploadVideoCoverReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideoInfoServer).UploadVideoCover(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VideoInfo_UploadVideoCover_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoInfoServer).UploadVideoCover(ctx, req.(*UploadVideoCoverReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
 
 func _VideoInfo_GetVideoInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetVideoInfoReq)
@@ -254,6 +392,34 @@ var VideoInfo_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*VideoInfoServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GetMpd",
+			Handler:    _VideoInfo_GetMpd_Handler,
+		},
+		{
+			MethodName: "GetSegments",
+			Handler:    _VideoInfo_GetSegments_Handler,
+		},
+		{
+			MethodName: "GetVideoCover",
+			Handler:    _VideoInfo_GetVideoCover_Handler,
+		},
+		{
+			MethodName: "DownloadVideo",
+			Handler:    _VideoInfo_DownloadVideo_Handler,
+		},
+		{
+			MethodName: "UploadVideoInfo",
+			Handler:    _VideoInfo_UploadVideoInfo_Handler,
+		},
+		{
+			MethodName: "UploadVideoFile",
+			Handler:    _VideoInfo_UploadVideoFile_Handler,
+		},
+		{
+			MethodName: "UploadVideoCover",
+			Handler:    _VideoInfo_UploadVideoCover_Handler,
+		},
+		{
 			MethodName: "GetVideoInfo",
 			Handler:    _VideoInfo_GetVideoInfo_Handler,
 		},
@@ -262,22 +428,6 @@ var VideoInfo_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _VideoInfo_GetVideoList_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "GetMpd",
-			Handler:       _VideoInfo_GetMpd_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "GetSegments",
-			Handler:       _VideoInfo_GetSegments_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "GetVideoCover",
-			Handler:       _VideoInfo_GetVideoCover_Handler,
-			ServerStreams: true,
-		},
-	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "v1/video/videoinfo/videoinfo.proto",
 }

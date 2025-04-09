@@ -1,0 +1,164 @@
+syntax = "proto3";
+
+package video.v1.videoinfo;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+option go_package = "/api/video/v1/video_info;videoinfo";
+
+service VideoInfo {
+    rpc GetVideoInfo(GetVideoInfoReq) returns (GetVideoInfoResp) {}
+
+    rpc GetVideoList(GetVideoListReq) returns (GetVideoListResp) {}
+
+    rpc GetVideoFile(GetVideoFileReq) returns (stream GetVideoFileResp) {}
+
+    rpc GetVideoMpd(GetVideoMpdReq) returns (stream GetVideoMpdResp) {}
+
+    rpc GetVideoSegments(GetVideoSegmentReq) returns (stream GetVideoSegmentResp) {}
+
+    rpc GetVideoCover(GetVideoCoverReq) returns (stream GetVideoCoverResp) {}
+
+    rpc UploadVideoInfo(UploadVideoInfoReq) returns (google.protobuf.Empty) {}
+
+    rpc UploadVideoFile(stream UploadVideoFileReq) returns (google.protobuf.Empty) {}
+
+    rpc UploadVideoCover(stream UploadVideoCoverReq) returns (google.protobuf.Empty) {}
+}
+
+message FileResp {
+    oneof file {
+        bytes file_data = 1;
+        string filename = 2;
+    }
+}
+
+message VideoMetaInfo {
+    int64 video_id          = 1;
+    int64 publisher_id      = 2;
+    string publisher_name   = 3;
+    string title            = 4;
+    string description      = 5;
+    string video_path       = 6;
+    repeated string classes = 7;
+    repeated string tags    = 8;
+    int64 hot               = 9;
+    message Records {
+        uint32 cnt_barrages  = 1;
+        uint32 cnt_shares    = 2;
+        uint32 cnt_viewed    = 3;
+        uint32 cnt_favorites = 4;
+    }
+    Records records   = 10;
+    string duration   = 11;
+    string cover_path = 12;
+    int64 size        = 13;
+}
+
+message GetVideoInfoReq {
+    int64 video_id = 1;
+}
+message GetVideoInfoResp {
+    VideoMetaInfo video_detail = 1;
+}
+
+message GetVideoListReq {
+    repeated string class = 1;  // 视频所属类别
+    int32 page_num        = 2;
+    int32 page_size       = 3;
+}
+message GetVideoListResp {
+    repeated VideoMetaInfo video_details = 1;
+}
+
+message GetVideoFileReq {
+    int64 video_id = 1;
+}
+message GetVideoFileResp {
+    FileResp video_file = 1;
+}
+
+message GetVideoMpdReq {
+    int64 video_id = 1;
+}
+message GetVideoMpdResp {
+    FileResp mpd_file = 1;
+}
+
+message GetVideoSegmentReq {
+    string video_segment_path = 1;
+}
+message GetVideoSegmentResp {
+    FileResp segment_file = 1;
+}
+
+message GetVideoCoverReq {
+    int64 video_id = 1;
+}
+message GetVideoCoverResp {
+    FileResp cover_file = 1;
+}
+
+// ? Merge UploadVideoInfo, UploadVideoFile, UploadVideoCover into one message?
+//message UploadVideoReq {
+//    message UploadVideoFile {
+//        message VideoFileInfo {
+//            int64 video_id         = 1;
+//            int64 publisher_id     = 2;
+//            string video_file_name = 3;
+//        }
+//
+//        oneof video_file {
+//            VideoFileInfo video_metadata = 1;
+//            bytes video_file_data        = 2;
+//        }
+//    }
+//
+//    message UploadVideoCover {
+//        message CoverInfo {
+//            int64 video_id         = 1;
+//            int64 publisher_id     = 2;
+//            string cover_file_name = 3;
+//        }
+//        oneof cover_file {
+//            CoverInfo cover_metadata = 1;
+//            bytes cover_file_data    = 2;
+//        }
+//    }
+//
+//    int64 user_id = 1;
+//    oneof video_data {
+//        VideoMetaInfo video_info       = 2;
+//        UploadVideoFile video_file  = 3;
+//        UploadVideoCover cover_file = 4;
+//    }
+//}
+
+message UploadVideoInfoReq {
+    VideoMetaInfo video_info = 1;
+}
+
+message UploadVideoFileReq {
+    message VideoFileInfo {
+        int64 video_id         = 1;
+        int64 publisher_id     = 2;
+        string video_file_name = 3;
+    }
+
+    oneof video_file {
+        VideoFileInfo video_metadata = 1;
+        bytes video_file_data        = 2;
+    }
+}
+
+message UploadVideoCoverReq {
+    message CoverInfo {
+        int64 video_id         = 1;
+        int64 publisher_id     = 2;
+        string cover_file_name = 3;
+    }
+    oneof cover_file {
+        CoverInfo cover_metadata = 1;
+        bytes cover_file_data    = 2;
+    }
+}

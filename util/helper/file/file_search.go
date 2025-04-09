@@ -9,11 +9,12 @@ import (
 )
 
 var (
-	FileNotFound = stderr.New("file not found")
+	NotFound     = stderr.New("file not found")
+	MissingParam = stderr.New("missing searchDir or fileName parameter")
 )
 
-type Option func(searcher *FileSearcher)
-type FileSearcher struct {
+type Option func(searcher *Searcher)
+type Searcher struct {
 	// directory to search into
 	searchDir string
 
@@ -33,9 +34,9 @@ type FileSearcher struct {
 	pattern string
 }
 
-// NewFileSearcher creates a new FileSearcher instance
-func NewFileSearcher(options ...Option) *FileSearcher {
-	fileSearcher := &FileSearcher{}
+// NewFileSearcher creates a new Searcher instance
+func NewFileSearcher(options ...Option) *Searcher {
+	fileSearcher := &Searcher{}
 
 	for _, o := range options {
 		o(fileSearcher)
@@ -44,54 +45,62 @@ func NewFileSearcher(options ...Option) *FileSearcher {
 }
 
 func WithDeepSearch() Option {
-	return func(searcher *FileSearcher) {
+	return func(searcher *Searcher) {
 		searcher.ds = true
 	}
 }
 
 func WithRegex(pattern string) Option {
-	return func(searcher *FileSearcher) {
+	return func(searcher *Searcher) {
 		searcher.regex = true
 		searcher.pattern = pattern
 	}
 }
 
 func WithExactMatch() Option {
-	return func(searcher *FileSearcher) {
+	return func(searcher *Searcher) {
 		searcher.exactMatch = true
 	}
 }
 
-func (s *FileSearcher) SetSearchDir(searchDir string) *FileSearcher {
+func (s *Searcher) SetSearchDir(searchDir string) *Searcher {
 	s.searchDir = searchDir
 	return s
 }
 
-func (s *FileSearcher) SetFileName(fileName string) *FileSearcher {
+func (s *Searcher) SetFileName(fileName string) *Searcher {
 	s.fileName = fileName
 	return s
 }
 
-func (s *FileSearcher) SetDeepSearch() *FileSearcher {
+func (s *Searcher) SetDeepSearch() *Searcher {
 	s.ds = true
 	return s
 }
 
-func (s *FileSearcher) SetRegex(pattern string) *FileSearcher {
+func (s *Searcher) SetRegex(pattern string) *Searcher {
 	s.regex = true
 	s.pattern = pattern
 	return s
 }
 
-func (s *FileSearcher) SetExactMatch() *FileSearcher {
+func (s *Searcher) SetExactMatch() *Searcher {
 	s.exactMatch = true
 	return s
 }
 
 // Find finds a file by the searchStr. It returns the file path if found, otherwise it returns an empty string, with an error.
-func (s *FileSearcher) Find(searchDir, searchStr string) (string, error) {
-	s.searchDir = searchDir
-	s.fileName = searchStr
+func (s *Searcher) Find(searchDir, searchStr string) (string, error) {
+	if searchDir != "" {
+		s.searchDir = searchDir
+	}
+	if s.fileName == "" {
+		s.fileName = searchStr
+	}
+
+	if s.searchDir == "" || s.fileName == "" {
+		return "", MissingParam
+	}
 	switch {
 	case s.ds:
 		return s.deepSearch()
@@ -104,7 +113,7 @@ func (s *FileSearcher) Find(searchDir, searchStr string) (string, error) {
 
 // lightSearch searches for a file by the fileName in the searchDir, without searching recursively.
 // It just searches for the file name in the current directory.
-func (s *FileSearcher) lightSearch() (string, error) {
+func (s *Searcher) lightSearch() (string, error) {
 	var filePath string
 	files, err := os.ReadDir(s.searchDir)
 	if err != nil {
@@ -123,7 +132,7 @@ func (s *FileSearcher) lightSearch() (string, error) {
 		}
 	}
 	if filePath == "" {
-		return "", FileNotFound
+		return "", NotFound
 	}
 	return filePath, nil
 }
@@ -131,7 +140,7 @@ func (s *FileSearcher) lightSearch() (string, error) {
 // deepSearch searches for a file by the fileName in the searchDir, searching recursively.
 // It searches for the file name in all subdirectories of the searchDir.
 // If the file is found, it returns the file path, otherwise it returns an empty string, with an error.
-func (s *FileSearcher) deepSearch() (string, error) {
+func (s *Searcher) deepSearch() (string, error) {
 	var filePath string
 	searchFunc := func(path string, info os.DirEntry, err error) error {
 		if err != nil {
@@ -153,14 +162,14 @@ func (s *FileSearcher) deepSearch() (string, error) {
 	}
 
 	if filePath == "" {
-		return "", FileNotFound
+		return "", NotFound
 	}
 	return filePath, nil
 }
 
 // regexSearch searches for a file by the regex pattern in the searchDir.
-// Whether to search recursively is determined by the ds option of the FileSearcher.
-func (s *FileSearcher) regexSearch() (string, error) {
+// Whether to search recursively is determined by the ds option of the Searcher.
+func (s *Searcher) regexSearch() (string, error) {
 	re, err := regexp.Compile(s.pattern)
 	if err != nil {
 		return "", err
@@ -173,7 +182,7 @@ func (s *FileSearcher) regexSearch() (string, error) {
 	}
 }
 
-func (s *FileSearcher) lightRegexSearch(re *regexp.Regexp) (string, error) {
+func (s *Searcher) lightRegexSearch(re *regexp.Regexp) (string, error) {
 	var filePath string
 	files, err := os.ReadDir(s.searchDir)
 	if err != nil {
@@ -189,12 +198,12 @@ func (s *FileSearcher) lightRegexSearch(re *regexp.Regexp) (string, error) {
 		}
 	}
 	if filePath == "" {
-		return "", FileNotFound
+		return "", NotFound
 	}
 	return filePath, nil
 }
 
-func (s *FileSearcher) deepRegexSearch(re *regexp.Regexp) (string, error) {
+func (s *Searcher) deepRegexSearch(re *regexp.Regexp) (string, error) {
 	var filePath string
 	searchFunc := func(path string, info os.DirEntry, err error) error {
 		if err != nil {
@@ -213,7 +222,7 @@ func (s *FileSearcher) deepRegexSearch(re *regexp.Regexp) (string, error) {
 	}
 
 	if filePath == "" {
-		return "", FileNotFound
+		return "", NotFound
 	}
 	return filePath, nil
 }

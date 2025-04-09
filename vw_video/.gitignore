@@ -38,4 +38,5 @@ bin/
 *.swp
 
 # private info file
-configs/config.yaml
+configs
+!configs/config-demo.yaml

@@ -5,12 +5,12 @@ package gateway.api.v1.user.file;
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "vw_gateway/api/v1/userbiz/userfile;filev1";
+option go_package = "vw_gateway/api/v1/user/userfile;filev1";
 
 service FileService {
     rpc UploadAvatar(google.protobuf.Empty) returns (UploadAvatarResp) {
         option (google.api.http) = {
-            post: "/api/v1/userbiz/profile/avatar"
+            post: "/api/v1/user/profile/avatar"
             body: "*"
         };
     }

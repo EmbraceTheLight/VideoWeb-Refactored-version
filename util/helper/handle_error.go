@@ -16,7 +16,7 @@ func HandleError(kerror *kerr.Error, additionalErrs ...error) *kerr.Error {
 		var aErr = &kerr.Error{}
 		ok := errors.As(additionalErr, &aErr)
 
-		// if additionalErr is not a kratos error,this is a standard-library error, just take it as the reason of kratos error.
+		// If additionalErr is not a kratos error,this is a standard-library error, just take it as the reason of kratos error.
 		if !ok {
 			retErr.Reason = retErr.Reason + ": " + additionalErr.Error()
 		} else {

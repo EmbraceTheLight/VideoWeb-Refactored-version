@@ -20,8 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	FileService_UploadAvatar_FullMethodName = "/userbiz.v1.file.FileService/UploadAvatar"
-	FileService_UpdateAvatar_FullMethodName = "/userbiz.v1.file.FileService/UpdateAvatar"
+	FileService_UploadAvatar_FullMethodName = "/user.v1.file.FileService/UploadAvatar"
+	FileService_UpdateAvatar_FullMethodName = "/user.v1.file.FileService/UpdateAvatar"
 )
 
 // FileServiceClient is the client API for FileService service.
@@ -127,7 +127,7 @@ type FileService_UpdateAvatarServer = grpc.ClientStreamingServer[UpdateAvatarReq
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var FileService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "userbiz.v1.file.FileService",
+	ServiceName: "user.v1.file.FileService",
 	HandlerType: (*FileServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{

@@ -12,6 +12,7 @@ import (
 	"util"
 	utilCtx "util/context"
 	"vw_video/internal/conf"
+	"vw_video/internal/data/dal/model"
 	"vw_video/internal/data/dal/query"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -25,6 +26,7 @@ var ProviderSet = wire.NewSet(
 	NewMySQL,
 	NewRedisClusterClient,
 	NewMongo,
+	NewVideoInfoRepo,
 )
 
 // transactionKey is a context key for gorm transactionKey
@@ -34,7 +36,7 @@ type transactionKey struct{}
 type Data struct {
 	mysql *gorm.DB
 	redis *redis.ClusterClient
-	mongo *mongo.Client
+	mongo *MongoDB
 }
 
 // NewTransaction return a util.Transaction interface.
@@ -46,7 +48,7 @@ func NewTransaction(d *Data) util.Transaction {
 func NewData(
 	mysql *gorm.DB,
 	redisCluster *redis.ClusterClient,
-	mongo *mongo.Client,
+	mongo *MongoDB,
 	logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
@@ -73,7 +75,7 @@ func NewMySQL(c *conf.Data) *gorm.DB {
 	if err := sqlDB.Ping(); err != nil {
 		panic(err)
 	}
-	//query.SetDefault(db)
+	query.SetDefault(db)
 	return db
 }
 
@@ -103,14 +105,19 @@ func NewRedisClusterClient(c *conf.Data) *redis.ClusterClient {
 	return redisCluster
 }
 
-func NewMongo(c *conf.Data) *mongo.Client {
+func NewMongo(c *conf.Data) *MongoDB {
 	ctx, cancel := context.WithTimeout(utilCtx.NewBaseContext(), time.Duration(c.Mongo.ConnTimeout.Seconds)*time.Second)
 	defer cancel()
 
 	mongoCli, err := mongo.Connect(
 		ctx,
-		options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s", c.Mongo.Host, c.Mongo.Port)).
-			SetMaxPoolSize(uint64(c.Mongo.MaxOpen)),
+		options.Client().
+			SetConnectTimeout(c.Mongo.ConnTimeout.AsDuration()).
+			SetAppName("vw_video").
+			SetMaxPoolSize(uint64(c.Mongo.MaxOpen)).
+			SetRetryReads(true).
+			SetRetryWrites(true).
+			ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:%s/%s", c.Mongo.Username, c.Mongo.Password, c.Mongo.Host, c.Mongo.Port, c.Mongo.Db)),
 	)
 	if err != nil {
 		panic(err)
@@ -118,7 +125,11 @@ func NewMongo(c *conf.Data) *mongo.Client {
 	if err := mongoCli.Ping(ctx, nil); err != nil {
 		panic(err)
 	}
-	return mongoCli
+	return &MongoDB{
+		database:    "video_web",
+		collection:  "video_info",
+		mongoClient: mongoCli,
+	}
 }
 
 // startTx sets transactionKey to context and starts a transaction.
@@ -166,4 +177,31 @@ func (d *Data) WithTx(ctx context.Context, fn func(context.Context) error) error
 	}()
 	err = fn(ctx)
 	return err
+}
+
+// getQuery is a helper function.
+// It returns common query *query.Query or transactional query *(query.QueryTx).Query.
+// With this function, methods of data layer don't need to care about if it's in transactionKey or not.
+func getQuery(ctx context.Context) *query.Query {
+	// if ctx has transactionKey, return transactional query
+	tx, ok := utilCtx.GetValue(ctx, transactionKey{})
+	if ok {
+		return tx.(*query.QueryTx).Query
+	}
+	return query.Q
+}
+
+// addVideoModel is a helper function.
+// It replaces the underlying gorm.DB's model with a video model, so that gorm-gen can use optimistic lock.
+// Use the function when need to UPDATE a video model.
+// See https://github.com/go-gorm/optimisticlock/issues/36 for more details.
+func addVideoModel(ctx context.Context, videoId int64) (query.IVideoDo, *model.Video, error) {
+	user := getQuery(ctx).Video
+	videoDo := user.WithContext(ctx)
+	videoModel, err := videoDo.Where(user.VideoID.Eq(videoId)).First()
+	if err != nil {
+		return videoDo, nil, err
+	}
+	videoDo.ReplaceDB(videoDo.UnderlyingDB().Model(videoModel))
+	return videoDo, videoModel, nil
 }

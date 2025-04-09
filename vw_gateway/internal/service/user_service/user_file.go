@@ -9,20 +9,20 @@ import (
 	"vw_gateway/internal/biz/userbiz"
 )
 
-type UserFileService struct {
+type FileService struct {
 	filev1.UnimplementedFileServiceServer
 	userFile *userbiz.UserFileUsecase
 	log      *log.Helper
 }
 
-func NewUserFileService(userFile *userbiz.UserFileUsecase, logger log.Logger) *UserFileService {
-	return &UserFileService{
+func NewUserFileService(userFile *userbiz.UserFileUsecase, logger log.Logger) *FileService {
+	return &FileService{
 		userFile: userFile,
 		log:      log.NewHelper(logger),
 	}
 }
 
-func (ufs *UserFileService) UploadAvatar(ctx context.Context, _ *emptypb.Empty) (*filev1.UploadAvatarResp, error) {
+func (ufs *FileService) UploadAvatar(ctx context.Context, _ *emptypb.Empty) (*filev1.UploadAvatarResp, error) {
 	path, err := ufs.userFile.UploadAvatar(ctx)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (ufs *UserFileService) UploadAvatar(ctx context.Context, _ *emptypb.Empty) 
 	}, nil
 }
 
-func (ufs *UserFileService) UpdateAvatar(ctx context.Context, req *filev1.UpdateAvatarReq) (*filev1.UpdateAvatarResp, error) {
+func (ufs *FileService) UpdateAvatar(ctx context.Context, req *filev1.UpdateAvatarReq) (*filev1.UpdateAvatarResp, error) {
 	err := ufs.userFile.UpdateAvatar(ctx, req.UserId)
 	if err != nil {
 		return nil, err

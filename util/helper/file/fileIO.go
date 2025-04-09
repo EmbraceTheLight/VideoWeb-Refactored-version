@@ -6,6 +6,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 const defaultMultipartMemory = 32 << 20 // 32 MB
@@ -19,6 +20,15 @@ func CreateDir(dest string, fileMode fs.FileMode) (err error) {
 		}
 	}()
 	return nil
+}
+
+func CreateFile(dest string, fileMode fs.FileMode) (file *os.File, err error) {
+	dir := filepath.Dir(dest)
+	err = CreateDir(dir, fileMode)
+	if err != nil {
+		return nil, err
+	}
+	return os.Create(dest)
 }
 
 // FormFile imitate the behavior of github.com/gin-gonic/gin

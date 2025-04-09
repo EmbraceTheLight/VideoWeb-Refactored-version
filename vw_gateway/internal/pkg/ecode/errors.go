@@ -2,7 +2,7 @@ package ecode
 
 const (
 	// Intertal errors
-	INTERNAL_ErrInternal = 5001 + iota
+	INTERNAL_ErrInternal = 3001 + iota
 
 	// identity errors
 	IDENTITY_ErrUserLoggedOut
@@ -22,6 +22,17 @@ const (
 	// file errors
 	FILE_UploadAvatarFailed
 	FILE_UpdateAvatarFailed
+	FILE_GetMpdFileFailed
+	FILE_CoverFileNotFound
+	FILE_SegmentFileNotFound
+
+	// video errors
+	VIDEO_GetVideoListFailed
+	VIDEO_GetVideoInfoFailed
+	VIDEOINFO_GetVideoFileFailed
+	VIDEOINFO_GetVideoMpdFailed
+	VIDEOINFO_GetVideoCoverFailed
+	VIDEOINFO_GetVideoSegmentFailed
 )
 
 var ()

@@ -308,6 +308,53 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/gateway.api.v1.user.userinfo.ModifyUsernameResp'
+    /api/v1/video/list:
+        get:
+            tags:
+                - VideoInfo
+            operationId: VideoInfo_GetVideoList
+            parameters:
+                - name: class
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.GetVideoListResp'
+    /api/v1/video/{videoId}/info:
+        get:
+            tags:
+                - VideoInfo
+            operationId: VideoInfo_GetVideoInfo
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.GetVideoInfoResp'
     /api/v1/{userId}/follow:
         put:
             tags:
@@ -411,31 +458,46 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/gateway.api.v1.user.file.UpdateAvatarResp'
-    /video/list:
-        get:
+    /api/v1/{userId}/video/metaInfo:
+        post:
             tags:
                 - VideoInfo
-            operationId: VideoInfo_GetVideoList
+            description: |-
+                Request Order: 1. UploadVideoInfo 2. UploadVideoFile 3. UploadVideoCover
+                 1(UploadVideoInfo) Will Create a new directory for the video,
+                 2(UploadVideoFile) and 3(UploadVideoCover) will upload the video file and cover file to the directory.
+                 The order of 2 and 3 is not important.
+            operationId: VideoInfo_UploadVideoInfo
             parameters:
-                - name: class
-                  in: query
+                - name: userId
+                  in: path
+                  required: true
                   schema:
-                    type: array
-                    items:
-                        type: string
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.UploadVideoInfoReq'
+                required: true
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.GetVideoListResp'
-    /video/{videoId}/cover:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.UploadVideoInfoResp'
+    /api/v1/{userId}/video/{videoId}/cover:
         get:
             tags:
                 - VideoInfo
             operationId: VideoInfo_GetVideoCover
             parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
                 - name: videoId
                   in: path
                   required: true
@@ -447,13 +509,46 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.GetVideoCoverResp'
-    /video/{videoId}/info:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.FileResp'
+        post:
+            tags:
+                - VideoInfo
+            operationId: VideoInfo_UploadVideoCover
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.UploadVideoCoverReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.UploadVideoCoverResp'
+    /api/v1/{userId}/video/{videoId}/file:
         get:
             tags:
                 - VideoInfo
-            operationId: VideoInfo_GetVideoInfo
+            operationId: VideoInfo_DownloadVideo
             parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
                 - name: videoId
                   in: path
                   required: true
@@ -465,13 +560,46 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.GetVideoInfoResp'
-    /video/{videoId}/mpd:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.FileResp'
+        post:
+            tags:
+                - VideoInfo
+            operationId: VideoInfo_UploadVideoFile
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.UploadVideoFileReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.UploadVideoFileResp'
+    /api/v1/{userId}/video/{videoId}/mpd:
         get:
             tags:
                 - VideoInfo
             operationId: VideoInfo_GetMpd
             parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
                 - name: videoId
                   in: path
                   required: true
@@ -483,13 +611,21 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.ProvideMpdResp'
-    /video/{videoId}/segments:
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.FileResp'
+    /api/v1/{userId}/video/{videoId}/segments:
         get:
             tags:
                 - VideoInfo
             operationId: VideoInfo_GetSegments
             parameters:
+                - name: userId
+                  in: path
+                  description: |-
+                    segment_path is the path of the segment file(.m4s)
+                     It is parsed by the front-end, using the mpd file
+                  required: true
+                  schema:
+                    type: string
                 - name: videoId
                   in: path
                   required: true
@@ -497,7 +633,6 @@ paths:
                     type: string
                 - name: segmentPath
                   in: query
-                  description: segment_path is the path of the segment file(.m4s)
                   schema:
                     type: string
             responses:
@@ -506,7 +641,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.ProvideSegmentsResp'
+                                $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.FileResp'
 components:
     schemas:
         gateway.api.v1.user.captcha.GetCodeCaptchaResp:
@@ -862,61 +997,111 @@ components:
                     $ref: '#/components/schemas/gateway.api.v1.user.userinfo.UserInfo'
                 common:
                     $ref: '#/components/schemas/gateway.api.v1.user.userinfo.CommonResp'
-        gateway.api.v1.video.videoinfo.GetVideoCoverResp:
+        gateway.api.v1.video.videoinfo.CommonResp:
             type: object
             properties:
-                coverData:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
                     type: string
-                    format: bytes
+        gateway.api.v1.video.videoinfo.FileResp:
+            type: object
+            properties:
+                filePath:
+                    type: string
+                filename:
+                    type: string
+                headers:
+                    type: object
+                    additionalProperties:
+                        $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.FileResp_HeaderValues'
+        gateway.api.v1.video.videoinfo.FileResp_HeaderValues:
+            type: object
+            properties:
+                value:
+                    type: array
+                    items:
+                        type: string
         gateway.api.v1.video.videoinfo.GetVideoInfoResp:
             type: object
             properties:
-                title:
-                    type: string
+                videoDetail:
+                    $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.VideoMetaInfo'
         gateway.api.v1.video.videoinfo.GetVideoListResp:
             type: object
             properties:
-                req:
+                videoDetails:
                     type: array
                     items:
                         $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.VideoMetaInfo'
-        gateway.api.v1.video.videoinfo.ProvideMpdResp:
+        gateway.api.v1.video.videoinfo.UploadVideoCoverReq:
             type: object
             properties:
-                mpdData:
+                userId:
                     type: string
-                    format: bytes
-        gateway.api.v1.video.videoinfo.ProvideSegmentsResp:
+                videoId:
+                    type: string
+        gateway.api.v1.video.videoinfo.UploadVideoCoverResp:
             type: object
             properties:
-                segmentData:
+                resp:
+                    $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.CommonResp'
+        gateway.api.v1.video.videoinfo.UploadVideoFileReq:
+            type: object
+            properties:
+                userId:
                     type: string
-                    format: bytes
+                videoId:
+                    type: string
+        gateway.api.v1.video.videoinfo.UploadVideoFileResp:
+            type: object
+            properties:
+                resp:
+                    $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.CommonResp'
+        gateway.api.v1.video.videoinfo.UploadVideoInfoReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                videoInfo:
+                    $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.VideoMetaInfo'
+        gateway.api.v1.video.videoinfo.UploadVideoInfoResp:
+            type: object
+            properties:
+                resp:
+                    $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.CommonResp'
         gateway.api.v1.video.videoinfo.VideoMetaInfo:
             type: object
             properties:
                 videoId:
                     type: string
-                authorId:
+                publisherId:
                     type: string
-                authorName:
+                publisherName:
                     type: string
                 title:
                     type: string
-                path:
+                description:
                     type: string
-                className:
+                videoPath:
                     type: string
+                classes:
+                    type: array
+                    items:
+                        type: string
                 tags:
-                    type: string
+                    type: array
+                    items:
+                        type: string
                 hot:
                     type: string
-                createdAt:
+                createdTime:
                     type: string
                     format: date-time
                 records:
                     $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.VideoMetaInfo_Records'
-                durations:
+                duration:
                     type: string
                 coverPath:
                     type: string

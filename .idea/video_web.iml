@@ -3,6 +3,12 @@
   <component name="Go" enabled="true" />
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/resources/153806783385669" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/156253819437125" />
+      <excludeFolder url="file://$MODULE_DIR$/util/ffmpeg/testfiles" />
+      <excludeFolder url="file://$MODULE_DIR$/util/ffmpeg/testfiles/dash" />
+      <excludeFolder url="file://$MODULE_DIR$/util/ffmpeg/testfiles/input" />
+      <excludeFolder url="file://$MODULE_DIR$/util/ffmpeg/testfiles/output" />
       <excludeFolder url="file://$MODULE_DIR$/vw_user/.idea" />
     </content>
     <orderEntry type="inheritedJdk" />

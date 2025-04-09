@@ -9,8 +9,11 @@ package main
 import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
+	"vw_video/internal/biz"
 	"vw_video/internal/conf"
+	"vw_video/internal/data"
 	"vw_video/internal/server"
+	"vw_video/internal/service"
 )
 
 import (
@@ -20,10 +23,22 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, data *conf.Data, registry *conf.Registry, logger log.Logger) (*kratos.App, func(), error) {
-	grpcServer := server.NewGRPCServer(confServer, logger)
+func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Registry, logger log.Logger) (*kratos.App, func(), error) {
+	db := data.NewMySQL(confData)
+	clusterClient := data.NewRedisClusterClient(confData)
+	mongoDB := data.NewMongo(confData)
+	dataData, cleanup, err := data.NewData(db, clusterClient, mongoDB, logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	videoInfoRepo := data.NewVideoInfoRepo(dataData, logger)
+	transaction := data.NewTransaction(dataData)
+	videoInfoUsecase := biz.NewVideoInfoUsecase(videoInfoRepo, transaction, logger)
+	videoInfoService := service.NewVideoInfo(videoInfoUsecase, logger)
+	grpcServer := server.NewGRPCServer(confServer, videoInfoService, logger)
 	registrar := server.NewRegistrar(registry)
 	app := newApp(logger, grpcServer, registrar)
 	return app, func() {
+		cleanup()
 	}, nil
 }

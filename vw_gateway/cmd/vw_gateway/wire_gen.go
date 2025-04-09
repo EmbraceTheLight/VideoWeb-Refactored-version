@@ -10,12 +10,18 @@ import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"vw_gateway/internal/biz/userbiz"
+	"vw_gateway/internal/biz/videobiz"
 	"vw_gateway/internal/conf"
+	"vw_gateway/internal/data"
 	"vw_gateway/internal/data/userdata"
+	"vw_gateway/internal/data/videodata"
 	"vw_gateway/internal/pkg/captcha"
 	"vw_gateway/internal/pkg/middlewares/auth"
 	"vw_gateway/internal/server"
+	"vw_gateway/internal/service/ginservice"
+	"vw_gateway/internal/service/ginservice/service"
 	"vw_gateway/internal/service/user_service"
+	"vw_gateway/internal/service/video_service"
 )
 
 import (
@@ -25,16 +31,16 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, data *conf.Data, registry *conf.Registry, jwt *conf.JWT, email *conf.Email, trace *conf.Trace, service *conf.Service, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Registry, jwt *conf.JWT, email *conf.Email, trace *conf.Trace, service *conf.Service, logger log.Logger) (*kratos.App, func(), error) {
 	grpcServer := server.NewGRPCServer(confServer, logger)
-	discovery := userdata.NewDiscovery(registry)
+	discovery := data.NewDiscovery(registry)
 	identityClient := userdata.NewUserIdentityClient(discovery, service)
 	userinfoClient := userdata.NewUserinfoClient(discovery, service)
 	captchaClient := userdata.NewCaptchaClient(discovery, service)
 	fileServiceClient := userdata.NewFileClient(discovery, service)
 	favoriteClient := userdata.NewFavoritesClient(discovery, service)
 	followClient := userdata.NewFollowClient(discovery, service)
-	clusterClient := userdata.NewRedisClusterClient(data)
+	clusterClient := data.NewRedisClusterClient(confData)
 	userdataData, cleanup, err := userdata.NewData(logger, identityClient, userinfoClient, captchaClient, fileServiceClient, favoriteClient, followClient, clusterClient)
 	if err != nil {
 		return nil, nil, err
@@ -45,24 +51,36 @@ func wireApp(confServer *conf.Server, data *conf.Data, registry *conf.Registry, 
 	captchaService := user.NewCaptchaService(logger, captchaUsecase)
 	userFileRepo := userdata.NewUserFileRepo(userdataData, logger)
 	userFileUsecase := userbiz.NewUserFileUsecase(userFileRepo, logger)
-	userFileService := user.NewUserFileService(userFileUsecase, logger)
+	fileService := user.NewUserFileService(userFileUsecase, logger)
 	userIdentityRepo := userdata.NewUserIdentityRepo(userdataData, logger)
 	jwtAuth := auth.NewJWTAuth(jwt)
 	userIdentityUsecase := userbiz.NewUserIdentityUsecase(userIdentityRepo, jwtAuth, logger)
-	userIdentityService := user.NewUserIdentityService(userIdentityUsecase, logger)
+	identityService := user.NewUserIdentityService(userIdentityUsecase, logger)
 	followRepo := userdata.NewFollowRepo(userdataData, logger)
 	followUsecase := userbiz.NewFollowUsecase(followRepo, logger)
 	followService := user.NewFollowService(logger, followUsecase)
 	userinfoRepo := userdata.NewUserInfoRepo(userdataData, logger)
 	userinfoUsecase := userbiz.NewUserinfoUsecase(userinfoRepo, logger)
-	userinfoService := user.NewUserinfoService(userinfoUsecase, logger)
+	infoService := user.NewUserinfoService(userinfoUsecase, logger)
 	favoritesRepo := userdata.NewFavoritesRepo(userdataData, favoriteClient, logger)
 	favoritesUsecase := userbiz.NewFavoritesUsecase(favoritesRepo, logger)
 	favoritesService := user.NewFavoritesService(favoritesUsecase, logger)
-	httpServer := server.NewHTTPServer(confServer, jwt, captchaService, userFileService, userIdentityService, followService, clusterClient, userinfoService, favoritesService, logger)
-	registrar := userdata.NewRegistrar(registry)
+	videoInfoClient := videodata.NewVideoInfoClient(discovery, service)
+	videodataData, cleanup2, err := videodata.NewData(logger, videoInfoClient, clusterClient)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	videoInfoRepo := videodata.NewVideoInfoRepo(videodataData, logger)
+	videoInfoUsecase := videobiz.NewVideoInfoUsecase(videoInfoRepo, logger)
+	videoInfoService := video.NewVideoInfoService(videoInfoUsecase, logger)
+	videoDownloadFileService := gs.NewVideoDownloadFileService(videoInfoUsecase, logger)
+	engine := ginservice.NewGinEngine(jwt, clusterClient)
+	httpServer := server.NewHTTPServer(confServer, jwt, captchaService, fileService, identityService, followService, clusterClient, infoService, favoritesService, videoInfoService, videoDownloadFileService, engine, logger)
+	registrar := data.NewRegistrar(registry)
 	app := newApp(logger, grpcServer, httpServer, registrar)
 	return app, func() {
+		cleanup2()
 		cleanup()
 	}, nil
 }

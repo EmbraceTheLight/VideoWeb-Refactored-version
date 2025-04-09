@@ -11,9 +11,9 @@ import (
 	"gorm.io/plugin/optimisticlock"
 )
 
-const TableNameUser = "userbiz"
+const TableNameUser = "user"
 
-// User mapped from table <userbiz>
+// User mapped from table <user>
 type User struct {
 	CreatedAt     time.Time              `gorm:"column:created_at;type:datetime(3);comment:创建时间" json:"created_at"`                                    // 创建时间
 	UpdatedAt     time.Time              `gorm:"column:updated_at;type:datetime(3);comment:更新时间" json:"updated_at"`                                    // 更新时间

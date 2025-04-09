@@ -242,7 +242,7 @@ type ModifyEmailReq struct {
 
 	UserId    int64  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Email     string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	InputCode string `protobuf:"bytes,3,opt,name=input_code,json=inputCode,proto3" json:"input_code,omitempty"` // the verify code that inputted by userbiz
+	InputCode string `protobuf:"bytes,3,opt,name=input_code,json=inputCode,proto3" json:"input_code,omitempty"` // the verify code that inputted by user
 }
 
 func (x *ModifyEmailReq) Reset() {
@@ -820,35 +820,35 @@ func file_v1_userinfo_info_proto_rawDescGZIP() []byte {
 
 var file_v1_userinfo_info_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_v1_userinfo_info_proto_goTypes = []any{
-	(*UserInfo)(nil),              // 0: userbiz.v1.info.UserInfo
-	(*UserinfoReq)(nil),           // 1: userbiz.v1.info.userinfoReq
-	(*UserinfoResp)(nil),          // 2: userbiz.v1.info.userinfoResp
-	(*ModifyEmailReq)(nil),        // 3: userbiz.v1.info.modifyEmailReq
-	(*ModifyEmailResp)(nil),       // 4: userbiz.v1.info.modifyEmailResp
-	(*ModifyPasswordReq)(nil),     // 5: userbiz.v1.info.modifyPasswordReq
-	(*ModifySignatureReq)(nil),    // 6: userbiz.v1.info.modifySignatureReq
-	(*ModifySignatureResp)(nil),   // 7: userbiz.v1.info.modifySignatureResp
-	(*ForgetPasswordReq)(nil),     // 8: userbiz.v1.info.forgetPasswordReq
-	(*ModifyUsernameReq)(nil),     // 9: userbiz.v1.info.modifyUsernameReq
-	(*ModifyUsernameResp)(nil),    // 10: userbiz.v1.info.modifyUsernameResp
+	(*UserInfo)(nil),              // 0: user.v1.info.UserInfo
+	(*UserinfoReq)(nil),           // 1: user.v1.info.userinfoReq
+	(*UserinfoResp)(nil),          // 2: user.v1.info.userinfoResp
+	(*ModifyEmailReq)(nil),        // 3: user.v1.info.modifyEmailReq
+	(*ModifyEmailResp)(nil),       // 4: user.v1.info.modifyEmailResp
+	(*ModifyPasswordReq)(nil),     // 5: user.v1.info.modifyPasswordReq
+	(*ModifySignatureReq)(nil),    // 6: user.v1.info.modifySignatureReq
+	(*ModifySignatureResp)(nil),   // 7: user.v1.info.modifySignatureResp
+	(*ForgetPasswordReq)(nil),     // 8: user.v1.info.forgetPasswordReq
+	(*ModifyUsernameReq)(nil),     // 9: user.v1.info.modifyUsernameReq
+	(*ModifyUsernameResp)(nil),    // 10: user.v1.info.modifyUsernameResp
 	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
 	(*emptypb.Empty)(nil),         // 12: google.protobuf.Empty
 }
 var file_v1_userinfo_info_proto_depIdxs = []int32{
-	11, // 0: userbiz.v1.info.UserInfo.birthday:type_name -> google.protobuf.Timestamp
-	0,  // 1: userbiz.v1.info.userinfoResp.user_info:type_name -> userbiz.v1.info.UserInfo
-	1,  // 2: userbiz.v1.info.Userinfo.GetUserinfo:input_type -> userbiz.v1.info.userinfoReq
-	3,  // 3: userbiz.v1.info.Userinfo.ModifyEmail:input_type -> userbiz.v1.info.modifyEmailReq
-	5,  // 4: userbiz.v1.info.Userinfo.ModifyPassword:input_type -> userbiz.v1.info.modifyPasswordReq
-	6,  // 5: userbiz.v1.info.Userinfo.ModifyUserSignature:input_type -> userbiz.v1.info.modifySignatureReq
-	8,  // 6: userbiz.v1.info.Userinfo.ForgetPassword:input_type -> userbiz.v1.info.forgetPasswordReq
-	9,  // 7: userbiz.v1.info.Userinfo.ModifyUsername:input_type -> userbiz.v1.info.modifyUsernameReq
-	2,  // 8: userbiz.v1.info.Userinfo.GetUserinfo:output_type -> userbiz.v1.info.userinfoResp
-	4,  // 9: userbiz.v1.info.Userinfo.ModifyEmail:output_type -> userbiz.v1.info.modifyEmailResp
-	12, // 10: userbiz.v1.info.Userinfo.ModifyPassword:output_type -> google.protobuf.Empty
-	7,  // 11: userbiz.v1.info.Userinfo.ModifyUserSignature:output_type -> userbiz.v1.info.modifySignatureResp
-	12, // 12: userbiz.v1.info.Userinfo.ForgetPassword:output_type -> google.protobuf.Empty
-	10, // 13: userbiz.v1.info.Userinfo.ModifyUsername:output_type -> userbiz.v1.info.modifyUsernameResp
+	11, // 0: user.v1.info.UserInfo.birthday:type_name -> google.protobuf.Timestamp
+	0,  // 1: user.v1.info.userinfoResp.user_info:type_name -> user.v1.info.UserInfo
+	1,  // 2: user.v1.info.Userinfo.GetUserinfo:input_type -> user.v1.info.userinfoReq
+	3,  // 3: user.v1.info.Userinfo.ModifyEmail:input_type -> user.v1.info.modifyEmailReq
+	5,  // 4: user.v1.info.Userinfo.ModifyPassword:input_type -> user.v1.info.modifyPasswordReq
+	6,  // 5: user.v1.info.Userinfo.ModifyUserSignature:input_type -> user.v1.info.modifySignatureReq
+	8,  // 6: user.v1.info.Userinfo.ForgetPassword:input_type -> user.v1.info.forgetPasswordReq
+	9,  // 7: user.v1.info.Userinfo.ModifyUsername:input_type -> user.v1.info.modifyUsernameReq
+	2,  // 8: user.v1.info.Userinfo.GetUserinfo:output_type -> user.v1.info.userinfoResp
+	4,  // 9: user.v1.info.Userinfo.ModifyEmail:output_type -> user.v1.info.modifyEmailResp
+	12, // 10: user.v1.info.Userinfo.ModifyPassword:output_type -> google.protobuf.Empty
+	7,  // 11: user.v1.info.Userinfo.ModifyUserSignature:output_type -> user.v1.info.modifySignatureResp
+	12, // 12: user.v1.info.Userinfo.ForgetPassword:output_type -> google.protobuf.Empty
+	10, // 13: user.v1.info.Userinfo.ModifyUsername:output_type -> user.v1.info.modifyUsernameResp
 	8,  // [8:14] is the sub-list for method output_type
 	2,  // [2:8] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name

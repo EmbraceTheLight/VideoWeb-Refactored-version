@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"util/helper"
 	"vw_gateway/internal/biz/userbiz"
-	"vw_gateway/internal/pkg/ecode/errdef"
+	"vw_gateway/internal/pkg/ecode/errdef/uerr"
 	filev1 "vw_user/api/v1/userfile"
 )
 
@@ -45,9 +45,8 @@ func (u *userFileRepo) UploadAvatar(ctx context.Context, fileName string, fileHe
 	}
 
 	file, err := fileHeader.Open()
-
 	if err != nil {
-		return "", helper.HandleError(errdef.ErrUploadAvatarFailed, err)
+		return "", helper.HandleError(uerr.ErrUploadAvatarFailed, err)
 	}
 	defer file.Close()
 
@@ -59,20 +58,20 @@ func (u *userFileRepo) UploadAvatar(ctx context.Context, fileName string, fileHe
 			break
 		}
 		if err != nil {
-			return "", helper.HandleError(errdef.ErrUploadAvatarFailed, err)
+			return "", helper.HandleError(uerr.ErrUploadAvatarFailed, err)
 		}
 
 		err = stream.Send(&filev1.UploadAvatarReq{
 			Data: &filev1.UploadAvatarReq_FileContent{FileContent: buffer[:n]},
 		})
 		if err != nil {
-			return "", helper.HandleError(errdef.ErrUploadAvatarFailed, err)
+			return "", helper.HandleError(uerr.ErrUploadAvatarFailed, err)
 		}
 	}
 
 	res, err := stream.CloseAndRecv()
 	if err != nil {
-		return "", helper.HandleError(errdef.ErrUploadAvatarFailed, err)
+		return "", helper.HandleError(uerr.ErrUploadAvatarFailed, err)
 	}
 	return res.FilePath, nil
 }
@@ -98,7 +97,7 @@ func (u *userFileRepo) UpdateAvatar(ctx context.Context, userId int64, fileHeade
 
 	file, err := fileHeader.Open()
 	if err != nil {
-		return helper.HandleError(errdef.ErrUpdateFileFailed, err)
+		return helper.HandleError(uerr.ErrUpdateAvatarFailed, err)
 	}
 	defer file.Close()
 
@@ -110,20 +109,20 @@ func (u *userFileRepo) UpdateAvatar(ctx context.Context, userId int64, fileHeade
 			break
 		}
 		if err != nil {
-			return helper.HandleError(errdef.ErrUpdateFileFailed, err)
+			return helper.HandleError(uerr.ErrUpdateAvatarFailed, err)
 		}
 
 		err = stream.Send(&filev1.UpdateAvatarReq{
 			Data: &filev1.UpdateAvatarReq_FileContent{FileContent: buffer[:n]},
 		})
 		if err != nil {
-			return helper.HandleError(errdef.ErrUpdateFileFailed, err)
+			return helper.HandleError(uerr.ErrUpdateAvatarFailed, err)
 		}
 	}
 
 	_, err = stream.CloseAndRecv()
 	if err != nil {
-		return helper.HandleError(errdef.ErrUpdateFileFailed, err)
+		return helper.HandleError(uerr.ErrUpdateAvatarFailed, err)
 	}
 	return nil
 }
