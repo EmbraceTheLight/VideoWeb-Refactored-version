@@ -82,3 +82,26 @@ func (info *UserInfoService) ModifyUsername(ctx context.Context, req *infov1.Mod
 		NewUsername: newUsername,
 	}, nil
 }
+
+func (info *UserInfoService) UpdateUserCntLikes(ctx context.Context, req *infov1.UpdateUserCntLikesReq) (*emptypb.Empty, error) {
+	err := info.info.UpdateUserCntLikes(ctx, req.UserId, req.IsUpvoted)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+func (info *UserInfoService) UpdateUserCntLikesRevert(ctx context.Context, req *infov1.UpdateUserCntLikesReq) (*emptypb.Empty, error) {
+	return info.UpdateUserCntLikes(ctx, req)
+}
+
+func (info *UserInfoService) UpdateUserShells(ctx context.Context, req *infov1.UpdateUserShellsReq) (*emptypb.Empty, error) {
+	err := info.info.UpdateUserShells(ctx, req.UserId, req.PublisherId, req.Shells)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+func (info *UserInfoService) UpdateUserShellsRevert(ctx context.Context, req *infov1.UpdateUserShellsReq) (*emptypb.Empty, error) {
+	req.Shells = -req.Shells
+	return info.UpdateUserShells(ctx, req)
+}

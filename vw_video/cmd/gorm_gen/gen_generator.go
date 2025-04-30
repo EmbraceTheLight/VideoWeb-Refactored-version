@@ -62,8 +62,9 @@ func main() {
 	//gen.WithMethod(methods.Video{}))
 	favoriteVideo := g.GenerateModel("favorite_video")
 	barrages := g.GenerateModel("barrages")
+	videoClass := g.GenerateModel("video_class")
 
-	g.ApplyBasic(video, barrages, favoriteVideo)
+	g.ApplyBasic(video, barrages, favoriteVideo, videoClass)
 
 	g.Execute()
 

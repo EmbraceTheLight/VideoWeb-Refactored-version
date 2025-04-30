@@ -12,6 +12,7 @@ type UserInfo struct {
 	Password   string
 	Signature  string
 	Shells     int32
+	CntLikes   int32
 	CntFans    int32
 	CntFollows int32
 	CntVideos  int32
@@ -28,6 +29,7 @@ func (u *UserInfo) padding(user *model.User) {
 	u.Password = user.Password
 	u.Signature = user.Signature
 	u.Shells = int32(user.Shells)
+	u.CntLikes = int32(user.CntLikes)
 	u.CntFans = int32(user.CntFans)
 	u.CntFollows = int32(user.CntFollows)
 	u.Gender = int32(user.Gender)

@@ -36,15 +36,15 @@ func NewVideoInfoRepo(data *Data, logger log.Logger) videobiz.VideoInfoRepo {
 	}
 }
 
-func (v *videoInfoRepo) GetVideoInfo(ctx context.Context, videoId int64) (*domain.VideoDetail, error) {
-	resp, err := v.data.videoInfoClient.GetVideoInfo(ctx, &videoinfov1.GetVideoInfoReq{VideoId: videoId})
+func (v *videoInfoRepo) GetVideoInfo(ctx context.Context, videoId, userId int64) (*domain.VideoDetail, error) {
+	resp, err := v.data.videoInfoClient.GetVideoInfo(ctx, &videoinfov1.GetVideoInfoReq{VideoId: videoId, UserId: userId})
 	if err != nil {
 		return nil, err
 	}
 	return domain.NewVideoDetail(resp), nil
 }
 
-func (v *videoInfoRepo) GetVideoList(ctx context.Context, class []string, num int32, size int32) ([]*domain.VideoDetail, error) {
+func (v *videoInfoRepo) GetVideoList(ctx context.Context, class []string, num int32, size int32) ([]*videoinfov1.VideoSummary, error) {
 	resp, err := v.data.videoInfoClient.GetVideoList(ctx, &videoinfov1.GetVideoListReq{
 		Class:    class,
 		PageNum:  num,
@@ -53,7 +53,8 @@ func (v *videoInfoRepo) GetVideoList(ctx context.Context, class []string, num in
 	if err != nil {
 		return nil, err
 	}
-	return domain.NewVideoDetails(resp), nil
+
+	return resp.VideoSummary, nil
 }
 
 func (v *videoInfoRepo) UploadVideoInfo(ctx context.Context, info *domain.VideoDetail) error {

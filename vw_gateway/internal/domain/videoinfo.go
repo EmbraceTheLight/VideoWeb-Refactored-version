@@ -25,6 +25,16 @@ type VideoDetail struct {
 	CoverPath     string
 }
 
+type VideoSummary struct {
+	VideoId       int64
+	CntBarrages   int64
+	CntViewed     int64
+	Title         string
+	Duration      string
+	PublisherName string
+	CoverPath     string
+}
+
 // NewVideoDetail creates a new VideoDetail object from video grpc service GetVideoInfo's response.
 func NewVideoDetail(videoInfo *videoinfov1.GetVideoInfoResp) *VideoDetail {
 	return &VideoDetail{
@@ -41,37 +51,9 @@ func NewVideoDetail(videoInfo *videoinfov1.GetVideoInfoResp) *VideoDetail {
 			CntBarrages:  videoInfo.VideoDetail.Records.CntBarrages,
 			CntShares:    videoInfo.VideoDetail.Records.CntShares,
 			CntViewed:    videoInfo.VideoDetail.Records.CntViewed,
-			CntFavorites: videoInfo.VideoDetail.Records.CntFavorites,
+			CntFavorites: videoInfo.VideoDetail.Records.CntFavorited,
 		},
 		Duration:  videoInfo.VideoDetail.Duration,
 		CoverPath: videoInfo.VideoDetail.CoverPath,
 	}
-}
-
-// NewVideoDetails creates a new VideoDetail object from video grpc service GetVideoList's response.
-func NewVideoDetails(videoInfo *videoinfov1.GetVideoListResp) []*VideoDetail {
-	ret := make([]*VideoDetail, len(videoInfo.VideoDetails))
-
-	for i, videoDetail := range videoInfo.VideoDetails {
-		ret[i] = &VideoDetail{
-			VideoId:       videoDetail.VideoId,
-			PublisherId:   videoDetail.PublisherId,
-			PublisherName: videoDetail.PublisherName,
-			Title:         videoDetail.Title,
-			Description:   videoDetail.Description,
-			VideoPath:     videoDetail.VideoPath,
-			Classes:       videoDetail.Classes,
-			Tags:          videoDetail.Tags,
-			Hot:           videoDetail.Hot,
-			Records: &Records{
-				CntBarrages:  videoDetail.Records.CntBarrages,
-				CntShares:    videoDetail.Records.CntShares,
-				CntViewed:    videoDetail.Records.CntViewed,
-				CntFavorites: videoDetail.Records.CntFavorites,
-			},
-			Duration:  videoDetail.Duration,
-			CoverPath: videoDetail.CoverPath,
-		}
-	}
-	return ret
 }

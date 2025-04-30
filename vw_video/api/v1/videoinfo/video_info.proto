@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package video.v1.videoinfo;
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 option go_package = "/api/video/v1/video_info;videoinfo";
 
@@ -24,6 +23,11 @@ service VideoInfo {
     rpc UploadVideoFile(stream UploadVideoFileReq) returns (google.protobuf.Empty) {}
 
     rpc UploadVideoCover(stream UploadVideoCoverReq) returns (google.protobuf.Empty) {}
+
+    rpc GetPublisherIdByVideoId(GetPublisherIdByVideoIdReq) returns (GetPublisherIdByVideoIdResp) {}
+
+    rpc AddVideoCntShared(AddVideoCntSharedReq) returns (google.protobuf.Empty) {}
+    rpc AddVideoCntSharedRevert(AddVideoCntSharedReq) returns (google.protobuf.Empty) {}
 }
 
 message FileResp {
@@ -47,19 +51,44 @@ message VideoMetaInfo {
         uint32 cnt_barrages  = 1;
         uint32 cnt_shares    = 2;
         uint32 cnt_viewed    = 3;
-        uint32 cnt_favorites = 4;
+        uint32 cnt_favorited = 4;
     }
     Records records   = 10;
     string duration   = 11;
     string cover_path = 12;
     int64 size        = 13;
 }
+message VideoSummary {
+    int64 video_id        = 1;
+    int64 cnt_barrages    = 2;
+    int64 cnt_viewed      = 3;
+    string title          = 4;
+    string duration       = 5;
+    string publisher_name = 6;
+    string cover_path     = 7;
+}
 
 message GetVideoInfoReq {
     int64 video_id = 1;
+    int64 user_id  = 2;
 }
 message GetVideoInfoResp {
-    VideoMetaInfo video_detail = 1;
+    message BarrageInfo {
+        int64 barrage_id = 1;
+        string content   = 2;
+        string time      = 3;  // user sends this barrage at hh:mm:ss of the video
+        string color     = 4;
+    }
+
+    message UserVideoStatus {
+        int32 is_upvoted       = 1;
+        int32 is_favorited     = 2;
+        int32 is_shared        = 3;
+        int32 is_thrown_shells = 4;
+    }
+    VideoMetaInfo video_detail        = 1;
+    repeated BarrageInfo barrages     = 2;
+    UserVideoStatus user_video_status = 3;
 }
 
 message GetVideoListReq {
@@ -68,7 +97,7 @@ message GetVideoListReq {
     int32 page_size       = 3;
 }
 message GetVideoListResp {
-    repeated VideoMetaInfo video_details = 1;
+    repeated VideoSummary VideoSummary = 1;
 }
 
 message GetVideoFileReq {
@@ -161,4 +190,16 @@ message UploadVideoCoverReq {
         CoverInfo cover_metadata = 1;
         bytes cover_file_data    = 2;
     }
+}
+
+message GetPublisherIdByVideoIdReq {
+    int64 video_id = 1;
+}
+message GetPublisherIdByVideoIdResp {
+    int64 publisher_id = 1;
+}
+
+message AddVideoCntSharedReq {
+    int64 video_id       = 1;
+    bool is_compensation = 2;
 }

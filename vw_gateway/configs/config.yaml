@@ -38,6 +38,13 @@ registry:
     scheme: http
 trace:
   endpoint: http://127.0.0.1:14268/api/traces
+
+dtm:
+  dtm_config:
+    driver: 'dtm-driver-kratos' # name of the driver to handle register/discover
+    target: 'consul://127.0.0.1:8500/dtmservice' # register dtm server to this url
+    endpoint: 'grpc://localhost:36790'
+
 service:
   user:
     endpoint: discovery:///videoweb.user.service

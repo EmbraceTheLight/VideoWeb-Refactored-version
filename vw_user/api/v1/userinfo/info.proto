@@ -8,17 +8,23 @@ import "google/protobuf/empty.proto";
 option go_package = "vw_user/api/v1/userinfo;infov1";
 
 service Userinfo {
-    rpc GetUserinfo(userinfoReq) returns (userinfoResp) {}
+    rpc GetUserinfo(UserinfoReq) returns (UserinfoResp) {}
 
-    rpc ModifyEmail(modifyEmailReq) returns (modifyEmailResp) {}
+    rpc ModifyEmail(ModifyEmailReq) returns (ModifyEmailResp) {}
 
-    rpc ModifyPassword(modifyPasswordReq) returns (google.protobuf.Empty) {};
+    rpc ModifyPassword(ModifyPasswordReq) returns (google.protobuf.Empty) {};
 
-    rpc ModifyUserSignature(modifySignatureReq) returns (modifySignatureResp) {}
+    rpc ModifyUserSignature(ModifySignatureReq) returns (ModifySignatureResp) {}
 
-    rpc ForgetPassword(forgetPasswordReq) returns (google.protobuf.Empty) {}
+    rpc ForgetPassword(ForgetPasswordReq) returns (google.protobuf.Empty) {}
 
-    rpc ModifyUsername(modifyUsernameReq) returns (modifyUsernameResp) {}
+    rpc ModifyUsername(ModifyUsernameReq) returns (ModifyUsernameResp) {}
+
+    rpc UpdateUserCntLikes(UpdateUserCntLikesReq) returns (google.protobuf.Empty) {}
+    rpc UpdateUserCntLikesRevert(UpdateUserCntLikesReq) returns (google.protobuf.Empty) {}
+
+    rpc UpdateUserShells(UpdateUserShellsReq) returns (google.protobuf.Empty) {}
+    rpc UpdateUserShellsRevert(UpdateUserShellsReq) returns (google.protobuf.Empty) {}
 }
 
 message UserInfo {
@@ -34,48 +40,59 @@ message UserInfo {
     google.protobuf.Timestamp birthday = 10;
 }
 
-message userinfoReq {
+message UserinfoReq {
     int64 user_id = 1;
 }
-message userinfoResp {
+message UserinfoResp {
     UserInfo user_info = 1;
 }
 
-message modifyEmailReq {
+message ModifyEmailReq {
     int64 user_id     = 1;
     string email      = 2;
     string input_code = 3;  // the verify code that inputted by user
 }
-message modifyEmailResp {
+message ModifyEmailResp {
     int64 user_id = 1;
     string email  = 2;
 }
 
-message modifyPasswordReq {
+message ModifyPasswordReq {
     int64 user_id       = 1;
     string old_password = 2;
     string new_password = 3;
 }
 
-message modifySignatureReq {
+message ModifySignatureReq {
     int64 user_id    = 1;
     string signature = 2;
 }
-message modifySignatureResp {
+message ModifySignatureResp {
     string new_signature = 1;
 }
 
-message forgetPasswordReq {
+message ForgetPasswordReq {
     int64 user_id       = 1;
     string email        = 2;
     string input_code   = 3;
     string new_password = 4;
 }
 
-message modifyUsernameReq {
+message ModifyUsernameReq {
     int64 user_id       = 1;
     string new_username = 2;
 }
-message modifyUsernameResp {
+message ModifyUsernameResp {
     string new_username = 1;
+}
+
+message UpdateUserCntLikesReq {
+    int64 user_id    = 1;
+    int32 is_upvoted = 2;
+}
+
+message UpdateUserShellsReq {
+    int64 user_id      = 1;
+    int64 publisher_id = 2;
+    int64 shells       = 3;
 }

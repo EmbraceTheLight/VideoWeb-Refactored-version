@@ -20,15 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	VideoInfo_GetVideoInfo_FullMethodName     = "/video.v1.videoinfo.VideoInfo/GetVideoInfo"
-	VideoInfo_GetVideoList_FullMethodName     = "/video.v1.videoinfo.VideoInfo/GetVideoList"
-	VideoInfo_GetVideoFile_FullMethodName     = "/video.v1.videoinfo.VideoInfo/GetVideoFile"
-	VideoInfo_GetVideoMpd_FullMethodName      = "/video.v1.videoinfo.VideoInfo/GetVideoMpd"
-	VideoInfo_GetVideoSegments_FullMethodName = "/video.v1.videoinfo.VideoInfo/GetVideoSegments"
-	VideoInfo_GetVideoCover_FullMethodName    = "/video.v1.videoinfo.VideoInfo/GetVideoCover"
-	VideoInfo_UploadVideoInfo_FullMethodName  = "/video.v1.videoinfo.VideoInfo/UploadVideoInfo"
-	VideoInfo_UploadVideoFile_FullMethodName  = "/video.v1.videoinfo.VideoInfo/UploadVideoFile"
-	VideoInfo_UploadVideoCover_FullMethodName = "/video.v1.videoinfo.VideoInfo/UploadVideoCover"
+	VideoInfo_GetVideoInfo_FullMethodName            = "/video.v1.videoinfo.VideoInfo/GetVideoInfo"
+	VideoInfo_GetVideoList_FullMethodName            = "/video.v1.videoinfo.VideoInfo/GetVideoList"
+	VideoInfo_GetVideoFile_FullMethodName            = "/video.v1.videoinfo.VideoInfo/GetVideoFile"
+	VideoInfo_GetVideoMpd_FullMethodName             = "/video.v1.videoinfo.VideoInfo/GetVideoMpd"
+	VideoInfo_GetVideoSegments_FullMethodName        = "/video.v1.videoinfo.VideoInfo/GetVideoSegments"
+	VideoInfo_GetVideoCover_FullMethodName           = "/video.v1.videoinfo.VideoInfo/GetVideoCover"
+	VideoInfo_UploadVideoInfo_FullMethodName         = "/video.v1.videoinfo.VideoInfo/UploadVideoInfo"
+	VideoInfo_UploadVideoFile_FullMethodName         = "/video.v1.videoinfo.VideoInfo/UploadVideoFile"
+	VideoInfo_UploadVideoCover_FullMethodName        = "/video.v1.videoinfo.VideoInfo/UploadVideoCover"
+	VideoInfo_GetPublisherIdByVideoId_FullMethodName = "/video.v1.videoinfo.VideoInfo/GetPublisherIdByVideoId"
+	VideoInfo_AddVideoCntShared_FullMethodName       = "/video.v1.videoinfo.VideoInfo/AddVideoCntShared"
+	VideoInfo_AddVideoCntSharedRevert_FullMethodName = "/video.v1.videoinfo.VideoInfo/AddVideoCntSharedRevert"
 )
 
 // VideoInfoClient is the client API for VideoInfo service.
@@ -44,6 +47,9 @@ type VideoInfoClient interface {
 	UploadVideoInfo(ctx context.Context, in *UploadVideoInfoReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UploadVideoFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadVideoFileReq, emptypb.Empty], error)
 	UploadVideoCover(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadVideoCoverReq, emptypb.Empty], error)
+	GetPublisherIdByVideoId(ctx context.Context, in *GetPublisherIdByVideoIdReq, opts ...grpc.CallOption) (*GetPublisherIdByVideoIdResp, error)
+	AddVideoCntShared(ctx context.Context, in *AddVideoCntSharedReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddVideoCntSharedRevert(ctx context.Context, in *AddVideoCntSharedReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type videoInfoClient struct {
@@ -186,6 +192,36 @@ func (c *videoInfoClient) UploadVideoCover(ctx context.Context, opts ...grpc.Cal
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type VideoInfo_UploadVideoCoverClient = grpc.ClientStreamingClient[UploadVideoCoverReq, emptypb.Empty]
 
+func (c *videoInfoClient) GetPublisherIdByVideoId(ctx context.Context, in *GetPublisherIdByVideoIdReq, opts ...grpc.CallOption) (*GetPublisherIdByVideoIdResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPublisherIdByVideoIdResp)
+	err := c.cc.Invoke(ctx, VideoInfo_GetPublisherIdByVideoId_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *videoInfoClient) AddVideoCntShared(ctx context.Context, in *AddVideoCntSharedReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, VideoInfo_AddVideoCntShared_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *videoInfoClient) AddVideoCntSharedRevert(ctx context.Context, in *AddVideoCntSharedReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, VideoInfo_AddVideoCntSharedRevert_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VideoInfoServer is the server API for VideoInfo service.
 // All implementations must embed UnimplementedVideoInfoServer
 // for forward compatibility.
@@ -199,6 +235,9 @@ type VideoInfoServer interface {
 	UploadVideoInfo(context.Context, *UploadVideoInfoReq) (*emptypb.Empty, error)
 	UploadVideoFile(grpc.ClientStreamingServer[UploadVideoFileReq, emptypb.Empty]) error
 	UploadVideoCover(grpc.ClientStreamingServer[UploadVideoCoverReq, emptypb.Empty]) error
+	GetPublisherIdByVideoId(context.Context, *GetPublisherIdByVideoIdReq) (*GetPublisherIdByVideoIdResp, error)
+	AddVideoCntShared(context.Context, *AddVideoCntSharedReq) (*emptypb.Empty, error)
+	AddVideoCntSharedRevert(context.Context, *AddVideoCntSharedReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedVideoInfoServer()
 }
 
@@ -235,6 +274,15 @@ func (UnimplementedVideoInfoServer) UploadVideoFile(grpc.ClientStreamingServer[U
 }
 func (UnimplementedVideoInfoServer) UploadVideoCover(grpc.ClientStreamingServer[UploadVideoCoverReq, emptypb.Empty]) error {
 	return status.Errorf(codes.Unimplemented, "method UploadVideoCover not implemented")
+}
+func (UnimplementedVideoInfoServer) GetPublisherIdByVideoId(context.Context, *GetPublisherIdByVideoIdReq) (*GetPublisherIdByVideoIdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPublisherIdByVideoId not implemented")
+}
+func (UnimplementedVideoInfoServer) AddVideoCntShared(context.Context, *AddVideoCntSharedReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddVideoCntShared not implemented")
+}
+func (UnimplementedVideoInfoServer) AddVideoCntSharedRevert(context.Context, *AddVideoCntSharedReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddVideoCntSharedRevert not implemented")
 }
 func (UnimplementedVideoInfoServer) mustEmbedUnimplementedVideoInfoServer() {}
 func (UnimplementedVideoInfoServer) testEmbeddedByValue()                   {}
@@ -369,6 +417,60 @@ func _VideoInfo_UploadVideoCover_Handler(srv interface{}, stream grpc.ServerStre
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type VideoInfo_UploadVideoCoverServer = grpc.ClientStreamingServer[UploadVideoCoverReq, emptypb.Empty]
 
+func _VideoInfo_GetPublisherIdByVideoId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPublisherIdByVideoIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideoInfoServer).GetPublisherIdByVideoId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VideoInfo_GetPublisherIdByVideoId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoInfoServer).GetPublisherIdByVideoId(ctx, req.(*GetPublisherIdByVideoIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VideoInfo_AddVideoCntShared_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddVideoCntSharedReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideoInfoServer).AddVideoCntShared(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VideoInfo_AddVideoCntShared_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoInfoServer).AddVideoCntShared(ctx, req.(*AddVideoCntSharedReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VideoInfo_AddVideoCntSharedRevert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddVideoCntSharedReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideoInfoServer).AddVideoCntSharedRevert(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VideoInfo_AddVideoCntSharedRevert_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoInfoServer).AddVideoCntSharedRevert(ctx, req.(*AddVideoCntSharedReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // VideoInfo_ServiceDesc is the grpc.ServiceDesc for VideoInfo service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -387,6 +489,18 @@ var VideoInfo_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UploadVideoInfo",
 			Handler:    _VideoInfo_UploadVideoInfo_Handler,
+		},
+		{
+			MethodName: "GetPublisherIdByVideoId",
+			Handler:    _VideoInfo_GetPublisherIdByVideoId_Handler,
+		},
+		{
+			MethodName: "AddVideoCntShared",
+			Handler:    _VideoInfo_AddVideoCntShared_Handler,
+		},
+		{
+			MethodName: "AddVideoCntSharedRevert",
+			Handler:    _VideoInfo_AddVideoCntSharedRevert_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

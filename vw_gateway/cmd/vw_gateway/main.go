@@ -1,9 +1,17 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
 	"github.com/go-kratos/kratos/v2/registry"
+	"github.com/go-kratos/kratos/v2/transport/grpc/resolver/discovery"
+	consulAPI "github.com/hashicorp/consul/api"
+	"google.golang.org/grpc/resolver"
 	"os"
+	"strings"
+	"time"
+	utilCtx "util/context"
 	"util/monitor"
 	"vw_gateway/internal/conf"
 
@@ -14,7 +22,8 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
-
+	// 导入 kratos 的 dtm 驱动
+	_ "github.com/dtm-labs/driver-kratos"
 	_ "go.uber.org/automaxprocs"
 )
 
@@ -81,7 +90,21 @@ func main() {
 		panic(err)
 	}
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Registry, bc.Jwt, bc.Email, bc.Trace, bc.Service, logger)
+	// 注册 DTM 服务
+	if err := registerDTM(bc.Registry, bc.Dtm); err != nil {
+		panic(err)
+	}
+
+	app, cleanup, err := wireApp(
+		bc.Server,
+		bc.Data,
+		bc.Registry,
+		bc.Jwt,
+		bc.Email,
+		bc.Trace,
+		bc.Service,
+		bc.Dtm,
+		logger)
 	if err != nil {
 		panic(err)
 	}
@@ -91,4 +114,26 @@ func main() {
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
+}
+
+func registerDTM(consulConfig *conf.Registry, dtmConfig *conf.DTM) error {
+	c := consulAPI.DefaultConfig()
+	c.Address = consulConfig.Consul.Address
+	c.Scheme = consulConfig.Consul.Scheme
+	cli, err := consulAPI.NewClient(c)
+	if err != nil {
+		return err
+	}
+	r := consul.New(cli, consul.WithHealthCheck(true))
+	resolver.Register(discovery.NewBuilder(r, discovery.WithInsecure(true)))
+	ctx, cancel := utilCtx.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	dtmService := &registry.ServiceInstance{
+		ID:        "DTM_SERVER",
+		Name:      "dtm",
+		Metadata:  make(map[string]string),
+		Endpoints: strings.Split(dtmConfig.DtmConfig.Endpoint, ","),
+	}
+	return r.Register(ctx, dtmService)
+	return nil
 }

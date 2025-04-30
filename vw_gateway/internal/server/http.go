@@ -18,6 +18,7 @@ import (
 	"vw_gateway/api/v1/user/identity"
 	"vw_gateway/api/v1/user/userfile"
 	"vw_gateway/api/v1/user/userinfo"
+	videointeractv1 "vw_gateway/api/v1/video/video_interact"
 	videoinfov1 "vw_gateway/api/v1/video/videoinfo"
 	gsserver "vw_gateway/internal/service/ginservice/server"
 	"vw_gateway/internal/service/ginservice/service"
@@ -63,6 +64,7 @@ func NewHTTPServer(
 	info *user.InfoService,
 	favorites *user.FavoritesService,
 	videoInfo *video.InfoService,
+	videoInteract *video.InteractService,
 	videoFile *gs.VideoDownloadFileService,
 	ge *gin.Engine,
 	logger log.Logger) *http.Server {
@@ -106,6 +108,7 @@ func NewHTTPServer(
 	favorv1.RegisterFavoriteHTTPServer(srv, favorites)
 	followv1.RegisterFollowHTTPServer(srv, follow)
 	videoinfov1.RegisterVideoInfoHTTPServer(srv, videoInfo)
+	videointeractv1.RegisterVideoInteractHTTPServer(srv, videoInteract)
 	srv.HandlePrefix("/api/v1/video", gsserver.RegisterVideoFileDownloadHTTPServer(ge, videoFile))
 	return srv
 }

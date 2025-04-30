@@ -16,4 +16,5 @@ var ProviderSet = wire.NewSet(
 	userbiz.NewFollowUsecase,
 
 	videobiz.NewVideoInfoUsecase,
+	videobiz.NewInteractUsecase,
 )

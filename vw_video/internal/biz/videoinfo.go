@@ -2,9 +2,14 @@ package biz
 
 import (
 	"context"
+	"database/sql"
 	stderr "errors"
+	"github.com/dtm-labs/dtm/client/dtmcli"
+	"github.com/dtm-labs/dtm/client/dtmgrpc"
 	"github.com/go-kratos/kratos/v2/log"
+	"go.mongodb.org/mongo-driver/mongo"
 	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 	"io"
@@ -26,16 +31,26 @@ import (
 )
 
 type VideoInfoRepo interface {
+	/* Used for dtm */
+	GetSqlTx() *sql.Tx
+	GetMongoClient() *mongo.Client
+	GetDBAndCollection() (db, collection string)
+
 	GetVideoInfoById(ctx context.Context, videoId int64) (*model.Video, error)
-	GetVideoListByClass(ctx context.Context, class []string, pageNum int32, pageSize int32) ([]*model.Video, error)
+	GetVideoListByClass(ctx context.Context, class []string, pageNum int32, pageSize int32) ([]*model.VideoSummary, error)
 	GetVideoFilePathById(ctx context.Context, videoId int64) (string, error)
-	AddVideoHot(ctx context.Context, videoId, hot int64) error
+	AddVideoCntView(ctx context.Context, videoId int64) error
 	SetCoverPath(ctx context.Context, videoId int64, coverPath string) error
 	CreateBasicVideoInfo(ctx context.Context, video *model.Video) error
-
 	UpdateVideoDurationSizeInfo(ctx context.Context, videoId int64, duration string, size int64) error
 	GetPublisherIdByVideoId(CTX context.Context, videoId int64) (publisherId int64, err error)
 	UpdateVideoFilePath(ctx context.Context, videoId int64, videoFilePath string) error
+	GetBarragesByVideoId(ctx context.Context, videoId int64) ([]*model.Barrage, error)
+	UpdateVideoCntShare(ctx context.Context, tx *sql.Tx, videoID int64) error
+	UpdateVideoCntShareCompensation(ctx context.Context, tx *sql.Tx, videoID int64) error
+	GetUserVideoStatus(ctx context.Context, videoId int64, userId int64) (int64, error)
+	SetUserVideoStatus(ctx context.Context, videoId int64, userId int64, status int64) error
+	UpdateUserVideoHistory(ctx context.Context, videoId int64, userId int64, history *model.VideoSummary) error
 }
 
 type VideoInfoUsecase struct {
@@ -52,18 +67,102 @@ func NewVideoInfoUsecase(repo VideoInfoRepo, tx util.Transaction, logger log.Log
 	}
 }
 
-func (uc *VideoInfoUsecase) GetVideoInfoById(ctx context.Context, videoId int64) (*model.Video, error) {
-	videoDetail, err := uc.repo.GetVideoInfoById(ctx, videoId)
-	if err != nil {
-		if stderr.Is(err, gorm.ErrRecordNotFound) {
-			return nil, helper.HandleError(errdef.ErrGetVideoInfoFailed, errdef.ErrVideoNotFound)
+func (uc *VideoInfoUsecase) GetVideoInfoById(ctx context.Context, videoId, userId int64) (*videoinfov1.GetVideoInfoResp, error) {
+	var ret = new(videoinfov1.GetVideoInfoResp)
+	err := uc.tx.WithTx(ctx, func(ctx context.Context) error {
+		// 1. Get video detail by video id
+		//1.1 Get video info from database by video id
+		videoDetail, err := uc.repo.GetVideoInfoById(ctx, videoId)
+		if err != nil {
+			if stderr.Is(err, gorm.ErrRecordNotFound) {
+				return errdef.ErrVideoNotFound
+			}
+			return err
 		}
+
+		// 1.2 Add user video information to the response
+		ret.VideoDetail = &videoinfov1.VideoMetaInfo{
+			VideoId:       videoDetail.VideoID,
+			Title:         videoDetail.Title,
+			Description:   videoDetail.Description,
+			Classes:       strings.Split(videoDetail.Class, methods.Separator),
+			Tags:          strings.Split(videoDetail.Tags, methods.Separator),
+			PublisherId:   videoDetail.PublisherID,
+			PublisherName: videoDetail.PublisherName,
+			Duration:      videoDetail.Duration,
+			Hot:           videoDetail.Hot,
+			Records: &videoinfov1.VideoMetaInfo_Records{
+				CntBarrages:  uint32(videoDetail.CntBarrages),
+				CntShares:    uint32(videoDetail.CntShares),
+				CntViewed:    uint32(videoDetail.CntViewed),
+				CntFavorited: uint32(videoDetail.CntFavorited),
+			},
+			VideoPath: videoDetail.VideoPath,
+			CoverPath: videoDetail.CoverPath,
+			Size:      videoDetail.Size,
+		}
+
+		// 2. Get barrages of the video
+		// 2.1 Get barrages from database of the video
+		barrages, err := uc.repo.GetBarragesByVideoId(ctx, videoId)
+		if err != nil {
+			return err
+		}
+
+		// 2.2 Add barrages' information to the response
+		ret.Barrages = make([]*videoinfov1.GetVideoInfoResp_BarrageInfo, 0)
+		for _, barrage := range barrages {
+			ret.Barrages = append(ret.Barrages, &videoinfov1.GetVideoInfoResp_BarrageInfo{
+				BarrageId: barrage.BarrageID,
+				Color:     barrage.Color,
+				Content:   barrage.Content,
+				Time:      strings.Join([]string{barrage.Hour, barrage.Minute, barrage.Second}, ":"),
+			})
+		}
+
+		// 3. Get user video status
+		// 3.1 Get user video status from MongoDB
+		status, err := uc.repo.GetUserVideoStatus(ctx, videoId, userId)
+		if err != nil {
+			return err
+		}
+
+		// 3.2 Add user video status to the response
+		ret.UserVideoStatus = &videoinfov1.GetVideoInfoResp_UserVideoStatus{
+			IsFavorited:    checkIsFavorited(status),
+			IsShared:       checkIsShared(status),
+			IsUpvoted:      checkIsUpvoted(status),
+			IsThrownShells: checkIsThrownShell(status),
+		}
+
+		// 4. Increment video's view count and hot to video detail
+		err = uc.repo.AddVideoCntView(ctx, videoId)
+		if err != nil {
+			return err
+		}
+
+		// 5. Add user-watch history
+		err = uc.repo.UpdateUserVideoHistory(ctx, videoId, userId, &model.VideoSummary{
+			VideoId:       videoDetail.VideoID,
+			CntBarrages:   videoDetail.CntBarrages,
+			CntViewed:     videoDetail.CntViewed,
+			Title:         videoDetail.Title,
+			Duration:      videoDetail.Duration,
+			CoverPath:     videoDetail.CoverPath,
+			PublisherName: videoDetail.PublisherName,
+		})
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
 		return nil, helper.HandleError(errdef.ErrGetVideoInfoFailed, err)
 	}
-	return videoDetail, nil
+	return ret, nil
 }
 
-func (uc *VideoInfoUsecase) GetVideoListByClass(ctx context.Context, class []string, pageNum int32, pageSize int32) ([]*model.Video, error) {
+func (uc *VideoInfoUsecase) GetVideoListByClass(ctx context.Context, class []string, pageNum int32, pageSize int32) ([]*model.VideoSummary, error) {
 	videoList, err := uc.repo.GetVideoListByClass(ctx, class, pageNum, pageSize)
 	if err != nil {
 		return nil, helper.HandleError(errdef.ErrGetVideoListFailed, err)
@@ -354,7 +453,7 @@ func (uc *VideoInfoUsecase) GetVideoFile(videoId int64, stream grpc.ServerStream
 		}
 	}
 	err = sendFileStream(stream, videoFilePath, filenameMsgFn, fileDataMsgFn)
-	return nil
+	return err
 }
 
 func (uc *VideoInfoUsecase) GetVideoMpd(videoId int64, stream grpc.ServerStreamingServer[videoinfov1.GetVideoMpdResp]) error {
@@ -463,6 +562,30 @@ func (uc *VideoInfoUsecase) GetVideoCover(videoId int64, stream grpc.ServerStrea
 	return nil
 }
 
+func (uc *VideoInfoUsecase) GetPublisherIdByVideoId(ctx context.Context, videoId int64) (int64, error) {
+	return uc.repo.GetPublisherIdByVideoId(ctx, videoId)
+}
+
+func (uc *VideoInfoUsecase) UpdateVideoCntShare(ctx context.Context, videoId int64, isCompensation bool) error {
+	barrier, err := dtmgrpc.BarrierFromGrpc(ctx)
+	if err != nil {
+		return helper.HandleGrpcError(codes.Aborted, dtmcli.ResultFailure, err)
+	}
+
+	err = barrier.Call(uc.repo.GetSqlTx(), func(tx *sql.Tx) error {
+		if isCompensation {
+			return uc.repo.UpdateVideoCntShareCompensation(ctx, tx, videoId)
+		} else {
+			return uc.repo.UpdateVideoCntShare(ctx, tx, videoId)
+		}
+	})
+	if err != nil {
+		return helper.HandleGrpcError(codes.Aborted, dtmcli.ResultFailure, err)
+	}
+
+	return nil
+}
+
 func sendFileStream[resT any, streamT grpc.ServerStreamingServer[resT]](
 	stream streamT,
 	filePath string,
@@ -497,17 +620,4 @@ func sendFileStream[resT any, streamT grpc.ServerStreamingServer[resT]](
 		}
 	}
 	return nil
-}
-
-func protoVideoInfoToModel(info *videoinfov1.VideoMetaInfo) *model.Video {
-	return &model.Video{
-		Title:         info.Title,
-		Description:   info.Description,
-		Class:         strings.Join(info.Classes, methods.Separator),
-		Hot:           info.Hot,
-		Tags:          strings.Join(info.Tags, methods.Separator),
-		PublisherID:   info.PublisherId,
-		PublisherName: info.PublisherName,
-		Duration:      info.Duration,
-	}
 }

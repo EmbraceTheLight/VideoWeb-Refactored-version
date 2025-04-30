@@ -22,7 +22,8 @@ func NewVideoInfoService(videoInfo *videobiz.VideoInfoUsecase, logger log.Logger
 }
 
 func (info *InfoService) GetVideoInfo(ctx context.Context, req *videoinfov1.GetVideoInfoReq) (*videoinfov1.GetVideoInfoResp, error) {
-	detail, err := info.videoInfo.GetVideoDetail(ctx, req.VideoId)
+	userId := ctx.Value(userIdKey).(int64)
+	detail, err := info.videoInfo.GetVideoDetail(ctx, req.VideoId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -32,15 +33,15 @@ func (info *InfoService) GetVideoInfo(ctx context.Context, req *videoinfov1.GetV
 }
 
 func (info *InfoService) GetVideoList(ctx context.Context, req *videoinfov1.GetVideoListReq) (*videoinfov1.GetVideoListResp, error) {
-	videosDetail, err := info.videoInfo.GetVideoList(ctx, req.Class, req.PageNum, req.PageSize)
+	videosSummary, err := info.videoInfo.GetVideoList(ctx, req.Class, req.PageNum, req.PageSize)
 	if err != nil {
 		return nil, err
 	}
 	ret := &videoinfov1.GetVideoListResp{
-		VideoDetails: make([]*videoinfov1.VideoMetaInfo, len(videosDetail)),
+		VideoSummary: make([]*videoinfov1.VideoSummary, len(videosSummary)),
 	}
-	for i, detail := range videosDetail {
-		ret.VideoDetails[i] = domainToVideoMetaInfo(detail)
+	for i, summary := range videosSummary {
+		ret.VideoSummary[i] = domainToVideoSummary(summary)
 	}
 	return ret, nil
 }
@@ -158,5 +159,17 @@ func domainToVideoMetaInfo(detail *domain.VideoDetail) *videoinfov1.VideoMetaInf
 		},
 		Duration:  detail.Duration,
 		CoverPath: detail.CoverPath,
+	}
+}
+
+func domainToVideoSummary(detail *domain.VideoSummary) *videoinfov1.VideoSummary {
+	return &videoinfov1.VideoSummary{
+		VideoId:       detail.VideoId,
+		CntBarrages:   detail.CntBarrages,
+		CntViewed:     detail.CntViewed,
+		Title:         detail.Title,
+		Duration:      detail.Duration,
+		PublisherName: detail.PublisherName,
+		CoverPath:     detail.CoverPath,
 	}
 }

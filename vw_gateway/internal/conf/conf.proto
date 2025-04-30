@@ -13,6 +13,7 @@ message Bootstrap {
     JWT jwt           = 5;
     Email email       = 6;
     Service service   = 7;
+    DTM dtm           = 8;
 }
 
 message Server {
@@ -81,4 +82,13 @@ message Service {
     }
     User user   = 1;
     Video video = 2;
+}
+
+message DTM {
+    message Config {
+        string driver   = 1;
+        string target   = 2;
+        string endpoint = 3;
+    }
+    Config dtm_config = 1;
 }

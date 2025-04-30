@@ -1,0 +1,123 @@
+syntax = "proto3";
+
+package video.v1.interact;
+
+import "google/protobuf/empty.proto";
+option go_package = "/api/video/v1/interact;interact";
+
+service VideoInteract {
+    // NOTE: if the method's SUFFIX is 'Revert',
+    // which indicates that it is the compensating method for some operations,
+    // used by DTM saga transaction.
+    rpc VideoUpvote(VideoUpvoteReq) returns (google.protobuf.Empty) {}
+    rpc VideoUpvoteRevert(VideoUpvoteReq) returns (google.protobuf.Empty) {}
+
+    rpc VideoFavorite(VideoFavoriteReq) returns (google.protobuf.Empty) {}
+    rpc VideoFavoriteRevert(VideoFavoriteReq) returns (google.protobuf.Empty) {}
+
+    rpc VideoThrowShells(VideoThrowShellsReq) returns (google.protobuf.Empty) {}
+    rpc VideoThrowShellsRevert(VideoThrowShellsReq) returns (google.protobuf.Empty) {}
+
+    rpc VideoShare(VideoShareReq) returns (VideoShareResp) {}
+
+    rpc VideoSendBarrage(VideoSendBarrageReq) returns (google.protobuf.Empty) {}
+
+    rpc BarrageUpvote(UpvoteBarrageReq) returns (google.protobuf.Empty) {}
+    rpc BarrageUpvoteRevert(UpvoteBarrageReq) returns (google.protobuf.Empty) {}
+
+    rpc GetUserVideoStatus(GetUserVideoStatusReq) returns (GetUserVideoStatusResp) {}
+
+    rpc GetUserBarrageStatus(GetUserBarrageStatusReq) returns (GetUserBarrageStatusResp) {}
+
+    rpc SetUserVideoStatus(SetUserVideoStatusReq) returns (google.protobuf.Empty) {}
+    rpc SetUserVideoStatusRevert(SetUserVideoStatusReq) returns (google.protobuf.Empty) {}
+
+    rpc SetUserBarrageStatus(SetUserBarrageStatusReq) returns (google.protobuf.Empty) {}
+    rpc SetUserBarrageStatusRevert(SetUserBarrageStatusReq) returns (google.protobuf.Empty) {}
+}
+
+message VideoUpvoteReq {
+    int64 video_id = 1;
+    int32 upvote   = 2;  // 1: Upvote, -1: Cancel upvote
+}
+
+message VideoFavoriteReq {
+    int64 video_id    = 1;
+    int64 favorite_id = 2;
+    int32 favorite    = 3;  // 1: Favorite, -1: Cancel favorite
+}
+
+message VideoThrowShellsReq {
+    int64 video_id = 1;
+    int64 user_id  = 2;
+    int32 shells   = 3;
+}
+
+message VideoShareReq {
+    int64 video_id  = 1;
+    int32 is_shared = 2;  // 1: Share, -1: Not shared before
+}
+message VideoShareResp {
+    string uri = 1;
+}
+
+message VideoSendBarrageReq {
+    int64 publisher_id = 1;
+    int64 video_id     = 2;
+    string content     = 3;
+    string time        = 4;  // user sends this barrage at hh:mm:ss of the video
+    string color       = 5;
+}
+
+message UpvoteBarrageReq {
+    int64 barrage_id = 1;
+    int64 user_id    = 2;
+
+    // upvote has two possible values:
+    // 1: This Barrage is upvoted by user before, so we Cancel upvote,
+    // -1: This Barrage is not upvoted by user yet, so we upvote.
+    int32 upvote = 3;
+}
+
+message GetUserVideoStatusReq {
+    int64 video_id = 1;
+    int64 user_id  = 2;
+}
+message GetUserVideoStatusResp {
+    int64 status       = 1;
+    int32 shells_count = 2;
+}
+
+message GetUserBarrageStatusReq {
+    int64 barrage_id = 1;
+    int64 user_id    = 2;
+}
+message GetUserBarrageStatusResp {
+    int64 status = 1;
+}
+
+message SetUserVideoStatusReq {
+    message Statuses {
+        int32 is_upvoted       = 1;  // 1: Set to upvoted, -1: Set to not upvoted
+        int32 is_favorited     = 2;  // 1: Set to favorited, -1: Set to not favorited
+        int32 is_thrown_shells = 3;  // 1: Set to thrown shells, -1: Set to not thrown shells
+        int32 is_shared        = 4;  // 1: Set to shared, -1: Set to not shared
+    }
+    int64 video_id      = 1;
+    int64 user_id       = 2;
+    int64 origin_status = 3;
+    int32 shells_count  = 4;
+    Statuses statuses   = 5;
+}
+
+message SetUserBarrageStatusReq {
+    message Statuses {
+        // 1: This Barrage is upvoted by user before, so we set it to not upvoted,
+        // -1: This Barrage is not upvoted by user yet, so we set it to upvoted
+        int32 is_upvoted = 1;
+    }
+    int64 barrage_id    = 1;
+    int64 user_id       = 2;
+    int64 origin_status = 3;
+    Statuses statuses   = 4;
+}

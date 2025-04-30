@@ -308,6 +308,144 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/gateway.api.v1.user.userinfo.ModifyUsernameResp'
+    /api/v1/video/interaction/{videoId}/barrage/send:
+        post:
+            tags:
+                - VideoInteract
+            operationId: VideoInteract_VideoSendBarrage
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.api.v1.video.interact.VideoSendBarrageReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.interact.VideoSendBarrageResp'
+    /api/v1/video/interaction/{videoId}/barrage/upvote:
+        put:
+            tags:
+                - VideoInteract
+            operationId: VideoInteract_VideoUpvoteBarrage
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.api.v1.video.interact.VideoUpvoteBarrageReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.interact.VideoUpvoteBarrageResp'
+    /api/v1/video/interaction/{videoId}/favorite:
+        put:
+            tags:
+                - VideoInteract
+            operationId: VideoInteract_VideoFavorite
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.api.v1.video.interact.VideoFavoriteReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.interact.VideoFavoriteResp'
+    /api/v1/video/interaction/{videoId}/share:
+        get:
+            tags:
+                - VideoInteract
+            operationId: VideoInteract_VideoShare
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.interact.VideoShareResp'
+    /api/v1/video/interaction/{videoId}/throwShells:
+        put:
+            tags:
+                - VideoInteract
+            operationId: VideoInteract_VideoThrowShells
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.api.v1.video.interact.VideoThrowShellsReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.interact.VideoThrowShellsResp'
+    /api/v1/video/interaction/{videoId}/upvote:
+        put:
+            tags:
+                - VideoInteract
+            operationId: VideoInteract_VideoUpvote
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.api.v1.video.interact.VideoUpvoteReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.interact.VideoUpvoteResp'
     /api/v1/video/list:
         get:
             tags:
@@ -997,6 +1135,96 @@ components:
                     $ref: '#/components/schemas/gateway.api.v1.user.userinfo.UserInfo'
                 common:
                     $ref: '#/components/schemas/gateway.api.v1.user.userinfo.CommonResp'
+        gateway.api.v1.video.interact.VideoFavoriteReq:
+            type: object
+            properties:
+                videoId:
+                    type: string
+                favoriteId:
+                    type: string
+        gateway.api.v1.video.interact.VideoFavoriteResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        gateway.api.v1.video.interact.VideoSendBarrageReq:
+            type: object
+            properties:
+                videoId:
+                    type: string
+                content:
+                    type: string
+                color:
+                    type: string
+                time:
+                    type: string
+                upvoteCount:
+                    type: string
+        gateway.api.v1.video.interact.VideoSendBarrageResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        gateway.api.v1.video.interact.VideoShareResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+                url:
+                    type: string
+        gateway.api.v1.video.interact.VideoThrowShellsReq:
+            type: object
+            properties:
+                videoId:
+                    type: string
+                shells:
+                    type: integer
+                    format: int32
+        gateway.api.v1.video.interact.VideoThrowShellsResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        gateway.api.v1.video.interact.VideoUpvoteBarrageReq:
+            type: object
+            properties:
+                videoId:
+                    type: string
+                barrageId:
+                    type: string
+        gateway.api.v1.video.interact.VideoUpvoteBarrageResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        gateway.api.v1.video.interact.VideoUpvoteReq:
+            type: object
+            properties:
+                videoId:
+                    type: string
+        gateway.api.v1.video.interact.VideoUpvoteResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
         gateway.api.v1.video.videoinfo.CommonResp:
             type: object
             properties:
@@ -1031,10 +1259,10 @@ components:
         gateway.api.v1.video.videoinfo.GetVideoListResp:
             type: object
             properties:
-                videoDetails:
+                VideoSummary:
                     type: array
                     items:
-                        $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.VideoMetaInfo'
+                        $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.VideoSummary'
         gateway.api.v1.video.videoinfo.UploadVideoCoverReq:
             type: object
             properties:
@@ -1120,6 +1348,23 @@ components:
                 cntFavorites:
                     type: integer
                     format: uint32
+        gateway.api.v1.video.videoinfo.VideoSummary:
+            type: object
+            properties:
+                videoId:
+                    type: string
+                cntBarrages:
+                    type: string
+                cntViewed:
+                    type: string
+                title:
+                    type: string
+                duration:
+                    type: string
+                publisherName:
+                    type: string
+                coverPath:
+                    type: string
 tags:
     - name: Captcha
     - name: Favorite
@@ -1129,3 +1374,4 @@ tags:
       description: 用户身份相关服务
     - name: Userinfo
     - name: VideoInfo
+    - name: VideoInteract

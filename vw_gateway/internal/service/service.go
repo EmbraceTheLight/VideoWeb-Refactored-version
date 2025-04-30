@@ -16,4 +16,5 @@ var ProviderSet = wire.NewSet(
 	user.NewFollowService,
 
 	video.NewVideoInfoService,
+	video.NewInteractService,
 )

@@ -14,11 +14,12 @@ import (
 	"vw_gateway/internal/domain"
 	"vw_gateway/internal/pkg/ecode/errdef/uerr"
 	"vw_gateway/internal/pkg/ecode/errdef/verr"
+	videoinfov2 "vw_video/api/v1/videoinfo"
 )
 
 type VideoInfoRepo interface {
-	GetVideoInfo(ctx context.Context, videoId int64) (*domain.VideoDetail, error)
-	GetVideoList(ctx context.Context, class []string, num int32, size int32) ([]*domain.VideoDetail, error)
+	GetVideoInfo(ctx context.Context, videoId, userId int64) (*domain.VideoDetail, error)
+	GetVideoList(ctx context.Context, class []string, num int32, size int32) ([]*videoinfov2.VideoSummary, error)
 	GetVideoFile(ctx context.Context, videoId int64) (*videoinfov1.FileResp, error)
 	GetVideoMpd(ctx context.Context, videoId int64) (*videoinfov1.FileResp, error)
 	GetVideoSegment(ctx context.Context, segmentPath string) (*videoinfov1.FileResp, error)
@@ -40,15 +41,15 @@ func NewVideoInfoUsecase(repo VideoInfoRepo, logger log.Logger) *VideoInfoUsecas
 	}
 }
 
-func (uc *VideoInfoUsecase) GetVideoDetail(ctx context.Context, videoId int64) (*domain.VideoDetail, error) {
-	resp, err := uc.repo.GetVideoInfo(ctx, videoId)
+func (uc *VideoInfoUsecase) GetVideoDetail(ctx context.Context, videoId, userId int64) (*domain.VideoDetail, error) {
+	resp, err := uc.repo.GetVideoInfo(ctx, videoId, userId)
 	if err != nil {
 		return nil, helper.HandleError(verr.ErrGetVideoListFailed, err)
 	}
 	return resp, nil
 }
 
-func (uc *VideoInfoUsecase) GetVideoList(ctx context.Context, class []string, num int32, size int32) ([]*domain.VideoDetail, error) {
+func (uc *VideoInfoUsecase) GetVideoList(ctx context.Context, class []string, num int32, size int32) ([]*domain.VideoSummary, error) {
 	if class == nil || len(class) == 0 {
 		class = []string{"default"}
 	}
@@ -56,7 +57,19 @@ func (uc *VideoInfoUsecase) GetVideoList(ctx context.Context, class []string, nu
 	if err != nil {
 		return nil, helper.HandleError(verr.ErrGetVideoListFailed, err)
 	}
-	return resp, nil
+	var videoList []*domain.VideoSummary
+	for _, v := range resp {
+		videoList = append(videoList, &domain.VideoSummary{
+			VideoId:       v.VideoId,
+			CntBarrages:   v.CntBarrages,
+			CntViewed:     v.CntViewed,
+			Title:         v.Title,
+			Duration:      v.Duration,
+			PublisherName: v.PublisherName,
+			CoverPath:     v.CoverPath,
+		})
+	}
+	return videoList, nil
 }
 
 func (uc *VideoInfoUsecase) UploadVideoInfo(ctx context.Context, info *domain.VideoDetail) error {

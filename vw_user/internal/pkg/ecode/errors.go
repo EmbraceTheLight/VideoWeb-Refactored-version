@@ -41,6 +41,7 @@ const (
 	USERINFO_ModifyUsernameFailed
 	USERINFO_GetUserInfoFailed
 	USERINFO_ModifySignatureFailed
+	USERINFO_AddUserLikeFailed
 
 	// favoritee errors
 	FAVORITES_CreateFavoritesFailed

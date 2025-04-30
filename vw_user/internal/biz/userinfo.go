@@ -2,9 +2,13 @@ package biz
 
 import (
 	"context"
+	"database/sql"
 	stderr "errors"
+	"github.com/dtm-labs/dtm/client/dtmcli"
+	"github.com/dtm-labs/dtm/client/dtmgrpc"
 	"github.com/go-kratos/kratos/v2/log"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc/codes"
 	"unicode/utf8"
 	"util/helper"
 	"vw_user/internal/data/dal/model"
@@ -13,41 +17,55 @@ import (
 )
 
 type UserInfoRepo interface {
-	// GetUserInfoByUserId get userbiz summary info by userbiz id
+	GetSqlTx() *sql.Tx
+
+	// GetUserInfoByUserId get user summary info by user id
 	GetUserInfoByUserId(ctx context.Context, userId int64) (*domain.UserInfo, error)
 
-	// GetUserInfoByUsername get userbiz summary info by username
+	// GetUserInfoByUsername get user summary info by username
 	GetUserInfoByUsername(ctx context.Context, username string) (*domain.UserInfo, error)
 
-	// GetUserLevelById get userbiz level by userbiz id
+	// GetUserLevelById get user level by user id
 	GetUserLevelById(ctx context.Context, userId int64) (*model.UserLevel, error)
 
-	// GetUserFansByUserID get userbiz fans by userbiz id
+	// GetUserFansByUserID get user fans by user id
 	GetUserFansByUserID(ctx context.Context, userId int64) ([]*domain.UserInfo, error)
 
-	// GetUserFollowersByUserIDFollowListID GetUserFollowersByUserID get userbiz followers by userbiz id and followList id
+	// GetUserFolloweesByUserIDFollowListID GetUserFollowersByUserID get user followers by user id and followList id
 	GetUserFolloweesByUserIDFollowListID(ctx context.Context, userId, followListID int64, pageNum, pageSize int32) ([]*domain.UserSummary, error)
 
-	// UpdateEmail update userbiz email
+	// UpdateEmail update user email
 	UpdateEmail(ctx context.Context, userId int64, newEmail string) error
 
-	// UpdatePassword update userbiz password. Front-end should check if the password is valid
+	// UpdatePassword update user password. Front-end should check if the password is valid
 	UpdatePassword(ctx context.Context, userId int64, newPassword string) error
 
-	// UpdateUserSignature update userbiz signature
+	// UpdateUserSignature update user signature
 	UpdateUserSignature(ctx context.Context, userId int64, signature string) error
 
 	// CheckUsernameConflict check if the new username is conflict with existing username
 	CheckUsernameConflict(ctx context.Context, newUsername string) (ok bool, err error)
 
-	// UpdateUsername update userbiz username
+	// UpdateUsername update user username
 	UpdateUsername(ctx context.Context, userId int64, newUsername string) error
 
-	// UpdateCntFollows update userbiz fans count
+	// UpdateCntFollows update user fans count
 	UpdateCntFollows(ctx context.Context, userId int64, change int64) error
 
-	// UpdateCntFans update userbiz fans count
+	// UpdateCntFans update user fans count
 	UpdateCntFans(ctx context.Context, userId int64, change int64) error
+
+	// AddUserCntLike add user like count
+	AddUserCntLike(ctx context.Context, tx *sql.Tx, userId int64) error
+
+	// DecrementUserCntLike decrement user like count
+	DecrementUserCntLike(ctx context.Context, tx *sql.Tx, userId int64) error
+
+	// UpdateUserShells update user shells
+	UpdateUserShells(ctx context.Context, tx *sql.Tx, userId int64, shells int64) error
+
+	// GetUserShells get user shells
+	GetUserShells(ctx context.Context, tx *sql.Tx, id int64) (int64, error)
 }
 
 type UserInfoUsecase struct {
@@ -78,7 +96,12 @@ func (uic *UserInfoUsecase) GetUserinfo(ctx context.Context, userId int64) (*dom
 func (uic *UserInfoUsecase) ModifyEmail(ctx context.Context, userID int64, email string, inputCode string) (newEmail string, err error) {
 	// * DELETE the verify code from Redis cache after updating the email,
 	// * NO MATTER this update is successful or not.
-	defer uic.captcha.DeleteCodeFromCache(ctx, email)
+	defer func(captcha CaptchaRepo, ctx context.Context, email string) {
+		err := captcha.DeleteCodeFromCache(ctx, email)
+		if err != nil {
+
+		}
+	}(uic.captcha, ctx, email)
 
 	// Get the verify code from Redis cache and compare it with the input code
 	verifyCode, err := uic.captcha.GetCodeFromCache(ctx, email)
@@ -172,4 +195,81 @@ func (uic *UserInfoUsecase) ModifyUsername(ctx context.Context, userId int64, us
 	}
 
 	return username, nil
+}
+
+func (uic *UserInfoUsecase) UpdateUserCntLikes(ctx context.Context, userID int64, isUpvoted int32) error {
+	tx := uic.infoRepo.GetSqlTx()
+	barrier, err := dtmgrpc.BarrierFromGrpc(ctx)
+	if err != nil {
+		return helper.HandleGrpcError(codes.Aborted, dtmcli.ResultFailure, err)
+	}
+
+	err = barrier.Call(tx, func(tx *sql.Tx) error {
+		// Case 1: isUpvoted == 1, add user like count
+		if isUpvoted == 1 {
+			return uic.infoRepo.AddUserCntLike(ctx, tx, userID)
+
+			// Case 2: isUpvoted == -1, decrement user like count
+		} else {
+			return uic.infoRepo.DecrementUserCntLike(ctx, tx, userID)
+		}
+	})
+	if err != nil {
+		return helper.HandleGrpcError(codes.Aborted, dtmcli.ResultFailure, err)
+	}
+	return nil
+}
+func (uic *UserInfoUsecase) DecrementUserCntLikes(ctx context.Context, userID int64) error {
+	tx := uic.infoRepo.GetSqlTx()
+	barrier, err := dtmgrpc.BarrierFromGrpc(ctx)
+	if err != nil {
+		return helper.HandleGrpcError(codes.Aborted, dtmcli.ResultFailure, err)
+	}
+
+	err = barrier.Call(tx, func(tx *sql.Tx) error {
+		return uic.infoRepo.DecrementUserCntLike(ctx, tx, userID)
+	})
+	if err != nil {
+		return helper.HandleGrpcError(codes.Aborted, dtmcli.ResultFailure, err)
+	}
+	return nil
+}
+
+func (uic *UserInfoUsecase) UpdateUserShells(ctx context.Context, userId int64, publisherId int64, shells int64) error {
+	tx := uic.infoRepo.GetSqlTx()
+	barrier, err := dtmgrpc.BarrierFromGrpc(ctx)
+	if err != nil {
+		return helper.HandleGrpcError(codes.Aborted, dtmcli.ResultFailure, err)
+	}
+
+	err = barrier.Call(tx, func(tx *sql.Tx) error {
+		//  1. Deduct the shells from the user who throws the shells
+		//	1.1 Check if the user has enough shells
+		userShells, err := uic.infoRepo.GetUserShells(ctx, tx, userId)
+		if err != nil {
+			return err
+		}
+		if userShells < shells {
+			return stderr.New("用户剩余贝壳不足")
+		}
+
+		// 1.2 Deduct the shells from the user who throws the shells
+		err = uic.infoRepo.UpdateUserShells(ctx, tx, userId, -shells)
+		if err != nil {
+			return err
+		}
+
+		if userId != publisherId {
+			// 2. Add the shells to the publisher
+			err = uic.infoRepo.UpdateUserShells(ctx, tx, publisherId, shells)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return helper.HandleGrpcError(codes.Aborted, dtmcli.ResultFailure, err)
+	}
+	return nil
 }

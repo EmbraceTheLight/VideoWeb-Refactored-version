@@ -12,6 +12,31 @@ const (
 	VIDEOINFO_GetVideoMpdFailed
 	VIDEOINFO_GetVideoCoverFailed
 	VIDEOINFO_GetVideoSegmentFailed
+
+	// Video interact errors
+	VIDEOINTERACT_UpvoteVideoFailed
+	VIDEOINTERACT_UpvoteVideoRevertFailed
+
+	VIDEOINTERACT_CancelUpvoteVideoFailed
+	VIDEOINTERACT_CancelUpvoteVideoRevertFailed
+
+	VIDEOINTERACT_FavoriteVideoFailed
+	VIDEOINTERACT_FavoriteVideoRevertFailed
+
+	VIDEOINTERACT_CancelFavoriteVideoFailed
+	VIDEOINTERACT_CancelFavoriteVideoRevertFailed
+
+	VIDEOINTERACT_ThrowShellsFailed
+	VIDEOINTERACT_ThrowShellsRevertFailed
+
+	VIDEOINTERACT_ShareVideoFailed
+	VIDEOINTERACT_SendBarrageFailed
+	VIDEOINTERACT_UpvoteBarrageFailed
+	VIDEOINTERACT_GetUserVideoStatusFailed
+	VIDEOINTERACT_SetUserVideoStatusFailed
+	VIDEOINTERACT_SetUserVideoStatusRevertFailed
 )
+
+const RetryStr = "请稍后再试"
 
 var ()

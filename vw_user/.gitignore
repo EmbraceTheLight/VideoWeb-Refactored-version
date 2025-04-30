@@ -38,5 +38,6 @@ bin/
 *.swp
 
 # private info file
-configs/config.yaml
+configs
+!configs/config-demo.yaml
 ../resources/[0-9]*/
