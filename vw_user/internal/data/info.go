@@ -2,10 +2,12 @@ package data
 
 import (
 	"context"
+	"database/sql"
 	stderr "errors"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
+	"util/dbutil"
 	"vw_user/internal/biz"
 	"vw_user/internal/data/dal/model"
 	"vw_user/internal/data/dal/query"
@@ -46,7 +48,7 @@ func (u *userInfoRepo) GetUserInfoByUserId(ctx context.Context, userid int64) (*
 	queryUser := getQuery(ctx).User
 	userDo := queryUser.WithContext(ctx)
 	userInfo, err := userDo.Where(queryUser.UserID.Eq(userid)).
-		Select(queryUser.UserID, queryUser.Username, queryUser.IsAdmin, queryUser.Email, queryUser.Password,
+		Select(queryUser.UserID, queryUser.Username, queryUser.IsAdmin, queryUser.Email, queryUser.CntLikes, queryUser.Password,
 			queryUser.Gender, queryUser.AvatarPath, queryUser.Birthday, queryUser.Signature).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -257,6 +259,60 @@ func (u *userInfoRepo) UpdateCntFans(ctx context.Context, userId int64, change i
 	return nil
 }
 
+func (u *userInfoRepo) AddUserCntLike(ctx context.Context, tx *sql.Tx, userId int64) error {
+	user := query.User
+	userDo, userModel, err := getGormDBAndUserModel(tx, userId)
+	if err != nil {
+		return err
+	}
+
+	return userDo.Model(userModel).
+		Where(user.UserID.Eq(userId)).
+		Updates(map[string]any{
+			"cnt_likes": userModel.CntLikes + 1,
+		}).Error
+}
+
+func (u *userInfoRepo) DecrementUserCntLike(ctx context.Context, tx *sql.Tx, userId int64) error {
+	user := query.User
+	userDo, userModel, err := getGormDBAndUserModel(tx, userId)
+	if err != nil {
+		return err
+	}
+
+	return userDo.Model(userModel).
+		Where(user.UserID.Eq(userId)).
+		Updates(map[string]any{
+			"cnt_likes": userModel.CntLikes - 1,
+		}).Error
+}
+
+func (u *userInfoRepo) UpdateUserShells(ctx context.Context, tx *sql.Tx, userId int64, shells int64) error {
+	user := query.User
+	userDo, userModel, err := getGormDBAndUserModel(tx, userId)
+	if err != nil {
+		return err
+	}
+	return userDo.Model(userModel).
+		Where(user.UserID.Eq(userId)).
+		Updates(map[string]any{
+			"shells": userModel.Shells + shells,
+		}).Error
+}
+
+func (u *userInfoRepo) GetUserShells(ctx context.Context, tx *sql.Tx, id int64) (int64, error) {
+	_, userModel, err := getGormDBAndUserModel(tx, id)
+	if err != nil {
+		return 0, err
+	}
+	return userModel.Shells, nil
+}
+
+func (u *userInfoRepo) GetSqlTx() *sql.Tx {
+	tx := u.data.mysql.Begin()
+	return tx.Statement.ConnPool.(*sql.Tx)
+}
+
 func getUsersInfoByIDs(ctx context.Context, userIds []int64) ([]*model.User, error) {
 	user := getQuery(ctx).User
 	userdo := user.WithContext(ctx)
@@ -268,4 +324,18 @@ func getUsersInfoByIDs(ctx context.Context, userIds []int64) ([]*model.User, err
 		return nil, err
 	}
 	return userInfo, nil
+}
+
+func getGormDBAndUserModel(tx *sql.Tx, userID int64) (*gorm.DB, *model.User, error) {
+	db, err := dbutil.SqlTxToGormDB(tx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var userModel model.User
+	err = db.Where("user_id = ?", userID).First(&userModel).Error
+	if err != nil {
+		return nil, nil, err
+	}
+	return db, &userModel, nil
 }

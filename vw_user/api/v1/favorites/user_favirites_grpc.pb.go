@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Favorite_CreateFavorites_FullMethodName = "/vw_user.api.v1.favorites.Favorite/CreateFavorites"
-	Favorite_ModifyFavorites_FullMethodName = "/vw_user.api.v1.favorites.Favorite/ModifyFavorites"
-	Favorite_DeleteFavorites_FullMethodName = "/vw_user.api.v1.favorites.Favorite/DeleteFavorites"
+	Favorite_CreateFavorites_FullMethodName = "/user.v1.favorites.Favorite/CreateFavorites"
+	Favorite_ModifyFavorites_FullMethodName = "/user.v1.favorites.Favorite/ModifyFavorites"
+	Favorite_DeleteFavorites_FullMethodName = "/user.v1.favorites.Favorite/DeleteFavorites"
 )
 
 // FavoriteClient is the client API for Favorite service.
@@ -176,7 +176,7 @@ func _Favorite_DeleteFavorites_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Favorite_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "vw_user.api.v1.favorites.Favorite",
+	ServiceName: "user.v1.favorites.Favorite",
 	HandlerType: (*FavoriteServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

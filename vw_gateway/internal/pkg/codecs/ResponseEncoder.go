@@ -77,11 +77,11 @@ func ResponseEncoder(w http.ResponseWriter, r *http.Request, v interface{}) erro
 			}
 		}
 
-		//contentType := fr.Header.Get("Content-Type")
-		//if contentType == "" {
-		//	contentType = "application/octet-stream"
-		//}
-		//w.Header().Set("Content-Type", contentType)
+		contentType := fr.Header.Get("Content-Type")
+		if contentType == "" {
+			contentType = "application/octet-stream"
+		}
+		w.Header().Set("Content-Type", contentType)
 		http.ServeFile(w, r, fr.FilePath)
 		return nil
 	}

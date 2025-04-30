@@ -25,13 +25,14 @@ import (
 )
 
 import (
+	_ "github.com/dtm-labs/driver-kratos"
 	_ "go.uber.org/automaxprocs"
 )
 
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Registry, jwt *conf.JWT, email *conf.Email, trace *conf.Trace, service *conf.Service, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Registry, jwt *conf.JWT, email *conf.Email, trace *conf.Trace, service *conf.Service, dtm *conf.DTM, logger log.Logger) (*kratos.App, func(), error) {
 	grpcServer := server.NewGRPCServer(confServer, logger)
 	discovery := data.NewDiscovery(registry)
 	identityClient := userdata.NewUserIdentityClient(discovery, service)
@@ -41,7 +42,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Regist
 	favoriteClient := userdata.NewFavoritesClient(discovery, service)
 	followClient := userdata.NewFollowClient(discovery, service)
 	clusterClient := data.NewRedisClusterClient(confData)
-	userdataData, cleanup, err := userdata.NewData(logger, identityClient, userinfoClient, captchaClient, fileServiceClient, favoriteClient, followClient, clusterClient)
+	userdataData, cleanup, err := userdata.NewData(logger, identityClient, userinfoClient, captchaClient, fileServiceClient, favoriteClient, followClient, clusterClient, dtm)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -66,7 +67,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Regist
 	favoritesUsecase := userbiz.NewFavoritesUsecase(favoritesRepo, logger)
 	favoritesService := user.NewFavoritesService(favoritesUsecase, logger)
 	videoInfoClient := videodata.NewVideoInfoClient(discovery, service)
-	videodataData, cleanup2, err := videodata.NewData(logger, videoInfoClient, clusterClient)
+	videoInteractClient := videodata.NewVideoInteractClient(discovery, service)
+	videodataData, cleanup2, err := videodata.NewData(logger, videoInfoClient, userinfoClient, videoInteractClient, clusterClient, dtm)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
@@ -74,9 +76,12 @@ func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Regist
 	videoInfoRepo := videodata.NewVideoInfoRepo(videodataData, logger)
 	videoInfoUsecase := videobiz.NewVideoInfoUsecase(videoInfoRepo, logger)
 	videoInfoService := video.NewVideoInfoService(videoInfoUsecase, logger)
+	interactRepo := videodata.NewInteractRepo(videodataData, logger)
+	interactUsecase := videobiz.NewInteractUsecase(interactRepo, logger)
+	interactService := video.NewInteractService(interactUsecase, logger)
 	videoDownloadFileService := gs.NewVideoDownloadFileService(videoInfoUsecase, logger)
 	engine := ginservice.NewGinEngine(jwt, clusterClient)
-	httpServer := server.NewHTTPServer(confServer, jwt, captchaService, fileService, identityService, followService, clusterClient, infoService, favoritesService, videoInfoService, videoDownloadFileService, engine, logger)
+	httpServer := server.NewHTTPServer(confServer, jwt, captchaService, fileService, identityService, followService, clusterClient, infoService, favoritesService, videoInfoService, interactService, videoDownloadFileService, engine, logger)
 	registrar := data.NewRegistrar(registry)
 	app := newApp(logger, grpcServer, httpServer, registrar)
 	return app, func() {

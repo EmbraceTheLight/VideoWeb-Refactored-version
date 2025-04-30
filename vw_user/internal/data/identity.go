@@ -84,20 +84,20 @@ func (u *userIdentityRepo) CacheAccessToken(ctx context.Context, userId, accessT
 
 func (u *userIdentityRepo) CreatRecordsForRegister(ctx context.Context, newUser *model.User) error {
 	var err error
-	//defaultFavorites := &model.UserFavorite{
-	//	FavoriteID:   snowflake.GetID(),
-	//	UserID:       newUser.UserID,
-	//	FavoriteName: "默认收藏夹",
-	//	Description:  "",
-	//	IsPrivate:    1,
-	//}
-	//privateFavorites := &model.UserFavorite{
-	//	FavoriteID:   snowflake.GetID(),
-	//	UserID:       newUser.UserID,
-	//	FavoriteName: "私密收藏夹",
-	//	Description:  "",
-	//	IsPrivate:    -1,
-	//}
+	defaultFavorites := &model.Favorite{
+		FavoritesID:   getid.GetID(),
+		UserID:        newUser.UserID,
+		FavoritesName: "默认收藏夹",
+		Description:   "",
+		IsPrivate:     1,
+	}
+	privateFavorites := &model.Favorite{
+		FavoritesID:   getid.GetID(),
+		UserID:        newUser.UserID,
+		FavoritesName: "私密收藏夹",
+		Description:   "",
+		IsPrivate:     -1,
+	}
 	userLevel := &model.UserLevel{
 		UserID: newUser.UserID,
 	}
@@ -126,7 +126,7 @@ func (u *userIdentityRepo) CreatRecordsForRegister(ctx context.Context, newUser 
 		return err
 	}
 
-	//err = tx.UserFavorite.Create(defaultFavorites, privateFavorites)
+	err = tx.Favorite.Create(defaultFavorites, privateFavorites)
 	if err != nil {
 		return err
 	}

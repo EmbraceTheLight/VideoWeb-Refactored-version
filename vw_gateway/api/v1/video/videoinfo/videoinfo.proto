@@ -126,6 +126,15 @@ message VideoMetaInfo {
     string duration   = 12;
     string cover_path = 13;
 }
+message VideoSummary {
+    int64 video_id        = 1;
+    int64 cnt_barrages    = 2;
+    int64 cnt_viewed      = 3;
+    string title          = 4;
+    string duration       = 5;
+    string publisher_name = 6;
+    string cover_path     = 7;
+}
 
 message GetVideoInfoReq {
     int64 video_id = 1;
@@ -140,7 +149,7 @@ message GetVideoListReq {
     int32 page_size       = 3;
 }
 message GetVideoListResp {
-    repeated VideoMetaInfo video_details = 1;
+    repeated VideoSummary VideoSummary = 1;
 }
 
 message UploadVideoInfoReq {

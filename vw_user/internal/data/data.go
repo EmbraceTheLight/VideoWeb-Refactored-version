@@ -148,6 +148,11 @@ func (d *Data) WithTx(ctx context.Context, fn func(context.Context) error) error
 	return err
 }
 
+// WithSqlTx is not implemented.
+func (d *Data) WithSqlTx(context.Context, func(context.Context) error) error {
+	panic("not implemented")
+}
+
 // startTx sets transactionKey to context and starts a transaction.
 func startTx(ctx context.Context) (context.Context, func(err error)) {
 	tx := query.Q.Begin()

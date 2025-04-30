@@ -16,14 +16,20 @@ const (
 	dashName  = "dash.mpd"
 )
 
+const (
+	uv_status  = "user_video_status"   // user-video status collection
+	ub_status  = "user_barrage_status" // user-barrage status collection
+	uv_history = "user_video_history"  // user-video history collection
+	uc_status  = "user_comment_status" // user-comment status collection
+)
+
 // ProviderSet is biz providers.
 var ProviderSet = wire.NewSet(
 	NewVideoInfoUsecase,
+	NewInteractUseCase,
 )
 
 var (
-	// resourcePath is the root path of the service: /vw_video.
-	rootPath     string
 	resourcePath string
 )
 
@@ -37,7 +43,7 @@ func initPath() {
 	tmp := filepath.Dir(filepath.Dir(filename))
 
 	// rootPath = video_web/
-	rootPath = filepath.Dir(filepath.Dir(tmp))
+	rootPath := filepath.Dir(filepath.Dir(tmp))
 
 	// resourcePath = video_web/resources
 	resourcePath = filepath.Join(rootPath, "resources")

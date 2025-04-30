@@ -20,6 +20,7 @@ var (
 	Barrage       *barrage
 	FavoriteVideo *favoriteVideo
 	Video         *video
+	VideoClass    *videoClass
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
@@ -27,6 +28,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	Barrage = &Q.Barrage
 	FavoriteVideo = &Q.FavoriteVideo
 	Video = &Q.Video
+	VideoClass = &Q.VideoClass
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
@@ -35,6 +37,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Barrage:       newBarrage(db, opts...),
 		FavoriteVideo: newFavoriteVideo(db, opts...),
 		Video:         newVideo(db, opts...),
+		VideoClass:    newVideoClass(db, opts...),
 	}
 }
 
@@ -44,6 +47,7 @@ type Query struct {
 	Barrage       barrage
 	FavoriteVideo favoriteVideo
 	Video         video
+	VideoClass    videoClass
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -54,6 +58,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Barrage:       q.Barrage.clone(db),
 		FavoriteVideo: q.FavoriteVideo.clone(db),
 		Video:         q.Video.clone(db),
+		VideoClass:    q.VideoClass.clone(db),
 	}
 }
 
@@ -71,6 +76,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Barrage:       q.Barrage.replaceDB(db),
 		FavoriteVideo: q.FavoriteVideo.replaceDB(db),
 		Video:         q.Video.replaceDB(db),
+		VideoClass:    q.VideoClass.replaceDB(db),
 	}
 }
 
@@ -78,6 +84,7 @@ type queryCtx struct {
 	Barrage       IBarrageDo
 	FavoriteVideo IFavoriteVideoDo
 	Video         IVideoDo
+	VideoClass    IVideoClassDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
@@ -85,6 +92,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Barrage:       q.Barrage.WithContext(ctx),
 		FavoriteVideo: q.FavoriteVideo.WithContext(ctx),
 		Video:         q.Video.WithContext(ctx),
+		VideoClass:    q.VideoClass.WithContext(ctx),
 	}
 }
 

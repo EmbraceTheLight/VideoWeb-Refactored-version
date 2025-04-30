@@ -20,12 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Userinfo_GetUserinfo_FullMethodName         = "/user.v1.info.Userinfo/GetUserinfo"
-	Userinfo_ModifyEmail_FullMethodName         = "/user.v1.info.Userinfo/ModifyEmail"
-	Userinfo_ModifyPassword_FullMethodName      = "/user.v1.info.Userinfo/ModifyPassword"
-	Userinfo_ModifyUserSignature_FullMethodName = "/user.v1.info.Userinfo/ModifyUserSignature"
-	Userinfo_ForgetPassword_FullMethodName      = "/user.v1.info.Userinfo/ForgetPassword"
-	Userinfo_ModifyUsername_FullMethodName      = "/user.v1.info.Userinfo/ModifyUsername"
+	Userinfo_GetUserinfo_FullMethodName              = "/user.v1.info.Userinfo/GetUserinfo"
+	Userinfo_ModifyEmail_FullMethodName              = "/user.v1.info.Userinfo/ModifyEmail"
+	Userinfo_ModifyPassword_FullMethodName           = "/user.v1.info.Userinfo/ModifyPassword"
+	Userinfo_ModifyUserSignature_FullMethodName      = "/user.v1.info.Userinfo/ModifyUserSignature"
+	Userinfo_ForgetPassword_FullMethodName           = "/user.v1.info.Userinfo/ForgetPassword"
+	Userinfo_ModifyUsername_FullMethodName           = "/user.v1.info.Userinfo/ModifyUsername"
+	Userinfo_UpdateUserCntLikes_FullMethodName       = "/user.v1.info.Userinfo/UpdateUserCntLikes"
+	Userinfo_UpdateUserCntLikesRevert_FullMethodName = "/user.v1.info.Userinfo/UpdateUserCntLikesRevert"
+	Userinfo_UpdateUserShells_FullMethodName         = "/user.v1.info.Userinfo/UpdateUserShells"
+	Userinfo_UpdateUserShellsRevert_FullMethodName   = "/user.v1.info.Userinfo/UpdateUserShellsRevert"
 )
 
 // UserinfoClient is the client API for Userinfo service.
@@ -38,6 +42,10 @@ type UserinfoClient interface {
 	ModifyUserSignature(ctx context.Context, in *ModifySignatureReq, opts ...grpc.CallOption) (*ModifySignatureResp, error)
 	ForgetPassword(ctx context.Context, in *ForgetPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ModifyUsername(ctx context.Context, in *ModifyUsernameReq, opts ...grpc.CallOption) (*ModifyUsernameResp, error)
+	UpdateUserCntLikes(ctx context.Context, in *UpdateUserCntLikesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateUserCntLikesRevert(ctx context.Context, in *UpdateUserCntLikesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateUserShells(ctx context.Context, in *UpdateUserShellsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateUserShellsRevert(ctx context.Context, in *UpdateUserShellsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type userinfoClient struct {
@@ -108,6 +116,46 @@ func (c *userinfoClient) ModifyUsername(ctx context.Context, in *ModifyUsernameR
 	return out, nil
 }
 
+func (c *userinfoClient) UpdateUserCntLikes(ctx context.Context, in *UpdateUserCntLikesReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Userinfo_UpdateUserCntLikes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userinfoClient) UpdateUserCntLikesRevert(ctx context.Context, in *UpdateUserCntLikesReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Userinfo_UpdateUserCntLikesRevert_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userinfoClient) UpdateUserShells(ctx context.Context, in *UpdateUserShellsReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Userinfo_UpdateUserShells_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userinfoClient) UpdateUserShellsRevert(ctx context.Context, in *UpdateUserShellsReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Userinfo_UpdateUserShellsRevert_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserinfoServer is the server API for Userinfo service.
 // All implementations must embed UnimplementedUserinfoServer
 // for forward compatibility.
@@ -118,6 +166,10 @@ type UserinfoServer interface {
 	ModifyUserSignature(context.Context, *ModifySignatureReq) (*ModifySignatureResp, error)
 	ForgetPassword(context.Context, *ForgetPasswordReq) (*emptypb.Empty, error)
 	ModifyUsername(context.Context, *ModifyUsernameReq) (*ModifyUsernameResp, error)
+	UpdateUserCntLikes(context.Context, *UpdateUserCntLikesReq) (*emptypb.Empty, error)
+	UpdateUserCntLikesRevert(context.Context, *UpdateUserCntLikesReq) (*emptypb.Empty, error)
+	UpdateUserShells(context.Context, *UpdateUserShellsReq) (*emptypb.Empty, error)
+	UpdateUserShellsRevert(context.Context, *UpdateUserShellsReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserinfoServer()
 }
 
@@ -145,6 +197,18 @@ func (UnimplementedUserinfoServer) ForgetPassword(context.Context, *ForgetPasswo
 }
 func (UnimplementedUserinfoServer) ModifyUsername(context.Context, *ModifyUsernameReq) (*ModifyUsernameResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ModifyUsername not implemented")
+}
+func (UnimplementedUserinfoServer) UpdateUserCntLikes(context.Context, *UpdateUserCntLikesReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserCntLikes not implemented")
+}
+func (UnimplementedUserinfoServer) UpdateUserCntLikesRevert(context.Context, *UpdateUserCntLikesReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserCntLikesRevert not implemented")
+}
+func (UnimplementedUserinfoServer) UpdateUserShells(context.Context, *UpdateUserShellsReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserShells not implemented")
+}
+func (UnimplementedUserinfoServer) UpdateUserShellsRevert(context.Context, *UpdateUserShellsReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserShellsRevert not implemented")
 }
 func (UnimplementedUserinfoServer) mustEmbedUnimplementedUserinfoServer() {}
 func (UnimplementedUserinfoServer) testEmbeddedByValue()                  {}
@@ -275,6 +339,78 @@ func _Userinfo_ModifyUsername_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Userinfo_UpdateUserCntLikes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserCntLikesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserinfoServer).UpdateUserCntLikes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Userinfo_UpdateUserCntLikes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserinfoServer).UpdateUserCntLikes(ctx, req.(*UpdateUserCntLikesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Userinfo_UpdateUserCntLikesRevert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserCntLikesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserinfoServer).UpdateUserCntLikesRevert(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Userinfo_UpdateUserCntLikesRevert_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserinfoServer).UpdateUserCntLikesRevert(ctx, req.(*UpdateUserCntLikesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Userinfo_UpdateUserShells_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserShellsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserinfoServer).UpdateUserShells(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Userinfo_UpdateUserShells_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserinfoServer).UpdateUserShells(ctx, req.(*UpdateUserShellsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Userinfo_UpdateUserShellsRevert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserShellsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserinfoServer).UpdateUserShellsRevert(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Userinfo_UpdateUserShellsRevert_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserinfoServer).UpdateUserShellsRevert(ctx, req.(*UpdateUserShellsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Userinfo_ServiceDesc is the grpc.ServiceDesc for Userinfo service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -305,6 +441,22 @@ var Userinfo_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ModifyUsername",
 			Handler:    _Userinfo_ModifyUsername_Handler,
+		},
+		{
+			MethodName: "UpdateUserCntLikes",
+			Handler:    _Userinfo_UpdateUserCntLikes_Handler,
+		},
+		{
+			MethodName: "UpdateUserCntLikesRevert",
+			Handler:    _Userinfo_UpdateUserCntLikesRevert_Handler,
+		},
+		{
+			MethodName: "UpdateUserShells",
+			Handler:    _Userinfo_UpdateUserShells_Handler,
+		},
+		{
+			MethodName: "UpdateUserShellsRevert",
+			Handler:    _Userinfo_UpdateUserShellsRevert_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

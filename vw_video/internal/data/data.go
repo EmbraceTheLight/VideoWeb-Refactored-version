@@ -3,14 +3,24 @@ package data
 import (
 	"context"
 	"fmt"
+	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
+	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
+	"github.com/go-kratos/kratos/v2/registry"
+	"github.com/go-kratos/kratos/v2/transport/grpc"
+	consulAPI "github.com/hashicorp/consul/api"
 	"github.com/redis/go-redis/v9"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"os"
 	"time"
 	"util"
 	utilCtx "util/context"
+	"util/dbutil/mgutil"
+	infov1 "vw_user/api/v1/userinfo"
 	"vw_video/internal/conf"
 	"vw_video/internal/data/dal/model"
 	"vw_video/internal/data/dal/query"
@@ -21,22 +31,37 @@ import (
 
 // ProviderSet is data providers.
 var ProviderSet = wire.NewSet(
+	// Data
 	NewData,
 	NewTransaction,
 	NewMySQL,
 	NewRedisClusterClient,
 	NewMongo,
+
+	// Repo
 	NewVideoInfoRepo,
+	NewInteractRepo,
+
+	// Client
+	NewDiscovery,
+	NewRegistrar,
+	NewUserinfoClient,
 )
 
+type keyType struct{}
+
 // transactionKey is a context key for gorm transactionKey
-type transactionKey struct{}
+type transactionKey keyType
+
+// SqlTxKey is a context key for *sql.Tx transaction.
+type SqlTxKey keyType
 
 // Data .
 type Data struct {
-	mysql *gorm.DB
-	redis *redis.ClusterClient
-	mongo *MongoDB
+	mysql          *gorm.DB
+	redis          *redis.ClusterClient
+	mongo          *MongoDB
+	userInfoClient infov1.UserinfoClient
 }
 
 // NewTransaction return a util.Transaction interface.
@@ -49,14 +74,16 @@ func NewData(
 	mysql *gorm.DB,
 	redisCluster *redis.ClusterClient,
 	mongo *MongoDB,
+	userInfoClient infov1.UserinfoClient,
 	logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
 	}
 	return &Data{
-		mysql: mysql,
-		redis: redisCluster,
-		mongo: mongo,
+		mysql:          mysql,
+		redis:          redisCluster,
+		mongo:          mongo,
+		userInfoClient: userInfoClient,
 	}, cleanup, nil
 }
 
@@ -77,6 +104,30 @@ func NewMySQL(c *conf.Data) *gorm.DB {
 	}
 	query.SetDefault(db)
 	return db
+}
+
+func NewDiscovery(conf *conf.Registry) registry.Discovery {
+	c := consulAPI.DefaultConfig()
+	c.Address = conf.Consul.Address
+	c.Scheme = conf.Consul.Scheme
+	cli, err := consulAPI.NewClient(c)
+	if err != nil {
+		panic(err)
+	}
+	r := consul.New(cli, consul.WithHealthCheck(false))
+	return r
+}
+
+func NewRegistrar(conf *conf.Registry) registry.Registrar {
+	c := consulAPI.DefaultConfig()
+	c.Address = conf.Consul.Address
+	c.Scheme = conf.Consul.Scheme
+	cli, err := consulAPI.NewClient(c)
+	if err != nil {
+		panic(err)
+	}
+	r := consul.New(cli, consul.WithHealthCheck(false))
+	return r
 }
 
 func NewRedisClusterClient(c *conf.Data) *redis.ClusterClient {
@@ -109,6 +160,7 @@ func NewMongo(c *conf.Data) *MongoDB {
 	ctx, cancel := context.WithTimeout(utilCtx.NewBaseContext(), time.Duration(c.Mongo.ConnTimeout.Seconds)*time.Second)
 	defer cancel()
 
+	// 1. Get and wrap mongo client
 	mongoCli, err := mongo.Connect(
 		ctx,
 		options.Client().
@@ -117,7 +169,7 @@ func NewMongo(c *conf.Data) *MongoDB {
 			SetMaxPoolSize(uint64(c.Mongo.MaxOpen)).
 			SetRetryReads(true).
 			SetRetryWrites(true).
-			ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:%s/%s", c.Mongo.Username, c.Mongo.Password, c.Mongo.Host, c.Mongo.Port, c.Mongo.Db)),
+			ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:%s/?replicaSet=rs0", c.Mongo.Username, c.Mongo.Password, c.Mongo.Host, c.Mongo.Port)),
 	)
 	if err != nil {
 		panic(err)
@@ -125,11 +177,61 @@ func NewMongo(c *conf.Data) *MongoDB {
 	if err := mongoCli.Ping(ctx, nil); err != nil {
 		panic(err)
 	}
-	return &MongoDB{
-		database:    "video_web",
-		collection:  "video_info",
+	mdb := &MongoDB{
+		db:          "video_web",
 		mongoClient: mongoCli,
 	}
+
+	// 2. Create video_user_id_idx on video_user_status collection
+	key := mgutil.NewBsonD("video_id", 1, "user_id", 1)
+	err = setUniqueIndex(ctx, mdb, uv_status, *key, "video_user_id_idx")
+	if err != nil {
+		panic(err)
+	}
+
+	// 3. Create video_id_idx on video_barrage_status collection
+	key = mgutil.NewBsonD("barrage_id", 1, "user_id", 1)
+	err = setUniqueIndex(ctx, mdb, ub_status, *key, "barrage_id_idx")
+	if err != nil {
+		panic(err)
+	}
+
+	// 3. Create video_id_idx on video_barrage_status collection
+	key = mgutil.NewBsonD("video_id", 1, "user_id", 1)
+	err = setUniqueIndex(ctx, mdb, uv_history, *key, "video_user_id_idx")
+	if err != nil {
+		panic(err)
+	}
+
+	return mdb
+}
+func setUniqueIndex(ctx context.Context, mdb *MongoDB, collection string, keys bson.D, indexName string) error {
+	idxName, err := mdb.collection(collection).Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    keys,
+		Options: options.Index().SetName(indexName).SetUnique(true),
+	})
+	logger := log.NewHelper(log.With(log.NewStdLogger(os.Stdout)))
+	if err != nil {
+		return err
+	}
+	logger.Infof("create unique index %s on collection %s success", idxName, collection)
+	return nil
+}
+
+func NewUserinfoClient(r registry.Discovery, s *conf.Service) infov1.UserinfoClient {
+	conn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint(s.User.Endpoint),
+		grpc.WithDiscovery(r),
+		grpc.WithMiddleware(
+			recovery.Recovery(),
+			tracing.Client(),
+		),
+	)
+	if err != nil {
+		panic(err)
+	}
+	return infov1.NewUserinfoClient(conn)
 }
 
 // startTx sets transactionKey to context and starts a transaction.
@@ -169,7 +271,7 @@ func (d *Data) WithTx(ctx context.Context, fn func(context.Context) error) error
 	ctx, commit := startTx(ctx)
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("panic: %v", r) // 确保 err 被赋值，事务正确回滚
+			err = fmt.Errorf("error: %v", r) // 确保 err 被赋值，事务正确回滚
 			commit(err)
 			panic(r) // 继续抛出 panic，防止业务逻辑被吞掉
 		}

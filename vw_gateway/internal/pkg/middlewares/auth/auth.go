@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	utilCtx "util/context"
 	"util/helper"
 	"vw_gateway/internal/conf"
 	"vw_gateway/internal/pkg/ecode/errdef"
@@ -190,6 +191,8 @@ func JwtAuth(secret string, accessTokenExpireTime time.Duration, redisCluster *r
 					} else {
 						return nil, uerr.ErrTokenInvalid
 					}
+				} else {
+					ctx = utilCtx.WithValue(ctx, "user_id", aclaims.UserID)
 				}
 			}
 			return handler(ctx, req)
@@ -226,7 +229,7 @@ func getToken(tr transport.Transporter, secret, headerString string) (tokenClaim
 
 		if err != nil {
 			if strings.EqualFold("token has invalid claims: token is expired", err.Error()) {
-				return
+				return tokenClaims, nil
 			}
 			return nil, helper.HandleError(uerr.ErrParseTokenFailed, err)
 		}

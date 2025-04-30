@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package gateway.api.v1.video.interact;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+option go_package = "vw_gateway/api/v1/video/interact;interact";
+
+service VideoInteract {
+    rpc VideoUpvote(VideoUpvoteReq) returns (VideoUpvoteResp) {
+        option (google.api.http) = {
+            put: "/api/v1/video/interaction/{video_id}/upvote"
+            body: "*"
+        };
+    }
+
+    rpc VideoFavorite(VideoFavoriteReq) returns (VideoFavoriteResp) {
+        option (google.api.http) = {
+            put: "/api/v1/video/interaction/{video_id}/favorite"
+            body: "*"
+        };
+    }
+
+    rpc VideoThrowShells(VideoThrowShellsReq) returns (VideoThrowShellsResp) {
+        option (google.api.http) = {
+            put: "/api/v1/video/interaction/{video_id}/throwShells"
+            body: "*"
+        };
+    }
+
+    rpc VideoShare(VideoShareReq) returns (VideoShareResp) {
+        option (google.api.http) = {
+            get: "/api/v1/video/interaction/{video_id}/share"
+        };
+    }
+
+    rpc VideoSendBarrage(VideoSendBarrageReq) returns (VideoSendBarrageResp) {
+        option (google.api.http) = {
+            post: "/api/v1/video/interaction/{video_id}/barrage/send"
+            body: "*"
+        };
+    }
+
+    rpc VideoUpvoteBarrage(VideoUpvoteBarrageReq) returns (VideoUpvoteBarrageResp) {
+        option (google.api.http) = {
+            put: "/api/v1/video/interaction/{video_id}/barrage/upvote"
+            body: "*"
+        };
+    }
+}
+
+message VideoUpvoteReq {
+    int64 video_id = 1;
+}
+message VideoUpvoteResp {
+    int32 status_code = 1;
+    string message    = 2;
+}
+
+message VideoFavoriteReq {
+    int64 video_id    = 1;
+    int64 favorite_id = 2;
+}
+message VideoFavoriteResp {
+    int32 status_code = 1;
+    string message    = 2;
+}
+
+message VideoThrowShellsReq {
+    int64 video_id = 1;
+    int32 shells   = 2;
+}
+message VideoThrowShellsResp {
+    int32 status_code = 1;
+    string message    = 2;
+}
+
+message VideoShareReq {
+    int64 video_id = 1;
+}
+message VideoShareResp {
+    int32 status_code = 1;
+    string message    = 2;
+    string url        = 3;
+}
+
+message VideoSendBarrageReq {
+    int64 video_id     = 1;
+    string content     = 2;
+    string color       = 3;
+    string time        = 4;  // hh:mm:ss
+    int64 upvote_count = 5;
+}
+message VideoSendBarrageResp {
+    int32 status_code = 1;
+    string message    = 2;
+}
+
+message VideoUpvoteBarrageReq {
+    int64 video_id   = 1;
+    int64 barrage_id = 2;
+}
+message VideoUpvoteBarrageResp {
+    int32 status_code = 1;
+    string message    = 2;
+}

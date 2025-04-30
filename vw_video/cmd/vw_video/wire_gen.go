@@ -23,11 +23,13 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Registry, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Registry, confService *conf.Service, logger log.Logger) (*kratos.App, func(), error) {
 	db := data.NewMySQL(confData)
 	clusterClient := data.NewRedisClusterClient(confData)
 	mongoDB := data.NewMongo(confData)
-	dataData, cleanup, err := data.NewData(db, clusterClient, mongoDB, logger)
+	discovery := data.NewDiscovery(registry)
+	userinfoClient := data.NewUserinfoClient(discovery, confService)
+	dataData, cleanup, err := data.NewData(db, clusterClient, mongoDB, userinfoClient, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -35,8 +37,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Regist
 	transaction := data.NewTransaction(dataData)
 	videoInfoUsecase := biz.NewVideoInfoUsecase(videoInfoRepo, transaction, logger)
 	videoInfoService := service.NewVideoInfo(videoInfoUsecase, logger)
-	grpcServer := server.NewGRPCServer(confServer, videoInfoService, logger)
-	registrar := server.NewRegistrar(registry)
+	interactRepo := data.NewInteractRepo(dataData, logger)
+	interactUsecase := biz.NewInteractUseCase(interactRepo, videoInfoRepo, transaction, logger)
+	interactService := service.NewInteractService(interactUsecase, logger)
+	grpcServer := server.NewGRPCServer(confServer, videoInfoService, interactService, logger)
+	registrar := data.NewRegistrar(registry)
 	app := newApp(logger, grpcServer, registrar)
 	return app, func() {
 		cleanup()

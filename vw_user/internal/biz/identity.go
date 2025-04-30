@@ -64,7 +64,7 @@ func (uc *UserIdentityUsecase) Register(ctx context.Context, registerInfo *Regis
 		return 0, false, err
 	}
 
-	// * set default avatar for userbiz, if he/she don't upload avatar.
+	// * set default avatar for user, if he/she don't upload avatar.
 	var avatarFilePath string
 	if registerInfo.AvatarFilePath == nil {
 		userDir := filepath.Join(resourcePath, strconv.FormatInt(*registerInfo.UserID, 10))
@@ -89,7 +89,8 @@ func (uc *UserIdentityUsecase) Register(ctx context.Context, registerInfo *Regis
 		newUser.AvatarPath = avatarFilePath
 	}
 
-	// create new userbiz's records
+	// create new user's records
+	// TODO: 将 CreatRecordsForRegister 逻辑进行拆分，并在这里组装成一个事务
 	err = uc.identityRepo.CreatRecordsForRegister(ctx, newUser)
 	if err != nil {
 		return 0, false, helper.HandleError(errdef.ErrCreateUserRecordsFailed, err)

@@ -28,7 +28,8 @@ type Data struct {
 	favoritesClient    favorv1.FavoriteClient
 	followClient       followv1.FollowClient
 
-	redis *redis.ClusterClient
+	redis         *redis.ClusterClient
+	dtmServerAddr string
 }
 
 // NewData .
@@ -41,6 +42,7 @@ func NewData(
 	favoritesClient favorv1.FavoriteClient,
 	followClient followv1.FollowClient,
 	redisCluster *redis.ClusterClient,
+	dtm *conf.DTM,
 ) (*Data, func(), error) {
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
@@ -55,6 +57,7 @@ func NewData(
 		favoritesClient:    favoritesClient,
 		followClient:       followClient,
 		redis:              redisCluster,
+		dtmServerAddr:      dtm.DtmConfig.Target,
 	}, cleanup, nil
 }
 

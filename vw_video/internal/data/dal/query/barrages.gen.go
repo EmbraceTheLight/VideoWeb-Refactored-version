@@ -30,8 +30,9 @@ func newBarrage(db *gorm.DB, opts ...gen.DOOption) barrage {
 	_barrage.CreatedAt = field.NewTime(tableName, "created_at")
 	_barrage.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_barrage.DeletedAt = field.NewField(tableName, "deleted_at")
-	_barrage.UserID = field.NewInt64(tableName, "user_id")
+	_barrage.BarrageID = field.NewInt64(tableName, "barrage_id")
 	_barrage.VideoID = field.NewInt64(tableName, "video_id")
+	_barrage.PublisherID = field.NewInt64(tableName, "publisher_id")
 	_barrage.Hour = field.NewString(tableName, "hour")
 	_barrage.Minute = field.NewString(tableName, "minute")
 	_barrage.Second = field.NewString(tableName, "second")
@@ -47,18 +48,19 @@ func newBarrage(db *gorm.DB, opts ...gen.DOOption) barrage {
 type barrage struct {
 	barrageDo
 
-	ALL       field.Asterisk
-	CreatedAt field.Time   // 创建时间
-	UpdatedAt field.Time   // 更新时间
-	DeletedAt field.Field  // 删除时间
-	UserID    field.Int64  // 用户id
-	VideoID   field.Int64  // 视频id
-	Hour      field.String // 弹幕出现时间--小时
-	Minute    field.String // 弹幕出现时间--分钟
-	Second    field.String // 弹幕出现时间--秒
-	Content   field.String // 弹幕内容
-	Color     field.String // 弹幕颜色，使用十六进制表示
-	Likes     field.Int64  // 弹幕获赞数
+	ALL         field.Asterisk
+	CreatedAt   field.Time   // 创建时间
+	UpdatedAt   field.Time   // 更新时间
+	DeletedAt   field.Field  // 删除时间
+	BarrageID   field.Int64  // “弹幕ID”
+	VideoID     field.Int64  // 视频id
+	PublisherID field.Int64  //  发布者 id
+	Hour        field.String // 弹幕出现时间--小时
+	Minute      field.String // 弹幕出现时间--分钟
+	Second      field.String // 弹幕出现时间--秒
+	Content     field.String // 弹幕内容
+	Color       field.String // 弹幕颜色，使用十六进制表示
+	Likes       field.Int64  // 弹幕获赞数
 
 	fieldMap map[string]field.Expr
 }
@@ -78,8 +80,9 @@ func (b *barrage) updateTableName(table string) *barrage {
 	b.CreatedAt = field.NewTime(table, "created_at")
 	b.UpdatedAt = field.NewTime(table, "updated_at")
 	b.DeletedAt = field.NewField(table, "deleted_at")
-	b.UserID = field.NewInt64(table, "user_id")
+	b.BarrageID = field.NewInt64(table, "barrage_id")
 	b.VideoID = field.NewInt64(table, "video_id")
+	b.PublisherID = field.NewInt64(table, "publisher_id")
 	b.Hour = field.NewString(table, "hour")
 	b.Minute = field.NewString(table, "minute")
 	b.Second = field.NewString(table, "second")
@@ -102,12 +105,13 @@ func (b *barrage) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *barrage) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 11)
+	b.fieldMap = make(map[string]field.Expr, 12)
 	b.fieldMap["created_at"] = b.CreatedAt
 	b.fieldMap["updated_at"] = b.UpdatedAt
 	b.fieldMap["deleted_at"] = b.DeletedAt
-	b.fieldMap["user_id"] = b.UserID
+	b.fieldMap["barrage_id"] = b.BarrageID
 	b.fieldMap["video_id"] = b.VideoID
+	b.fieldMap["publisher_id"] = b.PublisherID
 	b.fieldMap["hour"] = b.Hour
 	b.fieldMap["minute"] = b.Minute
 	b.fieldMap["second"] = b.Second

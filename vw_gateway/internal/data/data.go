@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"fmt"
+	_ "github.com/dtm-labs/driver-kratos"
 	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
 	"github.com/go-kratos/kratos/v2/registry"
 	"github.com/google/wire"
@@ -33,9 +34,11 @@ var ProviderSet = wire.NewSet(
 	userdata.NewFavoritesClient,
 	userdata.NewFollowClient,
 
-	videodata.NewVideoInfoRepo,
 	videodata.NewData,
+	videodata.NewVideoInfoRepo,
+	videodata.NewInteractRepo,
 	videodata.NewVideoInfoClient,
+	videodata.NewVideoInteractClient,
 )
 
 func NewRedisClusterClient(c *conf.Data) *redis.ClusterClient {

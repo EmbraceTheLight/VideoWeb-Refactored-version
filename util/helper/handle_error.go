@@ -3,6 +3,9 @@ package helper
 import (
 	"errors"
 	kerr "github.com/go-kratos/kratos/v2/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"strings"
 )
 
 func HandleError(kerror *kerr.Error, additionalErrs ...error) *kerr.Error {
@@ -31,4 +34,17 @@ func HandleError(kerror *kerr.Error, additionalErrs ...error) *kerr.Error {
 		}
 	}
 	return retErr
+}
+
+// HandleGrpcError handles a grpc error with additional errors.
+func HandleGrpcError(c codes.Code, msg string, additionalErrs ...error) error {
+	builder := strings.Builder{}
+	builder.WriteString(msg)
+	builder.WriteString(": ")
+	for _, e := range additionalErrs {
+		builder.WriteString(e.Error())
+		builder.WriteString("\n")
+	}
+	errmsg := builder.String()
+	return status.New(c, errmsg).Err()
 }

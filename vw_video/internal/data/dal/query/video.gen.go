@@ -48,6 +48,7 @@ func newVideo(db *gorm.DB, opts ...gen.DOOption) video {
 	_video.Duration = field.NewString(tableName, "duration")
 	_video.Size = field.NewInt64(tableName, "size")
 	_video.CoverPath = field.NewString(tableName, "cover_path")
+	_video.Version = field.NewField(tableName, "version")
 
 	_video.fillFieldMap()
 
@@ -79,6 +80,7 @@ type video struct {
 	Duration      field.String // 视频时长
 	Size          field.Int64  // 视频文件大小
 	CoverPath     field.String // 视频封面路径
+	Version       field.Field  // 乐观锁版本号
 
 	fieldMap map[string]field.Expr
 }
@@ -116,6 +118,7 @@ func (v *video) updateTableName(table string) *video {
 	v.Duration = field.NewString(table, "duration")
 	v.Size = field.NewInt64(table, "size")
 	v.CoverPath = field.NewString(table, "cover_path")
+	v.Version = field.NewField(table, "version")
 
 	v.fillFieldMap()
 
@@ -132,7 +135,7 @@ func (v *video) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (v *video) fillFieldMap() {
-	v.fieldMap = make(map[string]field.Expr, 21)
+	v.fieldMap = make(map[string]field.Expr, 22)
 	v.fieldMap["created_at"] = v.CreatedAt
 	v.fieldMap["updated_at"] = v.UpdatedAt
 	v.fieldMap["deleted_at"] = v.DeletedAt
@@ -154,6 +157,7 @@ func (v *video) fillFieldMap() {
 	v.fieldMap["duration"] = v.Duration
 	v.fieldMap["size"] = v.Size
 	v.fieldMap["cover_path"] = v.CoverPath
+	v.fieldMap["version"] = v.Version
 }
 
 func (v video) clone(db *gorm.DB) video {
