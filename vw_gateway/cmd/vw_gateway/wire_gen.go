@@ -18,8 +18,6 @@ import (
 	"vw_gateway/internal/pkg/captcha"
 	"vw_gateway/internal/pkg/middlewares/auth"
 	"vw_gateway/internal/server"
-	"vw_gateway/internal/service/ginservice"
-	"vw_gateway/internal/service/ginservice/service"
 	"vw_gateway/internal/service/user_service"
 	"vw_gateway/internal/service/video_service"
 )
@@ -68,7 +66,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Regist
 	favoritesService := user.NewFavoritesService(favoritesUsecase, logger)
 	videoInfoClient := videodata.NewVideoInfoClient(discovery, service)
 	videoInteractClient := videodata.NewVideoInteractClient(discovery, service)
-	videodataData, cleanup2, err := videodata.NewData(logger, videoInfoClient, userinfoClient, videoInteractClient, clusterClient, dtm)
+	videoCommentClient := videodata.NewVideoCommentClient(discovery, service)
+	videodataData, cleanup2, err := videodata.NewData(logger, videoInfoClient, userinfoClient, videoInteractClient, videoCommentClient, clusterClient)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
@@ -79,9 +78,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Regist
 	interactRepo := videodata.NewInteractRepo(videodataData, logger)
 	interactUsecase := videobiz.NewInteractUsecase(interactRepo, logger)
 	interactService := video.NewInteractService(interactUsecase, logger)
-	videoDownloadFileService := gs.NewVideoDownloadFileService(videoInfoUsecase, logger)
-	engine := ginservice.NewGinEngine(jwt, clusterClient)
-	httpServer := server.NewHTTPServer(confServer, jwt, captchaService, fileService, identityService, followService, clusterClient, infoService, favoritesService, videoInfoService, interactService, videoDownloadFileService, engine, logger)
+	videoCommentRepo := videodata.NewVideoCommentRepo(videodataData, logger)
+	videoCommentUsecase := videobiz.NewVideoCommentUsecase(videoCommentRepo, logger)
+	commentService := video.NewVideoCommentService(videoCommentUsecase, logger)
+	httpServer := server.NewHTTPServer(confServer, jwt, captchaService, fileService, identityService, followService, clusterClient, infoService, favoritesService, videoInfoService, interactService, commentService, logger)
 	registrar := data.NewRegistrar(registry)
 	app := newApp(logger, grpcServer, httpServer, registrar)
 	return app, func() {

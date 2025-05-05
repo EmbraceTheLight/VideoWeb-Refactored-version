@@ -33,10 +33,11 @@ type Video struct {
 	CntShares     int64                  `gorm:"column:cnt_shares;type:int unsigned;comment:视频分享数" json:"cnt_shares"`                                                           // 视频分享数
 	CntFavorited  int64                  `gorm:"column:cnt_favorited;type:int unsigned;comment:视频收藏数" json:"cnt_favorited"`                                                     // 视频收藏数
 	CntViewed     int64                  `gorm:"column:cnt_viewed;type:bigint;comment:视频观看数（点开就算看）" json:"cnt_viewed"`                                                          // 视频观看数（点开就算看）
-	Duration      string                 `gorm:"column:duration;type:varchar(10);not null;comment:视频时长" json:"duration"`                                                        // 视频时长
-	Size          int64                  `gorm:"column:size;type:bigint;not null;comment:视频文件大小" json:"size"`                                                                   // 视频文件大小
-	CoverPath     string                 `gorm:"column:cover_path;type:varchar(200);not null;comment:视频封面路径" json:"cover_path"`                                                 // 视频封面路径
-	Version       optimisticlock.Version `gorm:"column:version;type:int unsigned;comment:乐观锁版本号" json:"version"`                                                                // 乐观锁版本号
+	CntComments   int64                  `gorm:"column:cnt_comments;type:int unsigned" json:"cnt_comments"`
+	Duration      string                 `gorm:"column:duration;type:varchar(10);not null;comment:视频时长" json:"duration"`        // 视频时长
+	Size          int64                  `gorm:"column:size;type:bigint;not null;comment:视频文件大小" json:"size"`                   // 视频文件大小
+	CoverPath     string                 `gorm:"column:cover_path;type:varchar(200);not null;comment:视频封面路径" json:"cover_path"` // 视频封面路径
+	Version       optimisticlock.Version `gorm:"column:version;type:bigint unsigned;comment:乐观锁版本号" json:"version"`             // 乐观锁版本号
 }
 
 // TableName Video's table name

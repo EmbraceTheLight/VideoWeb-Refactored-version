@@ -14,7 +14,7 @@ const TableNameFavoriteVideo = "favorite_video"
 
 // FavoriteVideo mapped from table <favorite_video>
 type FavoriteVideo struct {
-	ID          int64          `gorm:"column:id;type:bigint;primaryKey;comment:主键" json:"id"`                                                                           // 主键
+	ID          int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键" json:"id"`                                                        // 主键
 	CreatedAt   time.Time      `gorm:"column:created_at;type:datetime(3);comment:创建时间" json:"created_at"`                                                               // 创建时间
 	UpdatedAt   time.Time      `gorm:"column:updated_at;type:datetime(3);comment:更新时间" json:"updated_at"`                                                               // 更新时间
 	DeletedAt   gorm.DeletedAt `gorm:"column:deleted_at;type:datetime(3);comment:删除时间" json:"deleted_at"`                                                               // 删除时间

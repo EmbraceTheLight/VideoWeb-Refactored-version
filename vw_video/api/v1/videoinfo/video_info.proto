@@ -3,7 +3,7 @@ syntax = "proto3";
 package video.v1.videoinfo;
 
 import "google/protobuf/empty.proto";
-option go_package = "/api/video/v1/video_info;videoinfo";
+option go_package = "vw_video/api/video/v1/video_info;videoinfo";
 
 service VideoInfo {
     rpc GetVideoInfo(GetVideoInfoReq) returns (GetVideoInfoResp) {}

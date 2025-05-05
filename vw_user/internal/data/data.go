@@ -11,8 +11,8 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"time"
-	"util"
 	utilCtx "util/context"
+	mysql2 "util/dbutil/mysqlutil"
 	"vw_user/internal/conf"
 	"vw_user/internal/data/dal/model"
 	"vw_user/internal/data/dal/query"
@@ -49,7 +49,7 @@ type Data struct {
 }
 
 // NewTransaction return a util.Transaction interface.
-func NewTransaction(d *Data) util.Transaction {
+func NewTransaction(d *Data) mysql2.Transaction {
 	return d
 }
 

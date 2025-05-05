@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -18,11 +17,9 @@ import (
 	"vw_gateway/api/v1/user/identity"
 	"vw_gateway/api/v1/user/userfile"
 	"vw_gateway/api/v1/user/userinfo"
+	videocommentv1 "vw_gateway/api/v1/video/video_comment"
 	videointeractv1 "vw_gateway/api/v1/video/video_interact"
 	videoinfov1 "vw_gateway/api/v1/video/videoinfo"
-	gsserver "vw_gateway/internal/service/ginservice/server"
-	"vw_gateway/internal/service/ginservice/service"
-
 	"vw_gateway/internal/conf"
 	"vw_gateway/internal/pkg/codecs"
 	"vw_gateway/internal/pkg/middlewares/auth"
@@ -65,8 +62,7 @@ func NewHTTPServer(
 	favorites *user.FavoritesService,
 	videoInfo *video.InfoService,
 	videoInteract *video.InteractService,
-	videoFile *gs.VideoDownloadFileService,
-	ge *gin.Engine,
+	videoComment *video.CommentService,
 	logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
@@ -109,6 +105,6 @@ func NewHTTPServer(
 	followv1.RegisterFollowHTTPServer(srv, follow)
 	videoinfov1.RegisterVideoInfoHTTPServer(srv, videoInfo)
 	videointeractv1.RegisterVideoInteractHTTPServer(srv, videoInteract)
-	srv.HandlePrefix("/api/v1/video", gsserver.RegisterVideoFileDownloadHTTPServer(ge, videoFile))
+	videocommentv1.RegisterVideoCommentHTTPServer(srv, videoComment)
 	return srv
 }

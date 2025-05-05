@@ -22,14 +22,14 @@ func NewInteractService(interactUsecase *biz.InteractUsecase, logger log.Logger)
 }
 
 func (s *InteractService) VideoUpvote(ctx context.Context, req *interactv1.VideoUpvoteReq) (*emptypb.Empty, error) {
-	err := s.interactUsecase.UpvoteVideo(ctx, req.VideoId, req.Upvote)
+	err := s.interactUsecase.UpvoteVideo(ctx, req.VideoId, req.UpvoteFlag)
 	if err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 func (s *InteractService) VideoUpvoteRevert(ctx context.Context, req *interactv1.VideoUpvoteReq) (*emptypb.Empty, error) {
-	req.Upvote = -req.Upvote
+	req.UpvoteFlag = -req.UpvoteFlag
 	return s.VideoUpvote(ctx, req)
 }
 
@@ -65,7 +65,7 @@ func (s *InteractService) VideoShare(ctx context.Context, req *interactv1.VideoS
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &interactv1.VideoShareResp{
 		Uri: uri,
 	}, nil

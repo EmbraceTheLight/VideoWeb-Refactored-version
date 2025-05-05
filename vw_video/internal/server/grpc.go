@@ -3,8 +3,9 @@ package server
 import (
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
-	videointeractv1 "vw_video/api/v1/interact"
-	videoinfov1 "vw_video/api/v1/videoinfo"
+	commentv1 "vw_video/api/v1/comment"
+	interactv1 "vw_video/api/v1/interact"
+	infov1 "vw_video/api/v1/videoinfo"
 	"vw_video/internal/conf"
 	"vw_video/internal/service"
 
@@ -18,6 +19,7 @@ func NewGRPCServer(
 	c *conf.Server,
 	videoInfoService *service.VideoInfoService,
 	videoInteractService *service.InteractService,
+	videoCommentService *service.VideoCommentService,
 	logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
@@ -37,7 +39,8 @@ func NewGRPCServer(
 	}
 	srv := grpc.NewServer(opts...)
 
-	videoinfov1.RegisterVideoInfoServer(srv, videoInfoService)
-	videointeractv1.RegisterVideoInteractServer(srv, videoInteractService)
+	infov1.RegisterVideoInfoServer(srv, videoInfoService)
+	interactv1.RegisterVideoInteractServer(srv, videoInteractService)
+	commentv1.RegisterVideoCommentServer(srv, videoCommentService)
 	return srv
 }

@@ -63,8 +63,12 @@ func main() {
 	favoriteVideo := g.GenerateModel("favorite_video")
 	barrages := g.GenerateModel("barrages")
 	videoClass := g.GenerateModel("video_class")
+	comment := g.GenerateModel("comment",
+		gen.FieldType("version", "optimisticlock.Version"),
+		gen.FieldType("cnt_upvote", "uint64"),
+	)
 
-	g.ApplyBasic(video, barrages, favoriteVideo, videoClass)
+	g.ApplyBasic(video, barrages, favoriteVideo, videoClass, comment)
 
 	g.Execute()
 

@@ -475,6 +475,135 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/gateway.api.v1.video.videoinfo.GetVideoListResp'
+    /api/v1/video/{videoId}/comment:
+        get:
+            tags:
+                - VideoComment
+            operationId: VideoComment_GetCommentList
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: sortBy
+                  in: query
+                  schema:
+                    type: string
+                - name: order
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.comment.GetCommentListResp'
+        post:
+            tags:
+                - VideoComment
+            operationId: VideoComment_CommentVideo
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.api.v1.video.comment.CommentVideoReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.comment.CommentVideoResp'
+    /api/v1/video/{videoId}/comment/{commentId}/upvote:
+        put:
+            tags:
+                - VideoComment
+            operationId: VideoComment_UpvoteComment
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: commentId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/gateway.api.v1.video.comment.UpvoteCommentReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.comment.UpvoteCommentResp'
+    /api/v1/video/{videoId}/comments/{commentId}/replies:
+        get:
+            tags:
+                - VideoComment
+            operationId: VideoComment_GetCommentReplies
+            parameters:
+                - name: videoId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: commentId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: sortBy
+                  in: query
+                  schema:
+                    type: string
+                - name: order
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/gateway.api.v1.video.comment.GetCommentRepliesResp'
     /api/v1/video/{videoId}/info:
         get:
             tags:
@@ -1135,6 +1264,78 @@ components:
                     $ref: '#/components/schemas/gateway.api.v1.user.userinfo.UserInfo'
                 common:
                     $ref: '#/components/schemas/gateway.api.v1.user.userinfo.CommonResp'
+        gateway.api.v1.video.comment.CommentInfo:
+            type: object
+            properties:
+                commentId:
+                    type: string
+                publisherId:
+                    type: string
+                rootId:
+                    type: string
+                content:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                upvoteCount:
+                    type: string
+                ipAddress:
+                    type: string
+                cntReplies:
+                    type: integer
+                    format: uint32
+        gateway.api.v1.video.comment.CommentVideoReq:
+            type: object
+            properties:
+                videoId:
+                    type: string
+                parentId:
+                    type: string
+                content:
+                    type: string
+        gateway.api.v1.video.comment.CommentVideoResp:
+            type: object
+            properties:
+                commentId:
+                    type: string
+        gateway.api.v1.video.comment.GetCommentListResp:
+            type: object
+            properties:
+                comments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/gateway.api.v1.video.comment.CommentInfo'
+                totalCount:
+                    type: integer
+                    format: int32
+        gateway.api.v1.video.comment.GetCommentRepliesResp:
+            type: object
+            properties:
+                replies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/gateway.api.v1.video.comment.CommentInfo'
+        gateway.api.v1.video.comment.UpvoteCommentReq:
+            type: object
+            properties:
+                commentId:
+                    type: string
+                videoId:
+                    type: string
+                isUpvote:
+                    type: boolean
+                    description: |-
+                        If is_upvote is true, the user has upvoted the comment before, so we need to cancel the upvote.
+                         Otherwise, the user has not upvoted the comment before, so we need to add the upvote.
+        gateway.api.v1.video.comment.UpvoteCommentResp:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
         gateway.api.v1.video.interact.VideoFavoriteReq:
             type: object
             properties:
@@ -1373,5 +1574,6 @@ tags:
     - name: Identity
       description: 用户身份相关服务
     - name: Userinfo
+    - name: VideoComment
     - name: VideoInfo
     - name: VideoInteract

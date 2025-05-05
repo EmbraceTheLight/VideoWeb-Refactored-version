@@ -87,7 +87,6 @@ func (v *videoInfoRepo) CreateBasicVideoInfo(ctx context.Context, videoInfo *mod
 	video := getQuery(ctx).Video
 	videoDo := video.WithContext(ctx)
 	return videoDo.Create(videoInfo)
-
 }
 
 func (v *videoInfoRepo) GetVideoInfoById(ctx context.Context, videoId int64) (*model.Video, error) {

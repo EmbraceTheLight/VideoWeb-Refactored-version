@@ -8,6 +8,9 @@ const (
 	// HotEachComment 每评论一次增加的热度
 	HotEachComment = 10 * HotEachView
 
+	// HotEachReply 每回复一次增加的热度
+	HotEachReply = HotEachComment / 2
+
 	// HotEachBarrage 每发表一次弹幕增加的热度
 	HotEachBarrage = 5 * HotEachView
 

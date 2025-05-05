@@ -45,6 +45,7 @@ func newVideo(db *gorm.DB, opts ...gen.DOOption) video {
 	_video.CntShares = field.NewInt64(tableName, "cnt_shares")
 	_video.CntFavorited = field.NewInt64(tableName, "cnt_favorited")
 	_video.CntViewed = field.NewInt64(tableName, "cnt_viewed")
+	_video.CntComments = field.NewInt64(tableName, "cnt_comments")
 	_video.Duration = field.NewString(tableName, "duration")
 	_video.Size = field.NewInt64(tableName, "size")
 	_video.CoverPath = field.NewString(tableName, "cover_path")
@@ -77,6 +78,7 @@ type video struct {
 	CntShares     field.Int64  // 视频分享数
 	CntFavorited  field.Int64  // 视频收藏数
 	CntViewed     field.Int64  // 视频观看数（点开就算看）
+	CntComments   field.Int64
 	Duration      field.String // 视频时长
 	Size          field.Int64  // 视频文件大小
 	CoverPath     field.String // 视频封面路径
@@ -115,6 +117,7 @@ func (v *video) updateTableName(table string) *video {
 	v.CntShares = field.NewInt64(table, "cnt_shares")
 	v.CntFavorited = field.NewInt64(table, "cnt_favorited")
 	v.CntViewed = field.NewInt64(table, "cnt_viewed")
+	v.CntComments = field.NewInt64(table, "cnt_comments")
 	v.Duration = field.NewString(table, "duration")
 	v.Size = field.NewInt64(table, "size")
 	v.CoverPath = field.NewString(table, "cover_path")
@@ -135,7 +138,7 @@ func (v *video) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (v *video) fillFieldMap() {
-	v.fieldMap = make(map[string]field.Expr, 22)
+	v.fieldMap = make(map[string]field.Expr, 23)
 	v.fieldMap["created_at"] = v.CreatedAt
 	v.fieldMap["updated_at"] = v.UpdatedAt
 	v.fieldMap["deleted_at"] = v.DeletedAt
@@ -154,6 +157,7 @@ func (v *video) fillFieldMap() {
 	v.fieldMap["cnt_shares"] = v.CntShares
 	v.fieldMap["cnt_favorited"] = v.CntFavorited
 	v.fieldMap["cnt_viewed"] = v.CntViewed
+	v.fieldMap["cnt_comments"] = v.CntComments
 	v.fieldMap["duration"] = v.Duration
 	v.fieldMap["size"] = v.Size
 	v.fieldMap["cover_path"] = v.CoverPath

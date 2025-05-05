@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	uv_status  = "user_video_status"   // user-video status collection
-	ub_status  = "user_barrage_status" // user-barrage status collection
-	uv_history = "user_video_history"  // user-video history collection
-	uc_status  = "user_comment_status" // user-comment status collection
+	uv_status  = "user_video_status"    // user-video status Collection
+	ub_status  = "user_barrage_status"  // user-barrage status Collection
+	uv_history = "user_video_history"   // user-video history Collection
+	uc_status  = "user_comment_upvoted" // user-comment status Collection
 )
 
 type MongoDB struct {
@@ -21,10 +21,10 @@ type MongoDB struct {
 	mongoClient *mongo.Client
 }
 
-//// FindOne finds one document in the specified collection that matches the filter.
+//// FindOne finds one document in the specified Collection that matches the filter.
 //// result is a pointer to the struct that will hold the result.
-//func FindOne(ctx context.Context, collection *mongo.Collection, filter any, result any, opts ...*options.FindOneOptions) (any, error) {
-//	res := collection.FindOne(ctx, filter, opts...)
+//func FindOne(ctx context.Context, Collection *mongo.Collection, filter any, result any, opts ...*options.FindOneOptions) (any, error) {
+//	res := Collection.FindOne(ctx, filter, opts...)
 //	if err := res.Err(); err != nil {
 //		return nil, err
 //	}
@@ -36,10 +36,10 @@ type MongoDB struct {
 //	return result, nil
 //}
 //
-//// UpdateOne finds one document in the specified collection that matches the filter.
+//// UpdateOne finds one document in the specified Collection that matches the filter.
 //// result is a pointer to the struct that will hold the result.
-//func UpdateOne(ctx context.Context, collection *mongo.Collection, filter any, data any, opts ...*options.UpdateOptions) error {
-//	_, err := collection.UpdateOne(ctx, filter, bson.D{{"$set", data}}, opts...)
+//func UpdateOne(ctx context.Context, Collection *mongo.Collection, filter any, data any, opts ...*options.UpdateOptions) error {
+//	_, err := Collection.UpdateOne(ctx, filter, bson.D{{"$set", data}}, opts...)
 //	if err != nil {
 //		return err
 //	}
@@ -47,29 +47,34 @@ type MongoDB struct {
 //	return nil
 //}
 
-func (m *MongoDB) database() *mongo.Database {
+func (m *MongoDB) Database() *mongo.Database {
 	return m.mongoClient.Database(m.db)
 }
 
-func (m *MongoDB) collection(c string) *mongo.Collection {
-	return m.database().Collection(c)
+func (m *MongoDB) Collection(c string) *mongo.Collection {
+	return m.Database().Collection(c)
 }
 
-func (m *MongoDB) InsertOne(ctx context.Context, collection string, data mgutil.MongoData) error {
-	return mgutil.InsertOne(ctx, m.collection(collection), data.GetInsertData())
+func (m *MongoDB) InsertOne(ctx context.Context, collection string, data mgutil.MongoData, opts ...*options.InsertOneOptions) error {
+	return mgutil.InsertOne(ctx, m.Collection(collection), data.GetInsertData(), opts...)
 }
 
 func (m *MongoDB) UpsertOne(ctx context.Context, collection string, filter any, data mgutil.MongoData) error {
 	updateOptions := options.Update().SetUpsert(true)
-	return mgutil.UpdateOne(ctx, m.collection(collection), filter, data.GetUpsertData(), updateOptions)
+	return mgutil.UpdateOne(ctx, m.Collection(collection), filter, data.GetUpsertData(), updateOptions)
 }
 
 func (m *MongoDB) UpdateOne(ctx context.Context, collection string, filter, data mgutil.MongoData, opts ...*options.UpdateOptions) error {
-	return mgutil.UpdateOne(ctx, m.collection(collection), filter, data.GetUpdateData(), opts...)
+	return mgutil.UpdateOne(ctx, m.Collection(collection), filter, data.GetUpdateData(), opts...)
+}
+
+func (m *MongoDB) DeleteOne(ctx context.Context, filter any, opts ...*options.DeleteOptions) error {
+	_, err := mgutil.DeleteOne(ctx, m.Collection(uc_status), filter, opts...)
+	return err
 }
 
 func (m *MongoDB) FindOne(ctx context.Context, collection string, filter any, opts ...*options.FindOneOptions) (*model.UserVideoStatus, error) {
-	res, err := mgutil.FindOne(ctx, m.collection(collection), filter, &model.UserVideoStatus{}, opts...)
+	res, err := mgutil.FindOne(ctx, m.Collection(collection), filter, &model.UserVideoStatus{}, opts...)
 	if err != nil {
 		return nil, err
 	}

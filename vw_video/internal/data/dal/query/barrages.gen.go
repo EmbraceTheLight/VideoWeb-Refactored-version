@@ -27,9 +27,6 @@ func newBarrage(db *gorm.DB, opts ...gen.DOOption) barrage {
 
 	tableName := _barrage.barrageDo.TableName()
 	_barrage.ALL = field.NewAsterisk(tableName)
-	_barrage.CreatedAt = field.NewTime(tableName, "created_at")
-	_barrage.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_barrage.DeletedAt = field.NewField(tableName, "deleted_at")
 	_barrage.BarrageID = field.NewInt64(tableName, "barrage_id")
 	_barrage.VideoID = field.NewInt64(tableName, "video_id")
 	_barrage.PublisherID = field.NewInt64(tableName, "publisher_id")
@@ -39,6 +36,9 @@ func newBarrage(db *gorm.DB, opts ...gen.DOOption) barrage {
 	_barrage.Content = field.NewString(tableName, "content")
 	_barrage.Color = field.NewString(tableName, "color")
 	_barrage.Likes = field.NewInt64(tableName, "likes")
+	_barrage.CreatedAt = field.NewTime(tableName, "created_at")
+	_barrage.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_barrage.DeletedAt = field.NewField(tableName, "deleted_at")
 
 	_barrage.fillFieldMap()
 
@@ -49,9 +49,6 @@ type barrage struct {
 	barrageDo
 
 	ALL         field.Asterisk
-	CreatedAt   field.Time   // 创建时间
-	UpdatedAt   field.Time   // 更新时间
-	DeletedAt   field.Field  // 删除时间
 	BarrageID   field.Int64  // “弹幕ID”
 	VideoID     field.Int64  // 视频id
 	PublisherID field.Int64  //  发布者 id
@@ -61,6 +58,9 @@ type barrage struct {
 	Content     field.String // 弹幕内容
 	Color       field.String // 弹幕颜色，使用十六进制表示
 	Likes       field.Int64  // 弹幕获赞数
+	CreatedAt   field.Time   // 创建时间
+	UpdatedAt   field.Time   // 更新时间
+	DeletedAt   field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -77,9 +77,6 @@ func (b barrage) As(alias string) *barrage {
 
 func (b *barrage) updateTableName(table string) *barrage {
 	b.ALL = field.NewAsterisk(table)
-	b.CreatedAt = field.NewTime(table, "created_at")
-	b.UpdatedAt = field.NewTime(table, "updated_at")
-	b.DeletedAt = field.NewField(table, "deleted_at")
 	b.BarrageID = field.NewInt64(table, "barrage_id")
 	b.VideoID = field.NewInt64(table, "video_id")
 	b.PublisherID = field.NewInt64(table, "publisher_id")
@@ -89,6 +86,9 @@ func (b *barrage) updateTableName(table string) *barrage {
 	b.Content = field.NewString(table, "content")
 	b.Color = field.NewString(table, "color")
 	b.Likes = field.NewInt64(table, "likes")
+	b.CreatedAt = field.NewTime(table, "created_at")
+	b.UpdatedAt = field.NewTime(table, "updated_at")
+	b.DeletedAt = field.NewField(table, "deleted_at")
 
 	b.fillFieldMap()
 
@@ -106,9 +106,6 @@ func (b *barrage) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 
 func (b *barrage) fillFieldMap() {
 	b.fieldMap = make(map[string]field.Expr, 12)
-	b.fieldMap["created_at"] = b.CreatedAt
-	b.fieldMap["updated_at"] = b.UpdatedAt
-	b.fieldMap["deleted_at"] = b.DeletedAt
 	b.fieldMap["barrage_id"] = b.BarrageID
 	b.fieldMap["video_id"] = b.VideoID
 	b.fieldMap["publisher_id"] = b.PublisherID
@@ -118,6 +115,9 @@ func (b *barrage) fillFieldMap() {
 	b.fieldMap["content"] = b.Content
 	b.fieldMap["color"] = b.Color
 	b.fieldMap["likes"] = b.Likes
+	b.fieldMap["created_at"] = b.CreatedAt
+	b.fieldMap["updated_at"] = b.UpdatedAt
+	b.fieldMap["deleted_at"] = b.DeletedAt
 }
 
 func (b barrage) clone(db *gorm.DB) barrage {

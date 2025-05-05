@@ -3,7 +3,7 @@ package biz
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
-	"util"
+	"util/dbutil/mysqlutil"
 	"util/getid"
 	"util/helper"
 	"vw_user/internal/data/dal/model"
@@ -31,10 +31,10 @@ type FavoritesRepo interface {
 type FavoritesUsecase struct {
 	repo   FavoritesRepo
 	logger *log.Helper
-	tx     util.Transaction
+	tx     mysqlutil.Transaction
 }
 
-func NewFavoritesUsecase(repo FavoritesRepo, tx util.Transaction, logger log.Logger) *FavoritesUsecase {
+func NewFavoritesUsecase(repo FavoritesRepo, tx mysqlutil.Transaction, logger log.Logger) *FavoritesUsecase {
 	return &FavoritesUsecase{
 		repo:   repo,
 		tx:     tx,

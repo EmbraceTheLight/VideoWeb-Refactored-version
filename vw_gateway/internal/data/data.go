@@ -37,8 +37,10 @@ var ProviderSet = wire.NewSet(
 	videodata.NewData,
 	videodata.NewVideoInfoRepo,
 	videodata.NewInteractRepo,
+	videodata.NewVideoCommentRepo,
 	videodata.NewVideoInfoClient,
 	videodata.NewVideoInteractClient,
+	videodata.NewVideoCommentClient,
 )
 
 func NewRedisClusterClient(c *conf.Data) *redis.ClusterClient {

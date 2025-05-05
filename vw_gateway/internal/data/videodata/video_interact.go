@@ -3,16 +3,13 @@ package videodata
 import (
 	"context"
 	stderr "errors"
-	"github.com/dtm-labs/dtm/client/dtmgrpc"
 	"github.com/go-kratos/kratos/v2/log"
-	"google.golang.org/protobuf/proto"
-	"util/getid"
 	"util/resolver"
 	interactv1 "vw_gateway/api/v1/video/video_interact"
 	"vw_gateway/internal/biz/videobiz"
-	userinfov1 "vw_user/api/v1/userinfo"
-	videointeractv1 "vw_video/api/v1/interact"
-	videoinfov1 "vw_video/api/v1/videoinfo"
+	userinfoGRPC "vw_user/api/v1/userinfo"
+	interactGRPC "vw_video/api/v1/interact"
+	videoinfoGRPC "vw_video/api/v1/videoinfo"
 )
 
 type interactRepo struct {
@@ -27,15 +24,9 @@ func NewInteractRepo(data *Data, logger log.Logger) videobiz.InteractRepo {
 	}
 }
 
-type sagaMember struct {
-	method           string
-	compensateMethod string
-	payload          proto.Message
-}
-
 func (i *interactRepo) FavoriteVideo(ctx context.Context, userId, favoriteId, videoId int64) (bool, error) {
 	// 1. Get the current status of the user-video
-	origin, err := i.data.videoInteractClient.GetUserVideoStatus(ctx, &videointeractv1.GetUserVideoStatusReq{
+	origin, err := i.data.videoInteractClient.GetUserVideoStatus(ctx, &interactGRPC.GetUserVideoStatusReq{
 		VideoId: videoId,
 		UserId:  userId,
 	})
@@ -57,9 +48,9 @@ func (i *interactRepo) FavoriteVideo(ctx context.Context, userId, favoriteId, vi
 	wrapSagaAdd(
 		saga,
 		&sagaMember{
-			method:           addr + videointeractv1.VideoInteract_VideoFavorite_FullMethodName,
-			compensateMethod: addr + videointeractv1.VideoInteract_VideoFavoriteRevert_FullMethodName,
-			payload: &videointeractv1.VideoFavoriteReq{
+			method:           addr + interactGRPC.VideoInteract_VideoFavorite_FullMethodName,
+			compensateMethod: addr + interactGRPC.VideoInteract_VideoFavoriteRevert_FullMethodName,
+			payload: &interactGRPC.VideoFavoriteReq{
 				VideoId:    videoId,
 				FavoriteId: favoriteId,
 				Favorite:   -isFavorited,
@@ -67,13 +58,13 @@ func (i *interactRepo) FavoriteVideo(ctx context.Context, userId, favoriteId, vi
 		},
 		// 3.2 Update User-Video status
 		&sagaMember{
-			addr + videointeractv1.VideoInteract_SetUserVideoStatus_FullMethodName,
-			addr + videointeractv1.VideoInteract_SetUserVideoStatusRevert_FullMethodName,
-			&videointeractv1.SetUserVideoStatusReq{
+			addr + interactGRPC.VideoInteract_SetUserVideoStatus_FullMethodName,
+			addr + interactGRPC.VideoInteract_SetUserVideoStatusRevert_FullMethodName,
+			&interactGRPC.SetUserVideoStatusReq{
 				VideoId:      videoId,
 				UserId:       userId,
 				OriginStatus: origin.Status,
-				Statuses: &videointeractv1.SetUserVideoStatusReq_Statuses{
+				Statuses: &interactGRPC.SetUserVideoStatusReq_Statuses{
 					IsFavorited: -isFavorited,
 				},
 			},
@@ -83,7 +74,7 @@ func (i *interactRepo) FavoriteVideo(ctx context.Context, userId, favoriteId, vi
 }
 
 func (i *interactRepo) UpvoteVideo(ctx context.Context, userId int64, videoId int64) (bool, error) {
-	origin, err := i.data.videoInteractClient.GetUserVideoStatus(ctx, &videointeractv1.GetUserVideoStatusReq{
+	origin, err := i.data.videoInteractClient.GetUserVideoStatus(ctx, &interactGRPC.GetUserVideoStatusReq{
 		VideoId: videoId,
 		UserId:  userId,
 	})
@@ -92,7 +83,7 @@ func (i *interactRepo) UpvoteVideo(ctx context.Context, userId int64, videoId in
 	}
 
 	// Get the video publisher's id.
-	resp, err := i.data.videoInfoClient.GetPublisherIdByVideoId(ctx, &videoinfov1.GetPublisherIdByVideoIdReq{
+	resp, err := i.data.videoInfoClient.GetPublisherIdByVideoId(ctx, &videoinfoGRPC.GetPublisherIdByVideoIdReq{
 		VideoId: videoId,
 	})
 
@@ -113,33 +104,33 @@ func (i *interactRepo) UpvoteVideo(ctx context.Context, userId int64, videoId in
 		saga,
 		// 1. Add the first step of the saga, which is to upvote the video
 		&sagaMember{
-			method:           videoAddr + videointeractv1.VideoInteract_VideoUpvote_FullMethodName,
-			compensateMethod: videoAddr + videointeractv1.VideoInteract_VideoUpvoteRevert_FullMethodName,
-			payload: &videointeractv1.VideoUpvoteReq{
-				VideoId: videoId,
-				Upvote:  -isUpvoted, // reverse the status of Upvoted
+			method:           videoAddr + interactGRPC.VideoInteract_VideoUpvote_FullMethodName,
+			compensateMethod: videoAddr + interactGRPC.VideoInteract_VideoUpvoteRevert_FullMethodName,
+			payload: &interactGRPC.VideoUpvoteReq{
+				VideoId:    videoId,
+				UpvoteFlag: -isUpvoted, // reverse the status of Upvoted
 			},
 		},
 
 		// 2. Add the second step of the saga, which is to update the publisher's like count
 		&sagaMember{
-			method:           userAddr + userinfov1.Userinfo_UpdateUserCntLikes_FullMethodName,
-			compensateMethod: userAddr + userinfov1.Userinfo_UpdateUserCntLikesRevert_FullMethodName,
-			payload: &userinfov1.UpdateUserCntLikesReq{
-				UserId:    resp.PublisherId,
-				IsUpvoted: -isUpvoted, // reverse the status of Upvoted
+			method:           userAddr + userinfoGRPC.Userinfo_UpdateUserCntLikes_FullMethodName,
+			compensateMethod: userAddr + userinfoGRPC.Userinfo_UpdateUserCntLikesRevert_FullMethodName,
+			payload: &userinfoGRPC.UpdateUserCntLikesReq{
+				UserId:     resp.PublisherId,
+				UpvoteFlag: -isUpvoted, // reverse the status of Upvoted
 			},
 		},
 
 		// 3. Add the third step of the saga, which is to update the user-video status
 		&sagaMember{
-			method:           videoAddr + videointeractv1.VideoInteract_SetUserVideoStatus_FullMethodName,
-			compensateMethod: videoAddr + videointeractv1.VideoInteract_SetUserVideoStatusRevert_FullMethodName,
-			payload: &videointeractv1.SetUserVideoStatusReq{
+			method:           videoAddr + interactGRPC.VideoInteract_SetUserVideoStatus_FullMethodName,
+			compensateMethod: videoAddr + interactGRPC.VideoInteract_SetUserVideoStatusRevert_FullMethodName,
+			payload: &interactGRPC.SetUserVideoStatusReq{
 				VideoId:      videoId,
 				UserId:       userId,
 				OriginStatus: origin.Status,
-				Statuses: &videointeractv1.SetUserVideoStatusReq_Statuses{
+				Statuses: &interactGRPC.SetUserVideoStatusReq_Statuses{
 					IsUpvoted: -isUpvoted,
 				},
 			},
@@ -149,7 +140,7 @@ func (i *interactRepo) UpvoteVideo(ctx context.Context, userId int64, videoId in
 }
 
 func (i *interactRepo) UpvoteBarrage(ctx context.Context, userId int64, barrageId int64) error {
-	origin, err := i.data.videoInteractClient.GetUserBarrageStatus(ctx, &videointeractv1.GetUserBarrageStatusReq{
+	origin, err := i.data.videoInteractClient.GetUserBarrageStatus(ctx, &interactGRPC.GetUserBarrageStatusReq{
 		UserId:    userId,
 		BarrageId: barrageId,
 	})
@@ -170,9 +161,9 @@ func (i *interactRepo) UpvoteBarrage(ctx context.Context, userId int64, barrageI
 		saga,
 		// 1. Add the first step of the saga, which is to upvote the video
 		&sagaMember{
-			method:           videoAddr + videointeractv1.VideoInteract_BarrageUpvote_FullMethodName,
-			compensateMethod: videoAddr + videointeractv1.VideoInteract_BarrageUpvoteRevert_FullMethodName,
-			payload: &videointeractv1.UpvoteBarrageReq{
+			method:           videoAddr + interactGRPC.VideoInteract_BarrageUpvote_FullMethodName,
+			compensateMethod: videoAddr + interactGRPC.VideoInteract_BarrageUpvoteRevert_FullMethodName,
+			payload: &interactGRPC.UpvoteBarrageReq{
 				BarrageId: barrageId,
 				UserId:    userId,
 				Upvote:    -isUpvoted, // reverse the status of Upvoted
@@ -181,13 +172,13 @@ func (i *interactRepo) UpvoteBarrage(ctx context.Context, userId int64, barrageI
 
 		// 2. Add the second step of the saga, which is to update the user-barrage status
 		&sagaMember{
-			method:           videoAddr + videointeractv1.VideoInteract_SetUserBarrageStatus_FullMethodName,
-			compensateMethod: videoAddr + videointeractv1.VideoInteract_SetUserBarrageStatusRevert_FullMethodName,
-			payload: &videointeractv1.SetUserBarrageStatusReq{
+			method:           videoAddr + interactGRPC.VideoInteract_SetUserBarrageStatus_FullMethodName,
+			compensateMethod: videoAddr + interactGRPC.VideoInteract_SetUserBarrageStatusRevert_FullMethodName,
+			payload: &interactGRPC.SetUserBarrageStatusReq{
 				UserId:       userId,
 				BarrageId:    barrageId,
 				OriginStatus: origin.Status,
-				Statuses: &videointeractv1.SetUserBarrageStatusReq_Statuses{
+				Statuses: &interactGRPC.SetUserBarrageStatusReq_Statuses{
 					IsUpvoted: -isUpvoted, // reverse the status of Upvoted
 				},
 			},
@@ -197,7 +188,7 @@ func (i *interactRepo) UpvoteBarrage(ctx context.Context, userId int64, barrageI
 }
 
 func (i *interactRepo) SendBarrage(ctx context.Context, userId int64, req *interactv1.VideoSendBarrageReq) error {
-	_, err := i.data.videoInteractClient.VideoSendBarrage(ctx, &videointeractv1.VideoSendBarrageReq{
+	_, err := i.data.videoInteractClient.VideoSendBarrage(ctx, &interactGRPC.VideoSendBarrageReq{
 		PublisherId: userId,
 		VideoId:     req.VideoId,
 		Content:     req.Content,
@@ -209,7 +200,7 @@ func (i *interactRepo) SendBarrage(ctx context.Context, userId int64, req *inter
 
 func (i *interactRepo) ShareVideo(ctx context.Context, userId int64, videoId int64) (string, error) {
 	// 1. Get the current status of the user-video
-	origin, err := i.data.videoInteractClient.GetUserVideoStatus(ctx, &videointeractv1.GetUserVideoStatusReq{
+	origin, err := i.data.videoInteractClient.GetUserVideoStatus(ctx, &interactGRPC.GetUserVideoStatusReq{
 		VideoId: videoId,
 		UserId:  userId,
 	})
@@ -222,7 +213,7 @@ func (i *interactRepo) ShareVideo(ctx context.Context, userId int64, videoId int
 		return "", err
 	}
 
-	resp, err := i.data.videoInteractClient.VideoShare(ctx, &videointeractv1.VideoShareReq{
+	resp, err := i.data.videoInteractClient.VideoShare(ctx, &interactGRPC.VideoShareReq{
 		VideoId:  videoId,
 		IsShared: checkIsShared(origin.Status),
 	})
@@ -244,21 +235,21 @@ func (i *interactRepo) ShareVideo(ctx context.Context, userId int64, videoId int
 		wrapSagaAdd(
 			saga,
 			&sagaMember{
-				videoAddr + videoinfov1.VideoInfo_AddVideoCntShared_FullMethodName,
-				videoAddr + videoinfov1.VideoInfo_AddVideoCntSharedRevert_FullMethodName,
-				&videoinfov1.AddVideoCntSharedReq{
+				videoAddr + videoinfoGRPC.VideoInfo_AddVideoCntShared_FullMethodName,
+				videoAddr + videoinfoGRPC.VideoInfo_AddVideoCntSharedRevert_FullMethodName,
+				&videoinfoGRPC.AddVideoCntSharedReq{
 					VideoId:        videoId,
 					IsCompensation: false,
 				},
 			},
 			&sagaMember{
-				videoAddr + videointeractv1.VideoInteract_SetUserVideoStatus_FullMethodName,
-				videoAddr + videointeractv1.VideoInteract_SetUserVideoStatusRevert_FullMethodName,
-				&videointeractv1.SetUserVideoStatusReq{
+				videoAddr + interactGRPC.VideoInteract_SetUserVideoStatus_FullMethodName,
+				videoAddr + interactGRPC.VideoInteract_SetUserVideoStatusRevert_FullMethodName,
+				&interactGRPC.SetUserVideoStatusReq{
 					UserId:       userId,
 					VideoId:      videoId,
 					OriginStatus: origin.Status,
-					Statuses: &videointeractv1.SetUserVideoStatusReq_Statuses{
+					Statuses: &interactGRPC.SetUserVideoStatusReq_Statuses{
 						IsShared: -isShared, // reverse the status of Shared
 					},
 				},
@@ -274,7 +265,7 @@ func (i *interactRepo) ShareVideo(ctx context.Context, userId int64, videoId int
 }
 
 func (i *interactRepo) ThrowShells(ctx context.Context, userId int64, videoId int64, count int32) error {
-	origin, err := i.data.videoInteractClient.GetUserVideoStatus(ctx, &videointeractv1.GetUserVideoStatusReq{
+	origin, err := i.data.videoInteractClient.GetUserVideoStatus(ctx, &interactGRPC.GetUserVideoStatusReq{
 		VideoId: videoId,
 		UserId:  userId,
 	})
@@ -285,7 +276,7 @@ func (i *interactRepo) ThrowShells(ctx context.Context, userId int64, videoId in
 		return stderr.New("贝壳投递数量已达上限，最多可投递两个☺️")
 	}
 
-	resp, err := i.data.videoInfoClient.GetPublisherIdByVideoId(ctx, &videoinfov1.GetPublisherIdByVideoIdReq{
+	resp, err := i.data.videoInfoClient.GetPublisherIdByVideoId(ctx, &videoinfoGRPC.GetPublisherIdByVideoIdReq{
 		VideoId: videoId,
 	})
 	if err != nil {
@@ -310,9 +301,9 @@ func (i *interactRepo) ThrowShells(ctx context.Context, userId int64, videoId in
 
 		// 1. Update shells of the thrower and the publisher
 		&sagaMember{
-			method:           userAddr + userinfov1.Userinfo_UpdateUserShells_FullMethodName,
-			compensateMethod: userAddr + userinfov1.Userinfo_UpdateUserShellsRevert_FullMethodName,
-			payload: &userinfov1.UpdateUserShellsReq{
+			method:           userAddr + userinfoGRPC.Userinfo_UpdateUserShells_FullMethodName,
+			compensateMethod: userAddr + userinfoGRPC.Userinfo_UpdateUserShellsRevert_FullMethodName,
+			payload: &userinfoGRPC.UpdateUserShellsReq{
 				UserId:      userId,
 				PublisherId: resp.PublisherId,
 				Shells:      int64(count),
@@ -321,9 +312,9 @@ func (i *interactRepo) ThrowShells(ctx context.Context, userId int64, videoId in
 
 		// 2. Update the shells the video received
 		&sagaMember{
-			method:           videoAddr + videointeractv1.VideoInteract_VideoThrowShells_FullMethodName,
-			compensateMethod: videoAddr + videointeractv1.VideoInteract_VideoThrowShellsRevert_FullMethodName,
-			payload: &videointeractv1.VideoThrowShellsReq{
+			method:           videoAddr + interactGRPC.VideoInteract_VideoThrowShells_FullMethodName,
+			compensateMethod: videoAddr + interactGRPC.VideoInteract_VideoThrowShellsRevert_FullMethodName,
+			payload: &interactGRPC.VideoThrowShellsReq{
 				VideoId: videoId,
 				UserId:  userId,
 				Shells:  count,
@@ -332,30 +323,17 @@ func (i *interactRepo) ThrowShells(ctx context.Context, userId int64, videoId in
 
 		// 3. Update the user-video status
 		&sagaMember{
-			method:           videoAddr + videointeractv1.VideoInteract_SetUserVideoStatus_FullMethodName,
-			compensateMethod: videoAddr + videointeractv1.VideoInteract_SetUserVideoStatusRevert_FullMethodName,
-			payload: &videointeractv1.SetUserVideoStatusReq{
+			method:           videoAddr + interactGRPC.VideoInteract_SetUserVideoStatus_FullMethodName,
+			compensateMethod: videoAddr + interactGRPC.VideoInteract_SetUserVideoStatusRevert_FullMethodName,
+			payload: &interactGRPC.SetUserVideoStatusReq{
 				VideoId:      videoId,
 				UserId:       userId,
 				OriginStatus: origin.Status,
 				ShellsCount:  origin.ShellsCount + count,
-				Statuses: &videointeractv1.SetUserVideoStatusReq_Statuses{
+				Statuses: &interactGRPC.SetUserVideoStatusReq_Statuses{
 					IsThrownShells: 1,
 				},
 			}},
 	)
 	return saga.Submit()
-}
-
-func newSaga(ctx context.Context, dtmServerAddr string) (string, *dtmgrpc.SagaGrpc) {
-	gid := getid.GetUUID()
-	saga := dtmgrpc.NewSagaGrpcWithContext(ctx, dtmServerAddr, gid)
-	return gid, saga
-}
-func wrapSagaAdd(saga *dtmgrpc.SagaGrpc, member ...*sagaMember) *dtmgrpc.SagaGrpc {
-	for _, s := range member {
-		saga.Add(s.method, s.compensateMethod, s.payload)
-	}
-	saga.WaitResult = true
-	return saga
 }

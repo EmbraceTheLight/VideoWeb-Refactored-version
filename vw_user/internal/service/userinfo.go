@@ -84,7 +84,7 @@ func (info *UserInfoService) ModifyUsername(ctx context.Context, req *infov1.Mod
 }
 
 func (info *UserInfoService) UpdateUserCntLikes(ctx context.Context, req *infov1.UpdateUserCntLikesReq) (*emptypb.Empty, error) {
-	err := info.info.UpdateUserCntLikes(ctx, req.UserId, req.IsUpvoted)
+	err := info.info.UpdateUserCntLikes(ctx, req.UserId, req.UpvoteFlag)
 	if err != nil {
 		return nil, err
 	}

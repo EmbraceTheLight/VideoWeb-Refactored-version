@@ -17,9 +17,9 @@ import (
 	"gorm.io/gorm"
 	"os"
 	"time"
-	"util"
 	utilCtx "util/context"
 	"util/dbutil/mgutil"
+	mysql2 "util/dbutil/mysqlutil"
 	infov1 "vw_user/api/v1/userinfo"
 	"vw_video/internal/conf"
 	"vw_video/internal/data/dal/model"
@@ -41,6 +41,7 @@ var ProviderSet = wire.NewSet(
 	// Repo
 	NewVideoInfoRepo,
 	NewInteractRepo,
+	NewVideoCommentRepo,
 
 	// Client
 	NewDiscovery,
@@ -53,9 +54,6 @@ type keyType struct{}
 // transactionKey is a context key for gorm transactionKey
 type transactionKey keyType
 
-// SqlTxKey is a context key for *sql.Tx transaction.
-type SqlTxKey keyType
-
 // Data .
 type Data struct {
 	mysql          *gorm.DB
@@ -65,7 +63,7 @@ type Data struct {
 }
 
 // NewTransaction return a util.Transaction interface.
-func NewTransaction(d *Data) util.Transaction {
+func NewTransaction(d *Data) mysql2.Transaction {
 	return d
 }
 
@@ -103,6 +101,7 @@ func NewMySQL(c *conf.Data) *gorm.DB {
 		panic(err)
 	}
 	query.SetDefault(db)
+	initOrderMap()
 	return db
 }
 
@@ -182,23 +181,30 @@ func NewMongo(c *conf.Data) *MongoDB {
 		mongoClient: mongoCli,
 	}
 
-	// 2. Create video_user_id_idx on video_user_status collection
+	// 2. Create video_user_id_idx on video_user_status Collection
 	key := mgutil.NewBsonD("video_id", 1, "user_id", 1)
 	err = setUniqueIndex(ctx, mdb, uv_status, *key, "video_user_id_idx")
 	if err != nil {
 		panic(err)
 	}
 
-	// 3. Create video_id_idx on video_barrage_status collection
+	// 3. Create video_id_idx on video_barrage_status Collection
 	key = mgutil.NewBsonD("barrage_id", 1, "user_id", 1)
 	err = setUniqueIndex(ctx, mdb, ub_status, *key, "barrage_id_idx")
 	if err != nil {
 		panic(err)
 	}
 
-	// 3. Create video_id_idx on video_barrage_status collection
+	// 3. Create video_id_idx on video_barrage_status Collection
 	key = mgutil.NewBsonD("video_id", 1, "user_id", 1)
 	err = setUniqueIndex(ctx, mdb, uv_history, *key, "video_user_id_idx")
+	if err != nil {
+		panic(err)
+	}
+
+	// 4. Create comment_id__user_id_unique_idx on video_comment_status Collection
+	key = mgutil.NewBsonD("comment_id", 1, "user_id", 1)
+	err = setUniqueIndex(ctx, mdb, uc_status, *key, "comment_id__user_id_unique_idx")
 	if err != nil {
 		panic(err)
 	}
@@ -206,7 +212,7 @@ func NewMongo(c *conf.Data) *MongoDB {
 	return mdb
 }
 func setUniqueIndex(ctx context.Context, mdb *MongoDB, collection string, keys bson.D, indexName string) error {
-	idxName, err := mdb.collection(collection).Indexes().CreateOne(ctx, mongo.IndexModel{
+	idxName, err := mdb.Collection(collection).Indexes().CreateOne(ctx, mongo.IndexModel{
 		Keys:    keys,
 		Options: options.Index().SetName(indexName).SetUnique(true),
 	})
@@ -214,7 +220,7 @@ func setUniqueIndex(ctx context.Context, mdb *MongoDB, collection string, keys b
 	if err != nil {
 		return err
 	}
-	logger.Infof("create unique index %s on collection %s success", idxName, collection)
+	logger.Infof("create unique index %s on Collection %s success", idxName, collection)
 	return nil
 }
 
@@ -298,12 +304,23 @@ func getQuery(ctx context.Context) *query.Query {
 // Use the function when need to UPDATE a video model.
 // See https://github.com/go-gorm/optimisticlock/issues/36 for more details.
 func addVideoModel(ctx context.Context, videoId int64) (query.IVideoDo, *model.Video, error) {
-	user := getQuery(ctx).Video
-	videoDo := user.WithContext(ctx)
-	videoModel, err := videoDo.Where(user.VideoID.Eq(videoId)).First()
+	video := getQuery(ctx).Video
+	videoDo := video.WithContext(ctx)
+	videoModel, err := videoDo.Where(video.VideoID.Eq(videoId)).First()
 	if err != nil {
 		return videoDo, nil, err
 	}
 	videoDo.ReplaceDB(videoDo.UnderlyingDB().Model(videoModel))
 	return videoDo, videoModel, nil
+}
+
+func addCommentModel(ctx context.Context, commentId int64) (query.ICommentDo, *model.Comment, error) {
+	comment := getQuery(ctx).Comment
+	commentDo := comment.WithContext(ctx)
+	commentModel, err := commentDo.Where(comment.CommentID.Eq(commentId)).First()
+	if err != nil {
+		return commentDo, nil, err
+	}
+	commentDo.ReplaceDB(commentDo.UnderlyingDB().Model(commentModel))
+	return commentDo, commentModel, nil
 }

@@ -1,4 +1,4 @@
-package util
+package mysqlutil
 
 // This Interface-Definition file is used by grpc service, like vw_user,vw_video and so on.
 import "context"

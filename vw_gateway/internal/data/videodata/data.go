@@ -9,10 +9,11 @@ import (
 	"github.com/redis/go-redis/v9"
 	"vw_gateway/internal/conf"
 	userinfov1 "vw_user/api/v1/userinfo"
-	videointeractv1 "vw_video/api/v1/interact"
+	commentv1 "vw_video/api/v1/comment"
+	interactv1 "vw_video/api/v1/interact"
 
 	"github.com/go-kratos/kratos/v2/log"
-	videoinfov1 "vw_video/api/v1/videoinfo"
+	infov1 "vw_video/api/v1/videoinfo"
 )
 
 const (
@@ -26,8 +27,9 @@ const (
 // Data .
 type Data struct {
 	log                 *log.Helper
-	videoInfoClient     videoinfov1.VideoInfoClient
-	videoInteractClient videointeractv1.VideoInteractClient
+	videoInfoClient     infov1.VideoInfoClient
+	videoInteractClient interactv1.VideoInteractClient
+	videoCommentClient  commentv1.VideoCommentClient
 	userInfoClient      userinfov1.UserinfoClient
 	redis               *redis.ClusterClient
 	dtmServerAddr       string
@@ -36,12 +38,11 @@ type Data struct {
 // NewData .
 func NewData(
 	logger log.Logger,
-	videoInfoClient videoinfov1.VideoInfoClient,
+	videoInfoClient infov1.VideoInfoClient,
 	userInfoClient userinfov1.UserinfoClient,
-	videoInteractClient videointeractv1.VideoInteractClient,
+	videoInteractClient interactv1.VideoInteractClient,
+	videoCommentClient commentv1.VideoCommentClient,
 	redisCluster *redis.ClusterClient,
-	dtm *conf.DTM,
-
 ) (*Data, func(), error) {
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
@@ -51,13 +52,14 @@ func NewData(
 		log:                 log.NewHelper(logger),
 		videoInfoClient:     videoInfoClient,
 		videoInteractClient: videoInteractClient,
+		videoCommentClient:  videoCommentClient,
 		userInfoClient:      userInfoClient,
 		redis:               redisCluster,
 		dtmServerAddr:       "discovery:///dtm",
 	}, cleanup, nil
 }
 
-func NewVideoInfoClient(r registry.Discovery, s *conf.Service) videoinfov1.VideoInfoClient {
+func NewVideoInfoClient(r registry.Discovery, s *conf.Service) infov1.VideoInfoClient {
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint(s.Video.Endpoint),
@@ -70,10 +72,10 @@ func NewVideoInfoClient(r registry.Discovery, s *conf.Service) videoinfov1.Video
 	if err != nil {
 		panic(err)
 	}
-	return videoinfov1.NewVideoInfoClient(conn)
+	return infov1.NewVideoInfoClient(conn)
 }
 
-func NewVideoInteractClient(r registry.Discovery, s *conf.Service) videointeractv1.VideoInteractClient {
+func NewVideoInteractClient(r registry.Discovery, s *conf.Service) interactv1.VideoInteractClient {
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint(s.Video.Endpoint),
@@ -86,7 +88,23 @@ func NewVideoInteractClient(r registry.Discovery, s *conf.Service) videointeract
 	if err != nil {
 		panic(err)
 	}
-	return videointeractv1.NewVideoInteractClient(conn)
+	return interactv1.NewVideoInteractClient(conn)
+}
+
+func NewVideoCommentClient(r registry.Discovery, s *conf.Service) commentv1.VideoCommentClient {
+	conn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint(s.Video.Endpoint),
+		grpc.WithDiscovery(r),
+		grpc.WithMiddleware(
+			recovery.Recovery(),
+			tracing.Client(),
+		),
+	)
+	if err != nil {
+		panic(err)
+	}
+	return commentv1.NewVideoCommentClient(conn)
 }
 
 func NewUserInfoClient(r registry.Discovery, s *conf.Service) userinfov1.UserinfoClient {
