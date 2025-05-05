@@ -18,8 +18,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"util"
 	utilCtx "util/context"
+	"util/dbutil/mysqlutil"
 	"util/ffmpeg"
 	"util/getid"
 	"util/helper"
@@ -55,11 +55,11 @@ type VideoInfoRepo interface {
 
 type VideoInfoUsecase struct {
 	repo   VideoInfoRepo
-	tx     util.Transaction
+	tx     mysqlutil.Transaction
 	logger *log.Helper
 }
 
-func NewVideoInfoUsecase(repo VideoInfoRepo, tx util.Transaction, logger log.Logger) *VideoInfoUsecase {
+func NewVideoInfoUsecase(repo VideoInfoRepo, tx mysqlutil.Transaction, logger log.Logger) *VideoInfoUsecase {
 	return &VideoInfoUsecase{
 		repo:   repo,
 		tx:     tx,

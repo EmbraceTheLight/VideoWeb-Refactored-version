@@ -16,7 +16,6 @@ import (
 	"vw_gateway/internal/pkg/middlewares"
 	"vw_gateway/internal/server"
 	"vw_gateway/internal/service"
-	gs "vw_gateway/internal/service/ginservice"
 )
 
 // wireApp init kratos application.
@@ -27,6 +26,5 @@ func wireApp(*conf.Server, *conf.Data, *conf.Registry, *conf.JWT, *conf.Email, *
 		middlewares.ProviderSet,
 		data.ProviderSet,
 		captcha.ProviderSet,
-		gs.ProviderSet,
 		service.ProviderSet, newApp))
 }

@@ -2,7 +2,8 @@ package ecode
 
 const (
 	// Video info errors
-	VIDEOINFO_GetVideoInfoFailed = 5001 + iota
+	InternalError = 5001 + iota
+	VIDEOINFO_GetVideoInfoFailed
 	VIDEOINFO_VideoNotFound
 	VIDEOINFO_GetVideoListFailed
 	VIDEOINFO_UploadVideoInfoFailed

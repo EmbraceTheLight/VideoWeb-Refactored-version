@@ -9,14 +9,14 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-kratos/gin v0.1.0
-	github.com/go-kratos/kratos/contrib/registry/consul/v2 v2.0.0-20250210091908-15168b5a1b7d
-	github.com/go-kratos/kratos/v2 v2.8.3
+	github.com/go-kratos/kratos/contrib/registry/consul/v2 v2.0.0-20250429074618-c82f7957223f
+	github.com/go-kratos/kratos/v2 v2.8.4
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/wire v0.6.0
 	github.com/gorilla/handlers v1.5.2
 	github.com/hashicorp/consul/api v1.32.0
 	github.com/mojocn/base64Captcha v1.3.8
-	github.com/redis/go-redis/v9 v9.7.3
+	github.com/redis/go-redis/v9 v9.8.0
 	github.com/spewerspew/spew v0.0.0-20230513223542-89b69fbbe2bd
 	github.com/stretchr/testify v1.10.0
 	go.opentelemetry.io/otel v1.32.0
@@ -25,6 +25,7 @@ require (
 	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.6
 	util v0.0.0-00010101000000-000000000000
+	vw_comment v0.0.0-00010101000000-000000000000
 	vw_user v0.0.0-00010101000000-000000000000
 	vw_video v0.0.0-00010101000000-000000000000
 )
@@ -101,9 +102,8 @@ require (
 	go.opentelemetry.io/otel/metric v1.32.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.32.0 // indirect
 	go.opentelemetry.io/otel/trace v1.32.0 // indirect
-	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/multierr v1.9.0 // indirect
-	go.uber.org/zap v1.24.0 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.15.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
@@ -121,6 +121,7 @@ require (
 replace (
 	common => ../util/common_proto
 	util => ../util
+	vw_comment => ../vw_comment
 	vw_user => ../vw_user
 	vw_video => ../vw_video
 )

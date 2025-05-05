@@ -80,8 +80,12 @@ message Service {
     message Video {
         string endpoint = 1;
     }
-    User user   = 1;
-    Video video = 2;
+    message Comment {
+        string endpoint = 1;
+    }
+    User user       = 1;
+    Video video     = 2;
+    Comment comment = 3;
 }
 
 message DTM {

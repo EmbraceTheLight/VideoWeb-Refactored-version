@@ -87,8 +87,8 @@ message ModifyUsernameResp {
 }
 
 message UpdateUserCntLikesReq {
-    int64 user_id    = 1;
-    int32 is_upvoted = 2;
+    int64 user_id     = 1;
+    int32 upvote_flag = 2;
 }
 
 message UpdateUserShellsReq {

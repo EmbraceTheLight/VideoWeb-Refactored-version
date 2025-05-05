@@ -17,4 +17,5 @@ var ProviderSet = wire.NewSet(
 
 	video.NewVideoInfoService,
 	video.NewInteractService,
+	video.NewVideoCommentService,
 )

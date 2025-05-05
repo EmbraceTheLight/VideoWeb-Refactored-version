@@ -3,7 +3,7 @@ package biz
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
-	"util"
+	"util/dbutil/mysqlutil"
 	"util/helper"
 	"vw_user/internal/data/dal/model"
 	"vw_user/internal/domain"
@@ -21,11 +21,11 @@ type FollowRepo interface {
 type FollowUsecase struct {
 	repo     FollowRepo
 	infoRepo UserInfoRepo
-	tx       util.Transaction
+	tx       mysqlutil.Transaction
 	log      *log.Helper
 }
 
-func NewFollowUseCase(repo FollowRepo, infoRepo UserInfoRepo, tx util.Transaction, logger log.Logger) *FollowUsecase {
+func NewFollowUseCase(repo FollowRepo, infoRepo UserInfoRepo, tx mysqlutil.Transaction, logger log.Logger) *FollowUsecase {
 	return &FollowUsecase{
 		repo:     repo,
 		infoRepo: infoRepo,

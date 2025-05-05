@@ -11,8 +11,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc/codes"
 	"strconv"
-	"util"
 	"util/dbutil/mgutil"
+	"util/dbutil/mysqlutil"
 	"util/helper"
 	interactv1 "vw_video/api/v1/interact"
 	"vw_video/internal/data/dal/model"
@@ -51,11 +51,11 @@ type InteractRepo interface {
 type InteractUsecase struct {
 	repo          InteractRepo
 	videoinfoRepo VideoInfoRepo
-	tx            util.Transaction
+	tx            mysqlutil.Transaction
 	log           *log.Helper
 }
 
-func NewInteractUseCase(repo InteractRepo, infoRepo VideoInfoRepo, tx util.Transaction, logger log.Logger) *InteractUsecase {
+func NewInteractUseCase(repo InteractRepo, infoRepo VideoInfoRepo, tx mysqlutil.Transaction, logger log.Logger) *InteractUsecase {
 	return &InteractUsecase{
 		repo:          repo,
 		videoinfoRepo: infoRepo,

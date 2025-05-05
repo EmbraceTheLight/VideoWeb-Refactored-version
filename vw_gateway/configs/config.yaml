@@ -50,3 +50,5 @@ service:
     endpoint: discovery:///videoweb.user.service
   video:
     endpoint: discovery:///videoweb.video.service
+  comment:
+    endpoint: discovery:///videoweb.comment.service

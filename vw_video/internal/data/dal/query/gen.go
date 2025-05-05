@@ -18,6 +18,7 @@ import (
 var (
 	Q             = new(Query)
 	Barrage       *barrage
+	Comment       *comment
 	FavoriteVideo *favoriteVideo
 	Video         *video
 	VideoClass    *videoClass
@@ -26,6 +27,7 @@ var (
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
 	Barrage = &Q.Barrage
+	Comment = &Q.Comment
 	FavoriteVideo = &Q.FavoriteVideo
 	Video = &Q.Video
 	VideoClass = &Q.VideoClass
@@ -35,6 +37,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:            db,
 		Barrage:       newBarrage(db, opts...),
+		Comment:       newComment(db, opts...),
 		FavoriteVideo: newFavoriteVideo(db, opts...),
 		Video:         newVideo(db, opts...),
 		VideoClass:    newVideoClass(db, opts...),
@@ -45,6 +48,7 @@ type Query struct {
 	db *gorm.DB
 
 	Barrage       barrage
+	Comment       comment
 	FavoriteVideo favoriteVideo
 	Video         video
 	VideoClass    videoClass
@@ -56,6 +60,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:            db,
 		Barrage:       q.Barrage.clone(db),
+		Comment:       q.Comment.clone(db),
 		FavoriteVideo: q.FavoriteVideo.clone(db),
 		Video:         q.Video.clone(db),
 		VideoClass:    q.VideoClass.clone(db),
@@ -74,6 +79,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:            db,
 		Barrage:       q.Barrage.replaceDB(db),
+		Comment:       q.Comment.replaceDB(db),
 		FavoriteVideo: q.FavoriteVideo.replaceDB(db),
 		Video:         q.Video.replaceDB(db),
 		VideoClass:    q.VideoClass.replaceDB(db),
@@ -82,6 +88,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 
 type queryCtx struct {
 	Barrage       IBarrageDo
+	Comment       ICommentDo
 	FavoriteVideo IFavoriteVideoDo
 	Video         IVideoDo
 	VideoClass    IVideoClassDo
@@ -90,6 +97,7 @@ type queryCtx struct {
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		Barrage:       q.Barrage.WithContext(ctx),
+		Comment:       q.Comment.WithContext(ctx),
 		FavoriteVideo: q.FavoriteVideo.WithContext(ctx),
 		Video:         q.Video.WithContext(ctx),
 		VideoClass:    q.VideoClass.WithContext(ctx),

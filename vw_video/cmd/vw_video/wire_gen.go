@@ -40,7 +40,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, registry *conf.Regist
 	interactRepo := data.NewInteractRepo(dataData, logger)
 	interactUsecase := biz.NewInteractUseCase(interactRepo, videoInfoRepo, transaction, logger)
 	interactService := service.NewInteractService(interactUsecase, logger)
-	grpcServer := server.NewGRPCServer(confServer, videoInfoService, interactService, logger)
+	videoCommentRepo := data.NewVideoCommentRepo(dataData, logger)
+	videoCommentUsecase := biz.NewVideoCommentUsecase(videoCommentRepo, transaction, logger)
+	videoCommentService := service.NewVideoCommentService(videoCommentUsecase, logger)
+	grpcServer := server.NewGRPCServer(confServer, videoInfoService, interactService, videoCommentService, logger)
 	registrar := data.NewRegistrar(registry)
 	app := newApp(logger, grpcServer, registrar)
 	return app, func() {

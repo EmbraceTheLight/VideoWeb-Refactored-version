@@ -3,7 +3,7 @@ syntax = "proto3";
 package video.v1.interact;
 
 import "google/protobuf/empty.proto";
-option go_package = "/api/video/v1/interact;interact";
+option go_package = "vw_video/api/video/v1/interact;interact";
 
 service VideoInteract {
     // NOTE: if the method's SUFFIX is 'Revert',
@@ -37,8 +37,8 @@ service VideoInteract {
 }
 
 message VideoUpvoteReq {
-    int64 video_id = 1;
-    int32 upvote   = 2;  // 1: Upvote, -1: Cancel upvote
+    int64 video_id    = 1;
+    int32 upvote_flag = 2;  // 1: Upvote, -1: Cancel upvote
 }
 
 message VideoFavoriteReq {

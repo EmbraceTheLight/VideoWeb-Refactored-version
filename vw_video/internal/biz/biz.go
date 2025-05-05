@@ -17,16 +17,17 @@ const (
 )
 
 const (
-	uv_status  = "user_video_status"   // user-video status collection
-	ub_status  = "user_barrage_status" // user-barrage status collection
-	uv_history = "user_video_history"  // user-video history collection
-	uc_status  = "user_comment_status" // user-comment status collection
+	uv_status  = "user_video_status"    // user-video status collection
+	ub_status  = "user_barrage_status"  // user-barrage status collection
+	uv_history = "user_video_history"   // user-video history collection
+	uc_status  = "user_comment_upvoted" // user-comment status collection
 )
 
 // ProviderSet is biz providers.
 var ProviderSet = wire.NewSet(
 	NewVideoInfoUsecase,
 	NewInteractUseCase,
+	NewVideoCommentUsecase,
 )
 
 var (

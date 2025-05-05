@@ -3,7 +3,6 @@ syntax = "proto3";
 package gateway.api.v1.video.interact;
 
 import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 option go_package = "vw_gateway/api/v1/video/interact;interact";
 
 service VideoInteract {

@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package gateway.api.v1.video.comment;
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+option go_package = "vw_gateway/api/v1/comment/video;video_comment";
+
+service VideoComment {
+    rpc CommentVideo(CommentVideoReq) returns (CommentVideoResp) {
+        option (google.api.http) = {
+            post: "/api/v1/video/{video_id}/comment"
+            body: "*"
+        };
+    }
+    rpc GetCommentList(GetCommentListReq) returns (GetCommentListResp) {
+        option (google.api.http) = {
+            get: "/api/v1/video/{video_id}/comment"
+        };
+    }
+    rpc GetCommentReplies(GetCommentRepliesReq) returns (GetCommentRepliesResp) {
+        option (google.api.http) = {
+            get: "/api/v1/video/{video_id}/comments/{comment_id}/replies"
+        };
+    }
+
+    rpc UpvoteComment(UpvoteCommentReq) returns (UpvoteCommentResp) {
+        option (google.api.http) = {
+            put: "/api/v1/video/{video_id}/comment/{comment_id}/upvote"
+            body: "*"
+        };
+    }
+}
+
+message CommentInfo {
+    sint64 comment_id                    = 1;
+    sint64 publisher_id                  = 2;
+    sint64 root_id                       = 3;
+    string content                       = 4;
+    google.protobuf.Timestamp created_at = 5;
+    uint64 upvote_count                  = 6;
+    string ip_address                    = 7;
+    uint32 cnt_replies                   = 8;
+}
+
+message CommentVideoReq {
+    sint64 video_id  = 1;
+    sint64 parent_id = 2;
+    string content   = 3;
+}
+message CommentVideoResp {
+    sint64 comment_id = 1;
+}
+
+message GetCommentListReq {
+    sint64 video_id = 1;
+    int32 page_num  = 2;
+    int32 page_size = 3;
+    string sort_by  = 4;
+    string order    = 5;
+}
+message GetCommentListResp {
+    repeated CommentInfo comments = 1;
+    int32 total_count             = 2;
+}
+
+message GetCommentRepliesReq {
+    sint64 video_id   = 1;
+    sint64 comment_id = 2;
+    int32 page_num    = 3;
+    int32 page_size   = 4;
+    string sort_by    = 5;
+    string order      = 6;
+}
+message GetCommentRepliesResp {
+    repeated CommentInfo replies = 1;
+}
+
+message UpvoteCommentReq {
+    sint64 comment_id = 1;
+    sint64 video_id   = 2;
+
+    // If is_upvote is true, the user has upvoted the comment before, so we need to cancel the upvote.
+    // Otherwise, the user has not upvoted the comment before, so we need to add the upvote.
+    bool is_upvote = 3;
+}
+message UpvoteCommentResp {
+    int32 status_code = 1;
+    string message    = 2;
+}

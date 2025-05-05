@@ -21,7 +21,7 @@ func TestMongo(t *testing.T) {
 	m := getMongoDB()
 
 	ctx := context.Background()
-	idxName, err := m.collection(uv_status).Indexes().CreateOne(ctx, mongo.IndexModel{
+	idxName, err := m.Collection(uv_status).Indexes().CreateOne(ctx, mongo.IndexModel{
 		Keys: bson.D{
 			{Key: "video_id", Value: 1},
 			{Key: "user_id", Value: 1},
@@ -31,7 +31,7 @@ func TestMongo(t *testing.T) {
 	)
 	require.NoError(t, err)
 	fmt.Println(idxName)
-	cursor, err := m.collection(uv_status).Indexes().List(ctx)
+	cursor, err := m.Collection(uv_status).Indexes().List(ctx)
 	require.NoError(t, err)
 	var results []bson.M
 	err = cursor.All(ctx, &results)
@@ -74,7 +74,7 @@ func TestMongoFindOne(t *testing.T) {
 	userID := "123456"
 	videoID := "789012"
 	filter := mgutil.NewBsonM("user_id", userID, "video_id", videoID)
-	ret := m.collection(uv_status).FindOne(ctx, filter)
+	ret := m.Collection(uv_status).FindOne(ctx, filter)
 	require.NoError(t, ret.Err())
 
 	res1 := bson.D{}
